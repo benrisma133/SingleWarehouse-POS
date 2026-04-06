@@ -230,6 +230,9 @@
     <Compile Include="Category\frmAddEditCategory.xaml.cs">
       <DependentUpon>frmAddEditCategory.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Client\frmAddEditClient.xaml.cs">
+      <DependentUpon>frmAddEditClient.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Converters.cs" />
     <Compile Include="Controls\ModernInput.xaml.cs">
       <DependentUpon>ModernInput.xaml</DependentUpon>
@@ -311,6 +314,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Category\frmAddEditCategory.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\frmAddEditClient.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

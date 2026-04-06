@@ -1,4 +1,5 @@
 ﻿using POS_DAL;
+using POS_WPF.Client;
 using POS_WPF.Controls;
 using POS_WPF.Serie;
 using System;
@@ -36,7 +37,7 @@ namespace POS_WPF
 
         private void ShowGalleryButton_Click(object sender, RoutedEventArgs e)
         {
-            frmAddEditSerie frm = new frmAddEditSerie(8);
+            frmAddEditClient frm = new frmAddEditClient(1);
             frm.ShowDialog();
         }
     }
