@@ -1,0 +1,17 @@
+﻿<Window x:Class="POS_WPF.Product.frmTransferProduct"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:POS_WPF.Controls"
+        Title="Transfer Product"
+        Width="540"
+        Height="600"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="True">
+
+    <Grid Margin="8">
+        
+    </Grid>
+</Window>
