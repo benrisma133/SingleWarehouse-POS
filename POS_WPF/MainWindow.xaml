@@ -424,30 +424,15 @@
                                     <Canvas Width="24" Height="24">
                                         <Rectangle Canvas.Left="2" Canvas.Top="2" Width="9" Height="9" RadiusX="2" RadiusY="2"
                                             Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2"/>
-                                                                <Rectangle Canvas.Left="13" Canvas.Top="2" Width="9" Height="9" RadiusX="2" RadiusY="2"
+                                        <Rectangle Canvas.Left="13" Canvas.Top="2" Width="9" Height="9" RadiusX="2" RadiusY="2"
                                             Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2"/>
-                                                                <Rectangle Canvas.Left="2" Canvas.Top="13" Width="9" Height="9" RadiusX="2" RadiusY="2"
+                                        <Rectangle Canvas.Left="2" Canvas.Top="13" Width="9" Height="9" RadiusX="2" RadiusY="2"
                                             Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2"/>
-                                                                <Rectangle Canvas.Left="13" Canvas.Top="13" Width="9" Height="9" RadiusX="2" RadiusY="2"
+                                        <Rectangle Canvas.Left="13" Canvas.Top="13" Width="9" Height="9" RadiusX="2" RadiusY="2"
                                             Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2"/>
                                     </Canvas>
                                 </Viewbox>
                                 <TextBlock Grid.Column="1" Text="{Binding Strings[Departments]}" VerticalAlignment="Center" FontSize="16"/>
-                            </Grid>
-                        </Button>
-
-                        <!-- Warehouses -->
-                        <Button Style="{StaticResource MenuBtn}" Click="Warehouse_Click">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Viewbox Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Stretch="Uniform"
-                      Data="M13.5,5c-0.0762,0.0003-0.1514-0.0168-0.22-0.05L7.5,2L1.72,4.93 C1.4632,5.0515,1.1565,4.9418,1.035,4.685 S1.0232,4.1215,1.28,4 L7.5,0.92L13.72,4 c0.2761,0.0608,0.4508,0.3339,0.39,0.61 C14.0492,4.8861,13.7761,5.0608,13.5,5z M5,10H2v3h3V10z M9,10H6v3h3V10z M13,10h-3v3h3V10z M11,6H8v3h3V6z M7,6H4v3h3V6z"/>
-                                </Viewbox>
-                                <TextBlock Grid.Column="1" Text="{Binding Strings[Warehouses]}" VerticalAlignment="Center" FontSize="16"/>
                             </Grid>
                         </Button>
 

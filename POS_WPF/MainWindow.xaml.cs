@@ -266,12 +266,6 @@ namespace POS_WPF
             UpdateHamburgerIcon();
         }
 
-        private void Warehouse_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveMenu(sender as Button);
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.WarehousePage());
-        }
 
         private void Dashboard_Click(object sender, RoutedEventArgs e)
         {

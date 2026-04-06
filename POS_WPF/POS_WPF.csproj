@@ -382,22 +382,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Warehouse\frmAddEditWarehouse.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Warehouse\frmAddEditWarehouse.xaml.cs">
-      <DependentUpon>frmAddEditWarehouse.xaml</DependentUpon>
-    </Compile>
     <Page Include="Pages\ProductPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\WarehousePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -414,9 +403,6 @@
     <Compile Include="Helpers\TextBoxHelper.cs" />
     <Compile Include="Pages\ProductPage.xaml.cs">
       <DependentUpon>ProductPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\WarehousePage.xaml.cs">
-      <DependentUpon>WarehousePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
