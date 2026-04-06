@@ -284,15 +284,8 @@ namespace POS_WPF
         private void Client_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            // Comming soon - for demo, just change title
             MainContent.Children.Clear();
-            MainContent.Children.Add(new TextBlock
-            {
-                Text = "Client Page - Coming Soon",
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            });
+            MainContent.Children.Add(new Pages.ClientPage());
         }
 
         private void NewSale_Click(object sender, RoutedEventArgs e)
