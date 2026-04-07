@@ -103,12 +103,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppEvents.cs" />
     <Compile Include="clsBrand.cs" />
     <Compile Include="clsCategory.cs" />
     <Compile Include="clsCategoryIcon.cs" />
     <Compile Include="clsClient.cs" />
     <Compile Include="clsModel.cs" />
     <Compile Include="clsProduct.cs" />
+    <Compile Include="clsSale.cs" />
+    <Compile Include="clsSaleDetails.cs" />
     <Compile Include="clsSerie.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -88,15 +88,25 @@ namespace POS_BLL
 
         public bool Save()
         {
+            bool success = false;
+
             switch (_mode)
             {
                 case enMode.AddNew:
-                    return _AddNew();
+                    success = _AddNew();
+                    break;
+
                 case enMode.Update:
-                    return _Update();
-                default:
-                    return false;
+                    success = _Update();
+                    break;
             }
+
+            if (success)
+            {
+                AppEvents.RaiseStockChanged();
+            }
+
+            return success;
         }
 
         // ============================
