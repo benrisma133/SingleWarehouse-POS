@@ -348,42 +348,49 @@ namespace POS_WPF
         private void Client_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "Clients";
             PageContent.Content = new Pages.ClientPage();
         }
 
         private void NewSale_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "New Sale";
             PageContent.Content = new Pages.SalesPage();
         }
 
         private void SaleDetails_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "Sales Details";
             PageContent.Content = new Pages.SalesDetailsPage();
         }
 
         private void Brands_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "Brands";
             PageContent.Content = new Pages.BrandPage();
         }
 
         private void Series_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "Series";
             PageContent.Content = new Pages.SeriePage();
         }
 
         private void Product_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "Products";
             PageContent.Content = new Pages.ProductPage();
         }
 
         private void Category_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "Categories";
             PageContent.Content = new Pages.CategoryPage();
         }
 
@@ -408,6 +415,7 @@ namespace POS_WPF
         private void Model_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
+            MainTitle.Text = "Models";
             PageContent.Content = new Pages.ModelPage();
         }
 
@@ -415,6 +423,7 @@ namespace POS_WPF
         {
             SetActiveMenu(sender as Button);
             // Comming soon - for demo, just change title
+            MainTitle.Text = "Settings";
             PageContent.Content = new Pages.SettingsPage();
         }
 
