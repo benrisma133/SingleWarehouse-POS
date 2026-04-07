@@ -230,6 +230,23 @@
                             </Grid>
                         </Button>
 
+                        <!-- Sale Details -->
+                        <Button Click="SaleDetails_Click" Style="{StaticResource MenuBtn}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Icon -->
+                                <Viewbox Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Stretch="Uniform"
+                  Data="M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h12v2H3v-2zm0 4h18v2H3v-2zm0 4h12v2H3v-2z"/>
+                                </Viewbox>
+                                <!-- Text -->
+                                <TextBlock Grid.Column="1" Text="Sale Details" VerticalAlignment="Center" FontSize="16"/>
+                            </Grid>
+                        </Button>
+
                         <!-- Products -->
                         <Button Click="Product_Click" Style="{StaticResource MenuBtn}">
                             <Grid>
@@ -485,14 +502,164 @@
         </Border>
 
         <!-- MAIN CONTENT -->
-        <Grid x:Name="MainContent"  Margin="280,0,0,0" Background="#F5F5F5">
-            <TextBlock x:Name="MainTitle" Text="Main Content Area"
-                       FontSize="28" FontWeight="Bold"
-                       HorizontalAlignment="Center"
+        <Grid x:Name="MainContent" Margin="280,0,0,0" Background="#F5F5F5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="56"/>
+                <!-- Header bar -->
+                <RowDefinition Height="*"/>
+                <!-- Page content -->
+            </Grid.RowDefinitions>
+
+            <!-- ── HEADER BAR ── -->
+            <Border Grid.Row="0" Background="White"
+            BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                <Grid Margin="20,0">
+                    <!-- Page title -->
+                    <TextBlock x:Name="MainTitle"
+                       Text="Dashboard"
+                       FontSize="18" FontWeight="Bold"
                        VerticalAlignment="Center"
                        Foreground="#333"/>
+
+                    <!-- Notification Bell -->
+                    <StackPanel HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+
+                        <Grid x:Name="NotifBellArea" Cursor="Hand"
+                      MouseLeftButtonUp="NotifBell_Click"
+                      Width="40" Height="40">
+
+                            <!-- Bell icon button -->
+                            <Border x:Name="BellBorder"
+                            CornerRadius="8"
+                            Background="#F0F0F0">
+                                <Viewbox Width="20" Height="20"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <!-- Bell body -->
+                                        <Path Data="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"
+                                      Stroke="#444" StrokeThickness="1.8"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      Fill="Transparent"/>
+                                        <!-- Bell bottom -->
+                                        <Path Data="M13.73 21a2 2 0 0 1-3.46 0"
+                                      Stroke="#444" StrokeThickness="1.8"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      Fill="Transparent"/>
+                                    </Canvas>
+                                </Viewbox>
+                            </Border>
+
+                            <!-- Badge count -->
+                            <Border x:Name="NotifBadge"
+                            Background="#E24B4A"
+                            CornerRadius="8"
+                            MinWidth="17" Height="17"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0,0,-4,-4"
+                            Padding="3,0"
+                            Visibility="Collapsed">
+                                <TextBlock x:Name="NotifBadgeText"
+                                   Text="0"
+                                   FontSize="10" FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── NOTIFICATION POPUP ── -->
+            <Popup x:Name="NotifPopup"
+           PlacementTarget="{Binding ElementName=NotifBellArea}"
+           Placement="Bottom"
+           HorizontalOffset="-270"
+           VerticalOffset="6"
+           StaysOpen="False"
+           AllowsTransparency="True">
+
+                <Border Background="White"
+                CornerRadius="10"
+                BorderBrush="#DDDDDD"
+                BorderThickness="1"
+                Width="320"
+                Effect="{x:Null}">
+                    <StackPanel>
+
+                        <!-- Header -->
+                        <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1"
+                        Padding="16,10">
+                            <TextBlock Text="STOCK ALERTS"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="#888"/>
+                        </Border>
+
+                        <!-- Items list -->
+                        <ItemsControl x:Name="NotifList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#F0F0F0"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="16,12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="10"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Colored dot -->
+                                            <Ellipse Width="8" Height="8"
+                                             VerticalAlignment="Top"
+                                             Margin="0,4,0,0"
+                                             Fill="{Binding DotColor}"/>
+
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="{Binding ProductName}"
+                                                   FontWeight="Bold" FontSize="14"
+                                                   Foreground="#222"/>
+                                                <TextBlock Text="{Binding SubText}"
+                                                   FontSize="12" Foreground="#888"
+                                                   Margin="0,2,0,0"/>
+                                                <Border CornerRadius="4"
+                                                Padding="6,2"
+                                                HorizontalAlignment="Left"
+                                                Margin="0,4,0,0"
+                                                Background="{Binding TagBackground}">
+                                                    <TextBlock Text="{Binding TagLabel}"
+                                                       FontSize="11" FontWeight="Bold"
+                                                       Foreground="{Binding TagForeground}"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Footer -->
+                        <Border Background="#F9F9F9" Padding="0,10"
+                        Cursor="Hand"
+                        MouseLeftButtonUp="MarkAllRead_Click">
+                            <TextBlock Text="Mark all as read"
+                               FontSize="13" Foreground="#1A73E8"
+                               HorizontalAlignment="Center"/>
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+            </Popup>
+
+            <!-- ── PAGE CONTENT AREA ── -->
+            <ContentPresenter x:Name="PageContent" Grid.Row="1"/>
         </Grid>
-    
-    
+
+
     </Grid>
 </Window>

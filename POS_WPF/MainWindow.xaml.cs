@@ -1,23 +1,85 @@
-﻿using System;
+﻿using POS_BLL;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+
 
 
 namespace POS_WPF
 {
+
+
+    public class StockNotification
+    {
+        public string ProductName { get; set; }
+        public string SubText { get; set; }   // e.g. "Warehouse A • 0 units"
+        public string TagLabel { get; set; }   // "Out of stock" / "Low stock"
+        public Brush DotColor { get; set; }
+        public Brush TagBackground { get; set; }
+        public Brush TagForeground { get; set; }
+
+        // ── Factories ─────────────────────────────────────────
+        public static StockNotification OutOfStock(string product)
+            => new StockNotification
+            {
+                ProductName = product,
+                SubText = $"0 units remaining",
+                TagLabel = "Out of stock",
+                DotColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E24B4A")),
+                TagBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FCEBEB")),
+                TagForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A32D2D")),
+            };
+
+        public static StockNotification LowStock(string product, int qty)
+            => new StockNotification
+            {
+                ProductName = product,
+                SubText = $"{qty} units remaining",
+                TagLabel = "Low stock",
+                DotColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EF9F27")),
+                TagBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FAEEDA")),
+                TagForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#854F0B")),
+            };
+    }
+
+
     /// <summary>
     /// Interaction logic for TestSidebarWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        private System.Windows.Forms.NotifyIcon _notifyIcon;
         public MainWindow()
         {
             InitializeComponent();
+
+            AppEvents.StockChanged += OnStockChanged;
+        }
+
+        private void OnStockChanged()
+        {
+            LoadStockNotifications();
+        }
+
+        private void InitNotifyIcon()
+        {
+            _notifyIcon = new System.Windows.Forms.NotifyIcon();
+            _notifyIcon.Icon = System.Drawing.SystemIcons.Warning;
+            _notifyIcon.Visible = true;
+
+            _notifyIcon.BalloonTipClicked += NotifyIcon_BalloonTipClicked;
+        }
+
+        private void ShowNotification(string title, string message)
+        {
+            _notifyIcon.ShowBalloonTip(3000, title, message, System.Windows.Forms.ToolTipIcon.Warning);
         }
 
         private Geometry HamburgerIcon = Geometry.Parse("M4 6H20 M4 12H20 M4 18H20");
@@ -80,8 +142,10 @@ namespace POS_WPF
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            InitNotifyIcon();
             UpdateHamburgerIcon();
             SetActiveMenu(DashboardButton); // give Dashboard x:Name="DashboardButton"
+            LoadStockNotifications();
         }
 
         private bool isSidebarOpen = true;
@@ -284,50 +348,43 @@ namespace POS_WPF
         private void Client_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.ClientPage());
+            PageContent.Content = new Pages.ClientPage();
         }
 
         private void NewSale_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            // Comming soon - for demo, just change title
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new TextBlock
-            {
-                Text = "New Sale Page - Coming Soon",
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            });
+            PageContent.Content = new Pages.SalesPage();
+        }
+
+        private void SaleDetails_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            PageContent.Content = new Pages.SalesDetailsPage();
         }
 
         private void Brands_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.BrandPage());
+            PageContent.Content = new Pages.BrandPage();
         }
 
         private void Series_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.SeriePage());
+            PageContent.Content = new Pages.SeriePage();
         }
 
         private void Product_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.ProductPage());
+            PageContent.Content = new Pages.ProductPage();
         }
 
         private void Category_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.CategoryPage());
+            PageContent.Content = new Pages.CategoryPage();
         }
 
         private bool isDeptExpanded = false;
@@ -351,16 +408,14 @@ namespace POS_WPF
         private void Model_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.ModelPage());
+            PageContent.Content = new Pages.ModelPage();
         }
 
         private void Setting_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             // Comming soon - for demo, just change title
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new Pages.SettingsPage());
+            PageContent.Content = new Pages.SettingsPage();
         }
 
         private bool isProfileActive = false; // track if profile is selected
@@ -449,6 +504,70 @@ namespace POS_WPF
                 viewer.ScrollToVerticalOffset(viewer.VerticalOffset + step);
 
             e.Handled = true;
+        }
+
+
+        // Tune this threshold to whatever "low" means for you
+        private const int LowStockThreshold = 5;
+
+        // ── Called from MainWindow_Loaded or wherever you refresh data ──
+        private void LoadStockNotifications()
+        {
+            var notifications = new List<StockNotification>();
+
+            var stockItems = clsProduct.GetAll(); // DataTable
+
+            foreach (DataRow row in stockItems.Rows)
+            {
+                int quantity = Convert.ToInt32(row["Quantity"]);
+                string productName = row["ProductName"].ToString();
+
+                if (quantity == 0)
+                {
+                    var notif = StockNotification.OutOfStock(productName);
+                    notifications.Add(notif);
+
+                    // هنا نستخدم ShowNotification اللي عطيتني
+                    ShowNotification("Out of Stock", $"{productName} is out of stock!");
+                }
+                else if (quantity <= LowStockThreshold)
+                {
+                    var notif = StockNotification.LowStock(productName, quantity);
+                    notifications.Add(notif);
+
+                    ShowNotification("Low Stock", $"{productName} only {quantity} left!");
+                }
+            }
+
+            NotifList.ItemsSource = notifications;
+
+            int count = notifications.Count;
+            if (count > 0)
+            {
+                NotifBadge.Visibility = Visibility.Visible;
+                NotifBadgeText.Text = count > 99 ? "99+" : count.ToString();
+            }
+            else
+            {
+                NotifBadge.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void NotifBell_Click(object sender, MouseButtonEventArgs e)
+        {
+            NotifPopup.IsOpen = !NotifPopup.IsOpen;
+        }
+
+        private void MarkAllRead_Click(object sender, MouseButtonEventArgs e)
+        {
+            NotifBadge.Visibility = Visibility.Collapsed;
+            NotifPopup.IsOpen = false;
+        }
+
+        private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
+        {
+            // هادي هي نفس الدالة ديال النقر على زر NotifBell
+            NotifPopup.IsOpen = !NotifPopup.IsOpen;
         }
 
     }
