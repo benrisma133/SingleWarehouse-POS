@@ -77,7 +77,7 @@ namespace POS_WPF.Pages
                     LoadingOverlay.Visibility = Visibility.Visible;
 
                 if (txtTitle != null)
-                    txtTitle.Text = "Loading...";
+                    txtTitle.Text = "Manage Categories";
 
                 // ⚡ Give animation time to start smoothly
                 await Task.Delay(50);
