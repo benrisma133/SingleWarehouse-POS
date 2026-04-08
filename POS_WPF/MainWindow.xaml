@@ -556,14 +556,14 @@
 
                             <!-- Badge count -->
                             <Border x:Name="NotifBadge"
-                            Background="#E24B4A"
-                            CornerRadius="8"
-                            MinWidth="17" Height="17"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
-                            Margin="0,0,-4,-4"
-                            Padding="3,0"
-                            Visibility="Collapsed">
+                                    Background="#E24B4A"
+                                    CornerRadius="8"
+                                    MinWidth="17" Height="17"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,0,-4,-4"
+                                    Padding="3,0"
+                                    Visibility="Collapsed">
                                 <TextBlock x:Name="NotifBadgeText"
                                    Text="0"
                                    FontSize="10" FontWeight="Bold"
@@ -578,24 +578,24 @@
 
             <!-- ── NOTIFICATION POPUP ── -->
             <Popup x:Name="NotifPopup"
-           PlacementTarget="{Binding ElementName=NotifBellArea}"
-           Placement="Bottom"
-           HorizontalOffset="-270"
-           VerticalOffset="6"
-           StaysOpen="False"
-           AllowsTransparency="True">
+                   PlacementTarget="{Binding ElementName=NotifBellArea}"
+                   Placement="Bottom"
+                   HorizontalOffset="-270"
+                   VerticalOffset="6"
+                   StaysOpen="False"
+                   AllowsTransparency="True">
 
                 <Border Background="White"
-                CornerRadius="10"
-                BorderBrush="#DDDDDD"
-                BorderThickness="1"
-                Width="320"
-                Effect="{x:Null}">
+                        CornerRadius="10"
+                        BorderBrush="#DDDDDD"
+                        BorderThickness="1"
+                        Width="320"
+                        Effect="{x:Null}">
                     <StackPanel>
 
                         <!-- Header -->
                         <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1"
-                        Padding="16,10">
+                                Padding="16,10">
                             <TextBlock Text="STOCK ALERTS"
                                FontSize="11" FontWeight="Bold"
                                Foreground="#888"/>
@@ -603,16 +603,28 @@
 
                         <!-- Scrollable Items List -->
                         <ScrollViewer MaxHeight="400"
-              VerticalScrollBarVisibility="Auto"
-              HorizontalScrollBarVisibility="Disabled">
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
 
                             <ItemsControl x:Name="NotifList">
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="#F0F0F0"
-                        BorderThickness="0,0,0,1"
-                        Padding="16,12">
+                                                BorderThickness="0,0,0,1"
+                                                Padding="16,12"
+                                                MouseLeftButtonUp="Notification_Click"
+                                                Cursor="Hand">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="White"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsRead}" Value="False">
+                                                            <Setter Property="Background" Value="#EAF9F0"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
 
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -626,38 +638,48 @@
 
                                                 <!-- Colored dot -->
                                                 <Ellipse Width="8" Height="8"
-                                 VerticalAlignment="Top"
-                                 Margin="0,4,0,0"
-                                 Fill="{Binding DotColor}"/>
+                                                         VerticalAlignment="Top"
+                                                         Margin="0,4,0,0"
+                                                         Fill="{Binding DotColor}"/>
 
-                                                <!-- Content Area -->
                                                 <Grid Grid.Column="1" Margin="10,0,0,0">
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
 
+                                                    <!-- Product -->
                                                     <TextBlock Grid.Row="0" Text="{Binding ProductName}"
-                                       FontWeight="Bold" FontSize="14"
-                                       Foreground="#222"/>
+                                                               FontWeight="Bold" FontSize="14"
+                                                               Foreground="#222"/>
 
+                                                    <!-- Sub text -->
                                                     <TextBlock Grid.Row="1" Text="{Binding SubText}"
-                                       FontSize="12" Foreground="#888"
-                                       Margin="0,2,0,0"/>
+                                                               FontSize="12" Foreground="#888"
+                                                               Margin="0,2,0,0"/>
 
+                                                    <!-- Tag -->
                                                     <Border Grid.Row="2"
-                                    CornerRadius="4"
-                                    Padding="6,2"
-                                    HorizontalAlignment="Left"
-                                    Margin="0,4,0,0"
-                                    Background="{Binding TagBackground}">
+                                                            CornerRadius="4"
+                                                            Padding="6,2"
+                                                            HorizontalAlignment="Left"
+                                                            Margin="0,4,0,0"
+                                                            Background="{Binding TagBackground}">
                                                         <TextBlock Text="{Binding TagLabel}"
-                                           FontSize="11" FontWeight="Bold"
-                                           Foreground="{Binding TagForeground}"/>
+                                                                   FontSize="11" FontWeight="Bold"
+                                                                   Foreground="{Binding TagForeground}"/>
                                                     </Border>
-                                                </Grid>
 
+                                                    <!-- Date (subtle) -->
+                                                    <TextBlock Grid.Row="3"
+                                                               Text="{Binding SmartDate}"
+                                                               FontSize="10"
+                                                               Foreground="#AAA"
+                                                               HorizontalAlignment="Right"
+                                                               Margin="0,6,0,0"/>
+                                                </Grid>
                                                 <!-- NEW: Delete Button (Sweet Icon SVG) -->
                                                 <Button Grid.Column="2"
                                                         Width="24"
@@ -669,6 +691,7 @@
                                                         BorderThickness="0"
                                                         Cursor="Hand"
                                                         Click="DeleteNotification_Click"
+                                                        PreviewMouseDown="Delete_PreviewMouseDown"
                                                         ToolTip="Remove">
 
                                                     <Button.Template>

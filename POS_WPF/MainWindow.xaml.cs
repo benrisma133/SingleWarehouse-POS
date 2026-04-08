@@ -15,23 +15,55 @@ using System.Windows.Shapes;
 namespace POS_WPF
 {
 
-
     public class StockNotification
     {
+        public int NotificationID { get; set; }   // DB link
+        public int ProductID { get; set; }        // useful
+        public int Type { get; set; }             // 1 = OUT, 2 = LOW
+
+        public DateTime CreatedAt { get; set; }
+
+        public bool IsRead { get; set; }
+
         public string ProductName { get; set; }
-        public string SubText { get; set; }   // e.g. "Warehouse A • 0 units"
-        public string TagLabel { get; set; }   // "Out of stock" / "Low stock"
+        public string SubText { get; set; }
+        public string TagLabel { get; set; }
         public Brush DotColor { get; set; }
         public Brush TagBackground { get; set; }
         public Brush TagForeground { get; set; }
 
-        // ── Factories ─────────────────────────────────────────
+        public string SmartDate
+        {
+            get
+            {
+                var span = DateTime.Now - CreatedAt;
+
+                if (span.TotalSeconds < 60)
+                    return "Just now";
+
+                if (span.TotalMinutes < 60)
+                    return $"{(int)span.TotalMinutes} min ago";
+
+                if (span.TotalHours < 24)
+                    return $"{(int)span.TotalHours} hr ago";
+
+                if (span.TotalDays < 2)
+                    return "Yesterday";
+
+                if (span.TotalDays < 7)
+                    return $"{(int)span.TotalDays} days ago";
+
+                return CreatedAt.ToString("dd MMM yyyy");
+            }
+        }
+
         public static StockNotification OutOfStock(string product)
             => new StockNotification
             {
                 ProductName = product,
                 SubText = $"0 units remaining",
                 TagLabel = "Out of stock",
+                Type = 1,
                 DotColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E24B4A")),
                 TagBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FCEBEB")),
                 TagForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A32D2D")),
@@ -43,12 +75,12 @@ namespace POS_WPF
                 ProductName = product,
                 SubText = $"{qty} units remaining",
                 TagLabel = "Low stock",
+                Type = 2,
                 DotColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EF9F27")),
                 TagBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FAEEDA")),
                 TagForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#854F0B")),
             };
     }
-
 
     /// <summary>
     /// Interaction logic for TestSidebarWindow.xaml
@@ -523,42 +555,40 @@ namespace POS_WPF
         {
             var notifications = new List<StockNotification>();
 
-            var stockItems = clsProduct.GetAll(); // DataTable
+            DataTable dt = clsNotification.GetAll();
 
-            foreach (DataRow row in stockItems.Rows)
+            foreach (DataRow row in dt.Rows)
             {
-                int quantity = Convert.ToInt32(row["Quantity"]);
-                string productName = row["ProductName"].ToString();
+                int notificationID = Convert.ToInt32(row["NotificationID"]);
+                int productID = Convert.ToInt32(row["ProductID"]);
+                int type = Convert.ToInt32(row["Type"]);
+                bool isRead = Convert.ToInt32(row["IsRead"]) == 1;
+                DateTime createdAt = Convert.ToDateTime(row["CreatedAt"]);
 
-                if (quantity == 0)
-                {
-                    var notif = StockNotification.OutOfStock(productName);
-                    notifications.Add(notif);
+                clsProduct product = clsProduct.FindByID(productID); // adjust if needed
 
-                    // هنا نستخدم ShowNotification اللي عطيتني
-                    //ShowNotification("Out of Stock", $"{productName} is out of stock!");
-                }
-                else if (quantity <= LowStockThreshold)
-                {
-                    var notif = StockNotification.LowStock(productName, quantity);
-                    notifications.Add(notif);
 
-                    //ShowNotification("Low Stock", $"{productName} only {quantity} left!");
-                }
+                StockNotification notif;
+
+                if (type == 1)
+                    notif = StockNotification.OutOfStock(product.ProductName);
+                else
+                    notif = StockNotification.LowStock(product.ProductName, product.Quantity);
+
+                notif.NotificationID = notificationID;
+                notif.ProductID = productID;
+                notif.Type = type;
+                notif.IsRead = isRead;
+                notif.CreatedAt = createdAt;
+
+                notifications.Add(notif);
             }
 
             NotifList.ItemsSource = notifications;
+            int unreadCount = notifications.Count(n => !n.IsRead);
+            UpdateBadgeCount(unreadCount);
 
-            int count = notifications.Count;
-            if (count > 0)
-            {
-                NotifBadge.Visibility = Visibility.Visible;
-                NotifBadgeText.Text = count > 99 ? "99+" : count.ToString();
-            }
-            else
-            {
-                NotifBadge.Visibility = Visibility.Collapsed;
-            }
+            SendUnsentNotifications();
         }
 
         private void NotifBell_Click(object sender, MouseButtonEventArgs e)
@@ -568,6 +598,8 @@ namespace POS_WPF
 
         private void MarkAllRead_Click(object sender, MouseButtonEventArgs e)
         {
+            clsNotification.MarkAllAsRead();
+
             NotifBadge.Visibility = Visibility.Collapsed;
             NotifPopup.IsOpen = false;
         }
@@ -580,30 +612,23 @@ namespace POS_WPF
 
         private void DeleteNotification_Click(object sender, RoutedEventArgs e)
         {
-            // Get the button that was clicked
-            Button btn = sender as Button;
+            //Button btn = sender as Button;
+            //var data = btn.DataContext as StockNotification;
 
-            // Find the parent DataTemplate (the Border)
-            // We need to get the DataContext of the clicked item
-            var dataContext = (btn.DataContext as StockNotification);
+            //if (data != null)
+            //{
+            //    bool isDeleted = clsNotification.Delete(data.NotificationID);
+            //    if (isDeleted)
+            //    {
+            //        MessageBox.Show("Notification deleted successfully.", "Deleted", MessageBoxButton.OK, MessageBoxImage.Information);
+            //    }
 
-            if (dataContext != null)
-            {
-                // Get the current list from the ItemsControl
-                var currentList = NotifList.ItemsSource as List<StockNotification>;
+            //    var list = NotifList.ItemsSource as List<StockNotification>;
+            //    list.Remove(data);
 
-                if (currentList != null)
-                {
-                    // Remove the item from the list
-                    currentList.Remove(dataContext);
-
-                    // Refresh the ItemsControl to show the change
-                    NotifList.Items.Refresh();
-
-                    // Update the badge count
-                    UpdateBadgeCount(currentList.Count);
-                }
-            }
+            //    NotifList.Items.Refresh();
+            //    UpdateBadgeCount(list.Count);
+            //}
         }
 
         // Helper method to update the badge (you can keep this in your code)
@@ -617,6 +642,80 @@ namespace POS_WPF
             else
             {
                 NotifBadge.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void SendUnsentNotifications()
+        {
+            var dt = clsNotification.GetUnsent();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                int id = Convert.ToInt32(row["NotificationID"]);
+                int type = Convert.ToInt32(row["Type"]);
+
+                string title = type == 1 ? "Out of Stock" : "Low Stock";
+
+                // you can join with product table if needed
+                ShowNotification(title, "Check your stock!");
+
+                clsNotification.MarkAsSent(id);
+            }
+        }
+
+        private void Notification_Click(object sender, MouseButtonEventArgs e)
+        {
+            var border = sender as Border;
+            var notif = border.DataContext as StockNotification;
+
+            if (notif == null || notif.IsRead) return;
+
+            // ✅ show popup
+            MessageBox.Show(
+                $"{notif.ProductName}\n\n{notif.SubText}",
+                notif.TagLabel,
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            // ✅ mark as read in DB
+            clsNotification.MarkAsRead(notif.NotificationID);
+
+            // ✅ update UI
+            notif.IsRead = true;
+            NotifList.Items.Refresh();
+
+            // ✅ update badge
+            var list = NotifList.ItemsSource as List<StockNotification>;
+            UpdateBadgeCount(list.Count(n => !n.IsRead));
+        }
+
+        private void Delete_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // ✅ Stop the event from bubbling up to the parent Border
+            e.Handled = true;
+
+            // ✅ Perform the delete logic right here
+            Button btn = sender as Button;
+            var data = btn.DataContext as StockNotification;
+
+            if (data != null)
+            {
+                bool isDeleted = clsNotification.Delete(data.NotificationID);
+
+                if (isDeleted)
+                {
+                    var list = NotifList.ItemsSource as List<StockNotification>;
+                    if (list != null)
+                    {
+                        list.Remove(data);
+                        NotifList.Items.Refresh();
+                        UpdateBadgeCount(list.Count(n => !n.IsRead)); // Use unread count
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Failed to delete notification from the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
