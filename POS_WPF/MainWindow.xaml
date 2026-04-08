@@ -613,10 +613,15 @@
                                         <Border BorderBrush="#F0F0F0"
                         BorderThickness="0,0,0,1"
                         Padding="16,12">
+
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="10"/>
+                                                    <!-- Dot Column -->
                                                     <ColumnDefinition Width="*"/>
+                                                    <!-- Content Column -->
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <!-- NEW: Delete Button Column -->
                                                 </Grid.ColumnDefinitions>
 
                                                 <!-- Colored dot -->
@@ -625,14 +630,24 @@
                                  Margin="0,4,0,0"
                                  Fill="{Binding DotColor}"/>
 
-                                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                                    <TextBlock Text="{Binding ProductName}"
+                                                <!-- Content Area -->
+                                                <Grid Grid.Column="1" Margin="10,0,0,0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Text="{Binding ProductName}"
                                        FontWeight="Bold" FontSize="14"
                                        Foreground="#222"/>
-                                                    <TextBlock Text="{Binding SubText}"
+
+                                                    <TextBlock Grid.Row="1" Text="{Binding SubText}"
                                        FontSize="12" Foreground="#888"
                                        Margin="0,2,0,0"/>
-                                                    <Border CornerRadius="4"
+
+                                                    <Border Grid.Row="2"
+                                    CornerRadius="4"
                                     Padding="6,2"
                                     HorizontalAlignment="Left"
                                     Margin="0,4,0,0"
@@ -641,7 +656,39 @@
                                            FontSize="11" FontWeight="Bold"
                                            Foreground="{Binding TagForeground}"/>
                                                     </Border>
-                                                </StackPanel>
+                                                </Grid>
+
+                                                <!-- NEW: Delete Button (Sweet Icon SVG) -->
+                                                <Button Grid.Column="2"
+                                                        Width="24"
+                                                        Height="24"
+                                                        Margin="10,0,0,0"
+                                                        VerticalAlignment="Top"
+                                                        HorizontalAlignment="Right"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Cursor="Hand"
+                                                        Click="DeleteNotification_Click"
+                                                        ToolTip="Remove">
+
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Viewbox Width="24" Height="24">
+                                                                <!-- Sweet Alert Style Icon: Circle with X -->
+                                                                <Canvas Width="24" Height="24">
+                                                                    <!-- Red Circle Background -->
+                                                                    <Ellipse Width="24" Height="24" 
+                                                                             Fill="#E24B4A" />
+
+                                                                    <!-- White X Mark -->
+                                                                    <Path Data="M 6 6 L 18 18 M 18 6 L 6 18" 
+                                                                          Stroke="White" 
+                                                                          StrokeThickness="2.5"/>
+                                                                </Canvas>
+                                                            </Viewbox>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

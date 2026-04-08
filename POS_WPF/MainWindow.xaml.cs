@@ -330,7 +330,6 @@ namespace POS_WPF
             UpdateHamburgerIcon();
         }
 
-
         private void Dashboard_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
@@ -517,7 +516,7 @@ namespace POS_WPF
 
 
         // Tune this threshold to whatever "low" means for you
-        private const int LowStockThreshold = 5;
+        private const int LowStockThreshold = 10;
 
         // ── Called from MainWindow_Loaded or wherever you refresh data ──
         private void LoadStockNotifications()
@@ -537,14 +536,14 @@ namespace POS_WPF
                     notifications.Add(notif);
 
                     // هنا نستخدم ShowNotification اللي عطيتني
-                    ShowNotification("Out of Stock", $"{productName} is out of stock!");
+                    //ShowNotification("Out of Stock", $"{productName} is out of stock!");
                 }
                 else if (quantity <= LowStockThreshold)
                 {
                     var notif = StockNotification.LowStock(productName, quantity);
                     notifications.Add(notif);
 
-                    ShowNotification("Low Stock", $"{productName} only {quantity} left!");
+                    //ShowNotification("Low Stock", $"{productName} only {quantity} left!");
                 }
             }
 
@@ -577,6 +576,48 @@ namespace POS_WPF
         {
             // هادي هي نفس الدالة ديال النقر على زر NotifBell
             NotifPopup.IsOpen = !NotifPopup.IsOpen;
+        }
+
+        private void DeleteNotification_Click(object sender, RoutedEventArgs e)
+        {
+            // Get the button that was clicked
+            Button btn = sender as Button;
+
+            // Find the parent DataTemplate (the Border)
+            // We need to get the DataContext of the clicked item
+            var dataContext = (btn.DataContext as StockNotification);
+
+            if (dataContext != null)
+            {
+                // Get the current list from the ItemsControl
+                var currentList = NotifList.ItemsSource as List<StockNotification>;
+
+                if (currentList != null)
+                {
+                    // Remove the item from the list
+                    currentList.Remove(dataContext);
+
+                    // Refresh the ItemsControl to show the change
+                    NotifList.Items.Refresh();
+
+                    // Update the badge count
+                    UpdateBadgeCount(currentList.Count);
+                }
+            }
+        }
+
+        // Helper method to update the badge (you can keep this in your code)
+        private void UpdateBadgeCount(int count)
+        {
+            if (count > 0)
+            {
+                NotifBadge.Visibility = Visibility.Visible;
+                NotifBadgeText.Text = count > 99 ? "99+" : count.ToString();
+            }
+            else
+            {
+                NotifBadge.Visibility = Visibility.Collapsed;
+            }
         }
 
     }
