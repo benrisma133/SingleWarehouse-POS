@@ -78,11 +78,25 @@ namespace POS_BLL
 
         public bool Save()
         {
+            bool success = false;
+
             switch (_mode)
             {
-                case enMode.AddNew: return _AddNew();
-                default: return false;
+                case enMode.AddNew:
+                    success = _AddNew();
+                    break;
             }
+
+            if (success)
+            {
+                foreach (var item in Items)
+                {
+                    int updatedQuantity = clsSalesData.GetProductStock(item.ProductID);
+                    clsNotify.CheckStock(item.ProductID, updatedQuantity, 10);
+                }
+            }
+
+            return success;
         }
 
         // ── Static helpers ────────────────────────────────────────────────────────

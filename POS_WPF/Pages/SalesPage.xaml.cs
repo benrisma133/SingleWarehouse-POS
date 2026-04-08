@@ -57,7 +57,7 @@ namespace POS_WPF.Pages
             }
         }
 
-        private async void BtnNewClient_Click(object sender, RoutedEventArgs e)
+        private void BtnNewClient_Click(object sender, RoutedEventArgs e)
         {
             var win = new frmAddEditClient();
             win.Owner = Application.Current.MainWindow;
@@ -511,6 +511,8 @@ namespace POS_WPF.Pages
                     "Sale Complete",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
+
+                AppEvents.RaiseStockChanged();
 
                 // Reset page
                 _cart.Clear();
