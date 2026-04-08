@@ -63,30 +63,7 @@ namespace POS_WPF.Pages
             });
         }
 
-        // Add this method to your class
-        private void StartLoadingAnimation()
-        {
-            if (SpinnerRotate != null)
-            {
-                DoubleAnimation animation = new DoubleAnimation
-                {
-                    From = 0,
-                    To = 360,
-                    Duration = TimeSpan.FromSeconds(0.8),
-                    RepeatBehavior = RepeatBehavior.Forever
-                };
-
-                SpinnerRotate.BeginAnimation(RotateTransform.AngleProperty, animation);
-            }
-        }
-
-        private void StopLoadingAnimation()
-        {
-            if (SpinnerRotate != null)
-            {
-                SpinnerRotate.BeginAnimation(RotateTransform.AngleProperty, null);
-            }
-        }
+        
 
 
         // No code-behind needed! The animation is handled by XAML triggers.
