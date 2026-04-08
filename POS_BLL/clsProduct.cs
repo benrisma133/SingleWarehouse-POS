@@ -103,6 +103,7 @@ namespace POS_BLL
 
             if (success)
             {
+                clsNotify.CheckStock(ProductID, Quantity, 10); // Example low stock threshold
                 AppEvents.RaiseStockChanged();
             }
 
