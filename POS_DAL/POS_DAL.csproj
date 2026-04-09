@@ -139,6 +139,7 @@
     <Compile Include="clsCategory.cs" />
     <Compile Include="clsCategoryIcon.cs" />
     <Compile Include="clsClient.cs" />
+    <Compile Include="clsDashboard.cs" />
     <Compile Include="clsDepartment.cs" />
     <Compile Include="clsModel.cs" />
     <Compile Include="clsNotifications.cs" />
