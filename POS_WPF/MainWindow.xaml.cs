@@ -701,5 +701,33 @@ namespace POS_WPF
             }
         }
 
+        private void AboutMe_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "About Me";
+            PageContent.Content = new Pages.AboutMePage();
+        }
+
+        private void AboutSystem_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "About System";
+            PageContent.Content = new Pages.AboutSystemPage();
+        }
+
+        private void Help_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "Help";
+            PageContent.Content = new Pages.HelpPage();
+        }
+
+        private void Feedback_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "Feedback";
+            PageContent.Content = new Pages.FeedbackPage();
+        }
+
     }
 }

@@ -447,6 +447,89 @@
                             </Grid>
                         </Button>
 
+
+                        <!-- About Me -->
+                        <Button Style="{StaticResource MenuBtn}" Click="AboutMe_Click">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Viewbox Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Ellipse Canvas.Left="7" Canvas.Top="2" Width="10" Height="10"
+                         Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                         StrokeThickness="1.5" Fill="Transparent"/>
+                                        <Path Data="M4 20C4 17 7.58172 14 12 14C16.4183 14 20 17 20 20"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                      StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Fill="Transparent"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Grid.Column="1" Text="About Me" VerticalAlignment="Center" FontSize="16"/>
+                            </Grid>
+                        </Button>
+
+                        <!-- About System -->
+                        <Button Style="{StaticResource MenuBtn}" Click="AboutSystem_Click">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Viewbox Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Rectangle Canvas.Left="2" Canvas.Top="3" Width="20" Height="14" RadiusX="2" RadiusY="2"
+                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                           StrokeThickness="1.5" Fill="Transparent"/>
+                                        <Path Data="M8 21H16M12 17V21"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                      StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Fill="Transparent"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Grid.Column="1" Text="About System" VerticalAlignment="Center" FontSize="16"/>
+                            </Grid>
+                        </Button>
+
+                        <!-- Help -->
+                        <Button Style="{StaticResource MenuBtn}" Click="Help_Click">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Viewbox Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Ellipse Canvas.Left="2" Canvas.Top="2" Width="20" Height="20"
+                         Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                         StrokeThickness="1.5" Fill="Transparent"/>
+                                        <Path Data="M9.09 9C9.3251 8.33167 9.78915 7.76811 10.4 7.40913C11.0108 7.05016 11.7289 6.91894 12.4272 7.03871C13.1255 7.15848 13.7588 7.52152 14.2151 8.06353C14.6714 8.60553 14.9211 9.29152 14.92 10C14.92 12 11.92 13 11.92 13"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                      StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Fill="Transparent"/>
+                                        <Ellipse Canvas.Left="11" Canvas.Top="16.5" Width="2" Height="2"
+                         Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Grid.Column="1" Text="Help" VerticalAlignment="Center" FontSize="16"/>
+                            </Grid>
+                        </Button>
+
+                        <!-- Feedback -->
+                        <Button Style="{StaticResource MenuBtn}" Click="Feedback_Click">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Viewbox Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                      StrokeThickness="1.5" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Fill="Transparent"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Grid.Column="1" Text="Feedback" VerticalAlignment="Center" FontSize="16"/>
+                            </Grid>
+                        </Button>
                     </StackPanel>
                 </ScrollViewer>
 
