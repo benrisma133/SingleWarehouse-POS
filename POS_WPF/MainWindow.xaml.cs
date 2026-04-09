@@ -178,6 +178,9 @@ namespace POS_WPF
             UpdateHamburgerIcon();
             SetActiveMenu(DashboardButton); // give Dashboard x:Name="DashboardButton"
             LoadStockNotifications();
+
+            MainTitle.Text = "Dashboard";
+            PageContent.Content = new Pages.DashboardPage();
         }
 
         private bool isSidebarOpen = true;
@@ -365,15 +368,8 @@ namespace POS_WPF
         private void Dashboard_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            // Comming soon - for demo, just change title
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new TextBlock
-            {
-                Text = "Dashboard - Coming Soon",
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            });
+            MainTitle.Text = "Dashboard";
+            PageContent.Content = new Pages.DashboardPage();
         }
 
         private void Client_Click(object sender, RoutedEventArgs e)
@@ -515,20 +511,6 @@ namespace POS_WPF
                 foreach (var tb in ProfileTextStack.Children.OfType<TextBlock>())
                     tb.Foreground = MenuNormalFg;
             }
-        }
-
-        private void Department_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveMenu(sender as Button);
-            // Load content
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new TextBlock
-            {
-                Text = "Department Page - Coming Soon",
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            });
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
