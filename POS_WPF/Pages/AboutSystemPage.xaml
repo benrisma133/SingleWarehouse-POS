@@ -70,23 +70,351 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- App Identity -->
+                <!-- ═══════════════════════════════════════════ -->
+                <!--           APP IDENTITY CARD                 -->
+                <!-- ═══════════════════════════════════════════ -->
                 <Border Grid.Column="0" Style="{StaticResource Card}">
                     <StackPanel>
-                        <!-- App Icon -->
-                        <Border Width="64" Height="64" CornerRadius="16"
-                                Background="#FFF3EA" HorizontalAlignment="Left" Margin="0,0,0,16">
-                            <Viewbox Width="32" Height="32">
-                                <Canvas Width="24" Height="24">
-                                    <Rectangle Canvas.Left="2" Canvas.Top="3" Width="20" Height="14"
+
+                        <!-- ✅ SVG ICON GOES HERE -->
+                        <Border Width="80" Height="80"
+                                CornerRadius="20"
+                                Background="#FFF3EA"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,16">
+
+                            <Viewbox Width="56" Height="56" Margin="12">
+                                <Canvas Width="256" Height="256">
+
+                                    <!-- == BACKGROUND CIRCLE == -->
+                                    <Ellipse Width="256" Height="256"
+                                             Canvas.Left="0" Canvas.Top="0">
+                                        <Ellipse.Fill>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#1a1a1a" Offset="0"/>
+                                                <GradientStop Color="#2d2d2d" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+
+                                    <!-- Outer Orange Ring -->
+                                    <Ellipse Width="248" Height="248"
+                                             Canvas.Left="4" Canvas.Top="4"
+                                             Stroke="#FF8C42" StrokeThickness="5"
+                                             Fill="Transparent"/>
+
+                                    <!-- Inner Ring decoration -->
+                                    <Ellipse Width="236" Height="236"
+                                             Canvas.Left="10" Canvas.Top="10"
+                                             Stroke="#FF8C42" StrokeThickness="1"
+                                             Opacity="0.3" Fill="Transparent"/>
+
+                                    <!-- == POS MONITOR BODY == -->
+                                    <Rectangle Canvas.Left="58" Canvas.Top="52"
+                                               Width="140" Height="98"
+                                               RadiusX="12" RadiusY="12"
+                                               Stroke="#FF8C42" StrokeThickness="2.5">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#2a2a2a" Offset="0"/>
+                                                <GradientStop Color="#1a1a1a" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+
+                                    <!-- Monitor Screen -->
+                                    <Rectangle Canvas.Left="66" Canvas.Top="60"
+                                               Width="124" Height="78"
+                                               RadiusX="6" RadiusY="6"
+                                               Fill="#111111"/>
+
+                                    <!-- Screen Top Bar (Orange) -->
+                                    <Rectangle Canvas.Left="66" Canvas.Top="60"
+                                               Width="124" Height="18"
+                                               RadiusX="6" RadiusY="6"
+                                               Opacity="0.9">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="#FF8C42" Offset="0"/>
+                                                <GradientStop Color="#e06b1f" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+
+                                    <!-- Top Bar bottom fill fix -->
+                                    <Rectangle Canvas.Left="66" Canvas.Top="72"
+                                               Width="124" Height="6"
+                                               Fill="#FF8C42" Opacity="0.9"/>
+
+                                    <!-- Header dots -->
+                                    <Ellipse Canvas.Left="75" Canvas.Top="66"
+                                             Width="6" Height="6"
+                                             Fill="White" Opacity="0.8"/>
+                                    <Ellipse Canvas.Left="85" Canvas.Top="66"
+                                             Width="6" Height="6"
+                                             Fill="White" Opacity="0.5"/>
+                                    <Ellipse Canvas.Left="95" Canvas.Top="66"
+                                             Width="6" Height="6"
+                                             Fill="White" Opacity="0.3"/>
+
+                                    <!-- Screen content lines -->
+                                    <Rectangle Canvas.Left="74" Canvas.Top="86"
+                                               Width="55" Height="3"
+                                               RadiusX="1.5" RadiusY="1.5"
+                                               Fill="#FF8C42" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="74" Canvas.Top="93"
+                                               Width="40" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#888888" Opacity="0.6"/>
+                                    <Rectangle Canvas.Left="74" Canvas.Top="99"
+                                               Width="48" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#888888" Opacity="0.6"/>
+                                    <Rectangle Canvas.Left="74" Canvas.Top="105"
+                                               Width="35" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#888888" Opacity="0.6"/>
+
+                                    <!-- Price Box on screen -->
+                                    <Rectangle Canvas.Left="138" Canvas.Top="84"
+                                               Width="44" Height="28"
+                                               RadiusX="4" RadiusY="4"
+                                               Fill="#FF8C42" Opacity="0.15"
+                                               Stroke="#FF8C42" StrokeThickness="1"/>
+
+                                    <!-- Price Text -->
+                                    <TextBlock Canvas.Left="148" Canvas.Top="90"
+                                               Text="TOTAL"
+                                               FontSize="7" FontFamily="Segoe UI"
+                                               Foreground="#FF8C42" Opacity="0.8"/>
+                                    <TextBlock Canvas.Left="147" Canvas.Top="100"
+                                               Text="$299"
+                                               FontSize="11" FontWeight="Bold"
+                                               FontFamily="Segoe UI"
+                                               Foreground="#FF8C42"/>
+
+                                    <!-- Monitor Stand Neck -->
+                                    <Rectangle Canvas.Left="118" Canvas.Top="150"
+                                               Width="20" Height="16"
                                                RadiusX="2" RadiusY="2"
-                                               Stroke="#FF8C42" StrokeThickness="1.5" Fill="Transparent"/>
-                                    <Path Data="M8 21H16M12 17V21"
-                                          Stroke="#FF8C42" StrokeThickness="1.5"
-                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" Fill="Transparent"/>
+                                               Fill="#333333"/>
+
+                                    <!-- Monitor Base -->
+                                    <Rectangle Canvas.Left="94" Canvas.Top="164"
+                                               Width="68" Height="9"
+                                               RadiusX="4" RadiusY="4"
+                                               Fill="#FF8C42" Opacity="0.8"/>
+
+                                    <!-- == SMARTPHONE (LEFT) == -->
+                                    <!-- Phone shadow -->
+                                    <Rectangle Canvas.Left="33" Canvas.Top="127"
+                                               Width="42" Height="74"
+                                               RadiusX="7" RadiusY="7"
+                                               Fill="#FF8C42" Opacity="0.15"/>
+
+                                    <!-- Phone Body -->
+                                    <Rectangle Canvas.Left="30" Canvas.Top="124"
+                                               Width="42" Height="74"
+                                               RadiusX="7" RadiusY="7"
+                                               Stroke="#FF8C42" StrokeThickness="2">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#3a3a3a" Offset="0"/>
+                                                <GradientStop Color="#2a2a2a" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+
+                                    <!-- Phone Screen -->
+                                    <Rectangle Canvas.Left="34" Canvas.Top="132"
+                                               Width="34" Height="54"
+                                               RadiusX="3" RadiusY="3"
+                                               Fill="#111111"/>
+
+                                    <!-- Phone Screen Header -->
+                                    <Rectangle Canvas.Left="34" Canvas.Top="132"
+                                               Width="34" Height="10"
+                                               RadiusX="3" RadiusY="3"
+                                               Fill="#FF8C42" Opacity="0.7"/>
+                                    <Rectangle Canvas.Left="34" Canvas.Top="138"
+                                               Width="34" Height="4"
+                                               Fill="#FF8C42" Opacity="0.7"/>
+
+                                    <!-- Phone App Grid -->
+                                    <Rectangle Canvas.Left="37" Canvas.Top="148"
+                                               Width="8" Height="8"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#FF8C42" Opacity="0.6"/>
+                                    <Rectangle Canvas.Left="48" Canvas.Top="148"
+                                               Width="8" Height="8"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#FF8C42" Opacity="0.4"/>
+                                    <Rectangle Canvas.Left="59" Canvas.Top="148"
+                                               Width="8" Height="8"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#FF8C42" Opacity="0.6"/>
+                                    <Rectangle Canvas.Left="37" Canvas.Top="160"
+                                               Width="8" Height="8"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#FF8C42" Opacity="0.4"/>
+                                    <Rectangle Canvas.Left="48" Canvas.Top="160"
+                                               Width="8" Height="8"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#FF8C42" Opacity="0.6"/>
+                                    <Rectangle Canvas.Left="59" Canvas.Top="160"
+                                               Width="8" Height="8"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#FF8C42" Opacity="0.4"/>
+
+                                    <!-- Phone signal lines -->
+                                    <Rectangle Canvas.Left="37" Canvas.Top="175"
+                                               Width="30" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#FF8C42" Opacity="0.5"/>
+                                    <Rectangle Canvas.Left="37" Canvas.Top="180"
+                                               Width="20" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#888888" Opacity="0.4"/>
+
+                                    <!-- Phone Camera Notch -->
+                                    <Rectangle Canvas.Left="45" Canvas.Top="126"
+                                               Width="12" Height="4"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#222222"/>
+                                    <Ellipse Canvas.Left="49" Canvas.Top="127"
+                                             Width="3" Height="3"
+                                             Fill="#333333"/>
+
+                                    <!-- Phone Home Bar -->
+                                    <Rectangle Canvas.Left="44" Canvas.Top="192"
+                                               Width="14" Height="3"
+                                               RadiusX="1.5" RadiusY="1.5"
+                                               Fill="#FF8C42" Opacity="0.7"/>
+
+                                    <!-- == LAPTOP (RIGHT) == -->
+                                    <!-- Laptop Screen -->
+                                    <Rectangle Canvas.Left="166" Canvas.Top="140"
+                                               Width="62" Height="44"
+                                               RadiusX="5" RadiusY="5"
+                                               Stroke="#FF8C42" StrokeThickness="2">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#3a3a3a" Offset="0"/>
+                                                <GradientStop Color="#2a2a2a" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <Rectangle Canvas.Left="170" Canvas.Top="144"
+                                               Width="54" Height="36"
+                                               RadiusX="3" RadiusY="3"
+                                               Fill="#111111"/>
+
+                                    <!-- Laptop screen header -->
+                                    <Rectangle Canvas.Left="170" Canvas.Top="144"
+                                               Width="54" Height="10"
+                                               RadiusX="3" RadiusY="3"
+                                               Fill="#FF8C42" Opacity="0.7"/>
+                                    <Rectangle Canvas.Left="170" Canvas.Top="150"
+                                               Width="54" Height="4"
+                                               Fill="#FF8C42" Opacity="0.7"/>
+
+                                    <!-- Laptop content lines -->
+                                    <Rectangle Canvas.Left="173" Canvas.Top="158"
+                                               Width="20" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#FF8C42" Opacity="0.7"/>
+                                    <Rectangle Canvas.Left="173" Canvas.Top="163"
+                                               Width="30" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#888888" Opacity="0.5"/>
+                                    <Rectangle Canvas.Left="173" Canvas.Top="168"
+                                               Width="25" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#888888" Opacity="0.5"/>
+                                    <Rectangle Canvas.Left="173" Canvas.Top="173"
+                                               Width="35" Height="2"
+                                               RadiusX="1" RadiusY="1"
+                                               Fill="#888888" Opacity="0.5"/>
+
+                                    <!-- Laptop price box -->
+                                    <Rectangle Canvas.Left="200" Canvas.Top="157"
+                                               Width="22" Height="18"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#FF8C42" Opacity="0.2"
+                                               Stroke="#FF8C42" StrokeThickness="0.8"/>
+                                    <TextBlock Canvas.Left="203" Canvas.Top="163"
+                                               Text="$$$"
+                                               FontSize="7" FontWeight="Bold"
+                                               FontFamily="Segoe UI"
+                                               Foreground="#FF8C42"/>
+
+                                    <!-- Laptop Hinge -->
+                                    <Rectangle Canvas.Left="164" Canvas.Top="183"
+                                               Width="66" Height="5"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#444444"/>
+
+                                    <!-- Laptop Base -->
+                                    <Rectangle Canvas.Left="160" Canvas.Top="187"
+                                               Width="74" Height="14"
+                                               RadiusX="4" RadiusY="4"
+                                               Fill="#333333"
+                                               Stroke="#FF8C42" StrokeThickness="1.5"/>
+
+                                    <!-- Keyboard lines -->
+                                    <Rectangle Canvas.Left="164" Canvas.Top="191"
+                                               Width="50" Height="1.5"
+                                               RadiusX="0.75" RadiusY="0.75"
+                                               Fill="#FF8C42" Opacity="0.3"/>
+                                    <Rectangle Canvas.Left="164" Canvas.Top="195"
+                                               Width="50" Height="1.5"
+                                               RadiusX="0.75" RadiusY="0.75"
+                                               Fill="#FF8C42" Opacity="0.3"/>
+
+                                    <!-- Touchpad -->
+                                    <Rectangle Canvas.Left="186" Canvas.Top="190"
+                                               Width="20" Height="8"
+                                               RadiusX="2" RadiusY="2"
+                                               Fill="#444444"
+                                               Stroke="#FF8C42" StrokeThickness="0.8"
+                                               Opacity="0.7"/>
+
+                                    <!-- == BARCODE == -->
+                                    <Rectangle Canvas.Left="78" Canvas.Top="208" Width="3"  Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="83" Canvas.Top="208" Width="1"  Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="86" Canvas.Top="208" Width="4"  Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="92" Canvas.Top="208" Width="2"  Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="96" Canvas.Top="208" Width="3"  Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="101" Canvas.Top="208" Width="1" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="104" Canvas.Top="208" Width="4" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="110" Canvas.Top="208" Width="2" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="114" Canvas.Top="208" Width="3" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="119" Canvas.Top="208" Width="1" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="122" Canvas.Top="208" Width="4" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="128" Canvas.Top="208" Width="2" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="132" Canvas.Top="208" Width="3" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="137" Canvas.Top="208" Width="1" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="140" Canvas.Top="208" Width="4" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="146" Canvas.Top="208" Width="2" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="150" Canvas.Top="208" Width="3" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="155" Canvas.Top="208" Width="2" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="159" Canvas.Top="208" Width="4" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="165" Canvas.Top="208" Width="1" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="168" Canvas.Top="208" Width="3" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="173" Canvas.Top="208" Width="2" Height="18" Fill="White" Opacity="0.8"/>
+                                    <Rectangle Canvas.Left="177" Canvas.Top="208" Width="4" Height="18" Fill="White" Opacity="0.8"/>
+
+                                    <!-- == APP NAME TEXT == -->
+                                    <TextBlock Canvas.Left="60" Canvas.Top="232"
+                                               Text="TECH  POS"
+                                               FontSize="14" FontWeight="Bold"
+                                               FontFamily="Segoe UI"
+                                               Foreground="#FF8C42"/>
+
                                 </Canvas>
                             </Viewbox>
                         </Border>
+                        <!-- ✅ END OF SVG ICON -->
 
                         <TextBlock Text="POS System"
                                    FontSize="22" FontWeight="Bold"
@@ -108,8 +436,7 @@
                 <Border Grid.Column="2" Style="{StaticResource Card}">
                     <StackPanel>
                         <TextBlock Text="Build Information" Style="{StaticResource SectionTitle}"/>
-
-                        <Grid Margin="0,0,0,0">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="140"/>
                                 <ColumnDefinition Width="*"/>
@@ -124,23 +451,31 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="VERSION" Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="1.0.0" Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="VERSION"
+                                       Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="1.0.0"
+                                       Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
 
                             <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource Divider}"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="BUILD DATE" Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="April 2025" Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="BUILD DATE"
+                                       Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="April 2025"
+                                       Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
 
                             <Border Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource Divider}"/>
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="ARCHITECTURE" Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="x64" Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="ARCHITECTURE"
+                                       Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="x64"
+                                       Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
 
                             <Border Grid.Row="5" Grid.ColumnSpan="2" Style="{StaticResource Divider}"/>
 
-                            <TextBlock Grid.Row="6" Grid.Column="0" Text="LICENSE" Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Row="6" Grid.Column="1" Text="Private / Personal Use" Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="LICENSE"
+                                       Style="{StaticResource LabelText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" Text="Private / Personal Use"
+                                       Style="{StaticResource ValueText}" VerticalAlignment="Center"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -159,81 +494,117 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- OS -->
-                        <Border Grid.Column="0" Background="#F4F6FA" CornerRadius="10" Padding="16,14" Margin="0,0,10,0">
+                        <Border Grid.Column="0" Background="#F4F6FA" CornerRadius="10"
+                                Padding="16,14" Margin="0,0,10,0">
                             <StackPanel>
-                                <Border Width="36" Height="36" CornerRadius="8" Background="White" Margin="0,0,0,10" HorizontalAlignment="Left">
+                                <Border Width="36" Height="36" CornerRadius="8"
+                                        Background="White" Margin="0,0,0,10"
+                                        HorizontalAlignment="Left">
                                     <Viewbox Width="18" Height="18">
                                         <Canvas Width="24" Height="24">
                                             <Path Data="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                                                  Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                                  Stroke="#9099A8" StrokeThickness="1.5"
+                                                  Fill="Transparent"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"/>
                                         </Canvas>
                                     </Viewbox>
                                 </Border>
-                                <TextBlock Text="OPERATING SYSTEM" Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
-                                <TextBlock Text="Windows 10 / 11" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="OPERATING SYSTEM"
+                                           Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Windows 10 / 11"
+                                           FontSize="13" FontWeight="SemiBold"
                                            Foreground="#2D3142" FontFamily="Segoe UI"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Runtime -->
-                        <Border Grid.Column="1" Background="#F4F6FA" CornerRadius="10" Padding="16,14" Margin="0,0,10,0">
+                        <Border Grid.Column="1" Background="#F4F6FA" CornerRadius="10"
+                                Padding="16,14" Margin="0,0,10,0">
                             <StackPanel>
-                                <Border Width="36" Height="36" CornerRadius="8" Background="White" Margin="0,0,0,10" HorizontalAlignment="Left">
+                                <Border Width="36" Height="36" CornerRadius="8"
+                                        Background="White" Margin="0,0,0,10"
+                                        HorizontalAlignment="Left">
                                     <Viewbox Width="18" Height="18">
                                         <Canvas Width="24" Height="24">
                                             <Path Data="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                                                  Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                                  Stroke="#9099A8" StrokeThickness="1.5"
+                                                  Fill="Transparent"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"/>
                                         </Canvas>
                                     </Viewbox>
                                 </Border>
-                                <TextBlock Text="RUNTIME" Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
-                                <TextBlock Text=".NET Framework 4.8" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="RUNTIME"
+                                           Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
+                                <TextBlock Text=".NET Framework 4.8"
+                                           FontSize="13" FontWeight="SemiBold"
                                            Foreground="#2D3142" FontFamily="Segoe UI"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Database -->
-                        <Border Grid.Column="2" Background="#F4F6FA" CornerRadius="10" Padding="16,14" Margin="0,0,10,0">
+                        <Border Grid.Column="2" Background="#F4F6FA" CornerRadius="10"
+                                Padding="16,14" Margin="0,0,10,0">
                             <StackPanel>
-                                <Border Width="36" Height="36" CornerRadius="8" Background="White" Margin="0,0,0,10" HorizontalAlignment="Left">
+                                <Border Width="36" Height="36" CornerRadius="8"
+                                        Background="White" Margin="0,0,0,10"
+                                        HorizontalAlignment="Left">
                                     <Viewbox Width="18" Height="18">
                                         <Canvas Width="24" Height="24">
-                                            <Ellipse Canvas.Left="2" Canvas.Top="2" Width="20" Height="6"
-                                                     Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"/>
+                                            <Ellipse Canvas.Left="2" Canvas.Top="2"
+                                                     Width="20" Height="6"
+                                                     Stroke="#9099A8" StrokeThickness="1.5"
+                                                     Fill="Transparent"/>
                                             <Path Data="M2 8v4c0 1.657 4.477 3 10 3s10-1.343 10-3V8"
-                                                  Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                  Stroke="#9099A8" StrokeThickness="1.5"
+                                                  Fill="Transparent"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"/>
                                             <Path Data="M2 12v4c0 1.657 4.477 3 10 3s10-1.343 10-3v-4"
-                                                  Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                  Stroke="#9099A8" StrokeThickness="1.5"
+                                                  Fill="Transparent"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"/>
                                         </Canvas>
                                     </Viewbox>
                                 </Border>
-                                <TextBlock Text="DATABASE" Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
-                                <TextBlock Text="SQLite 3 (local)" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="DATABASE"
+                                           Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
+                                <TextBlock Text="SQLite 3 (local)"
+                                           FontSize="13" FontWeight="SemiBold"
                                            Foreground="#2D3142" FontFamily="Segoe UI"/>
                             </StackPanel>
                         </Border>
 
                         <!-- UI Framework -->
-                        <Border Grid.Column="3" Background="#F4F6FA" CornerRadius="10" Padding="16,14">
+                        <Border Grid.Column="3" Background="#F4F6FA" CornerRadius="10"
+                                Padding="16,14">
                             <StackPanel>
-                                <Border Width="36" Height="36" CornerRadius="8" Background="White" Margin="0,0,0,10" HorizontalAlignment="Left">
+                                <Border Width="36" Height="36" CornerRadius="8"
+                                        Background="White" Margin="0,0,0,10"
+                                        HorizontalAlignment="Left">
                                     <Viewbox Width="18" Height="18">
                                         <Canvas Width="24" Height="24">
-                                            <Rectangle Canvas.Left="3" Canvas.Top="3" Width="18" Height="18"
+                                            <Rectangle Canvas.Left="3" Canvas.Top="3"
+                                                       Width="18" Height="18"
                                                        RadiusX="2" RadiusY="2"
-                                                       Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"/>
+                                                       Stroke="#9099A8" StrokeThickness="1.5"
+                                                       Fill="Transparent"/>
                                             <Path Data="M3 9h18M9 21V9"
-                                                  Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                  Stroke="#9099A8" StrokeThickness="1.5"
+                                                  Fill="Transparent"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"/>
                                         </Canvas>
                                     </Viewbox>
                                 </Border>
-                                <TextBlock Text="UI FRAMEWORK" Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
-                                <TextBlock Text="WPF / XAML" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="UI FRAMEWORK"
+                                           Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
+                                <TextBlock Text="WPF / XAML"
+                                           FontSize="13" FontWeight="SemiBold"
                                            Foreground="#2D3142" FontFamily="Segoe UI"/>
                             </StackPanel>
                         </Border>
