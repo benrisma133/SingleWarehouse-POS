@@ -50,6 +50,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- ── PAGE HEADER ── -->
@@ -69,6 +70,7 @@
                         <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="*"/>
+                        
                     </Grid.ColumnDefinitions>
 
                     <!-- Left: Avatar + Name -->
@@ -85,7 +87,7 @@
                                 </Canvas>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="Ismail"
+                        <TextBlock Text="Ismail BENRAHHAL"
                                    FontSize="20" FontWeight="Bold"
                                    FontFamily="Segoe UI" Foreground="#1A1D23"
                                    HorizontalAlignment="Center"/>
@@ -105,62 +107,346 @@
                         <TextBlock Text="CONTACT DETAILS" Style="{StaticResource LabelText}" Margin="0,0,0,14"/>
 
                         <!-- Email -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <Border Width="36" Height="36" CornerRadius="8" Background="#F4F6FA" Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16"
+                                    Cursor="Hand" MouseLeftButtonUp="Email_Click">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Border Width="36" Height="36" CornerRadius="8" Margin="0,0,12,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#F4F6FA"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMouseOver,
+                                                         RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                         Value="True">
+                                                <Setter Property="Background" Value="#FFF3EA"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                                 <Viewbox Width="16" Height="16">
                                     <Canvas Width="24" Height="24">
                                         <Path Data="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-                                              Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent" StrokeLineJoin="Round"/>
+                          StrokeThickness="1.5" Fill="Transparent" StrokeLineJoin="Round">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                        RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                        Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
                                         <Path Data="M22 6l-10 7L2 6"
-                                              Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                          StrokeThickness="1.5" Fill="Transparent"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                        RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                        Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
                                     </Canvas>
                                 </Viewbox>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="EMAIL" Style="{StaticResource LabelText}"/>
-                                <TextBlock Text="ismail@email.com" Style="{StaticResource ValueText}" Margin="0,2,0,0"/>
+                                <TextBlock Text="ibenrahhal133@gmail.com" Margin="0,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ValueText}">
+                                            <Setter Property="Foreground" Value="#2D3142"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMouseOver,
+                                RelativeSource={RelativeSource AncestorType=StackPanel,
+                                AncestorLevel=2}}"
+                                Value="True">
+                                                    <Setter Property="Foreground" Value="#FF8C42"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </StackPanel>
 
                         <!-- GitHub -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <Border Width="36" Height="36" CornerRadius="8" Background="#F4F6FA" Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16"
+                Cursor="Hand" MouseLeftButtonUp="GitHub_Click">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Border Width="36" Height="36" CornerRadius="8" Margin="0,0,12,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#F4F6FA"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMouseOver,
+                            RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                            Value="True">
+                                                <Setter Property="Background" Value="#FFF3EA"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                                 <Viewbox Width="16" Height="16">
                                     <Canvas Width="24" Height="24">
                                         <Path Data="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
-                                              Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                          StrokeThickness="1.5" Fill="Transparent"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                        RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                        Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
                                     </Canvas>
                                 </Viewbox>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="GITHUB" Style="{StaticResource LabelText}"/>
-                                <TextBlock Text="github.com/ismail" Style="{StaticResource ValueText}" Margin="0,2,0,0"/>
+                                <TextBlock Text="github.com/benrisma133" Margin="0,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ValueText}">
+                                            <Setter Property="Foreground" Value="#2D3142"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMouseOver,
+                                RelativeSource={RelativeSource AncestorType=StackPanel,
+                                AncestorLevel=2}}"
+                                Value="True">
+                                                    <Setter Property="Foreground" Value="#FF8C42"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </StackPanel>
 
                         <!-- LinkedIn -->
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="36" Height="36" CornerRadius="8" Background="#F4F6FA" Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16"
+                                    Cursor="Hand" MouseLeftButtonUp="LinkedIn_Click">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Border Width="36" Height="36" CornerRadius="8" Margin="0,0,12,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#F4F6FA"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMouseOver,
+                                                         RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                         Value="True">
+                                                <Setter Property="Background" Value="#FFF3EA"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                                 <Viewbox Width="16" Height="16">
                                     <Canvas Width="24" Height="24">
                                         <Path Data="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
-                                              Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"
-                                              StrokeLineJoin="Round"/>
+                                              StrokeThickness="1.5" Fill="Transparent" StrokeLineJoin="Round">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                                                     RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                                     Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
                                         <Rectangle Canvas.Left="2" Canvas.Top="9" Width="4" Height="12"
-                                                   Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"/>
+                                                   StrokeThickness="1.5" Fill="Transparent">
+                                            <Rectangle.Style>
+                                                <Style TargetType="Rectangle">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                                                     RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                                     Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Rectangle.Style>
+                                        </Rectangle>
                                         <Ellipse Canvas.Left="2" Canvas.Top="2" Width="4" Height="4"
-                                                 Stroke="#9099A8" StrokeThickness="1.5" Fill="Transparent"/>
+                                                 StrokeThickness="1.5" Fill="Transparent">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                                                     RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                                     Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
                                     </Canvas>
                                 </Viewbox>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="LINKEDIN" Style="{StaticResource LabelText}"/>
-                                <TextBlock Text="linkedin.com/in/ismail" Style="{StaticResource ValueText}" Margin="0,2,0,0"/>
+                                <TextBlock Text="linkedin.com/in/benrisma133" Margin="0,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ValueText}">
+                                            <Setter Property="Foreground" Value="#2D3142"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMouseOver,
+                                                             RelativeSource={RelativeSource AncestorType=StackPanel,
+                                                             AncestorLevel=2}}"
+                                                             Value="True">
+                                                    <Setter Property="Foreground" Value="#FF8C42"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </StackPanel>
+
+                        <!-- WhatsApp -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16"
+                                    Cursor="Hand" MouseLeftButtonUp="WhatsApp_Click">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <!-- Icon Box -->
+                            <Border Width="36" Height="36" CornerRadius="8" Margin="0,0,12,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#F4F6FA"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMouseOver,
+                                                         RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                         Value="True">
+                                                <Setter Property="Background" Value="#FFF3EA"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+
+                                <Viewbox Width="16" Height="16">
+                                    <Canvas Width="24" Height="24">
+                                        <!-- WhatsApp bubble shape -->
+                                        <Path Data="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.57A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52z"
+                                              Fill="Transparent">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Setter Property="StrokeThickness" Value="1.5"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                                                     RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                                     Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+                                        <!-- WhatsApp phone handset inside -->
+                                        <Path Data="M17.47 14.38c-.28-.14-1.65-.81-1.9-.9-.26-.1-.44-.14-.63.14-.19.28-.72.9-.88 1.08-.16.19-.33.21-.6.07-.28-.14-1.18-.44-2.25-1.39-.83-.74-1.39-1.66-1.56-1.94-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.5.14-.17.19-.28.28-.47.1-.19.05-.35-.02-.5-.07-.14-.63-1.52-.86-2.08-.23-.55-.46-.47-.63-.48-.16 0-.35-.02-.54-.02-.19 0-.49.07-.75.35-.26.28-1 1-1 2.43s1.03 2.82 1.17 3.01c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.47 1.64.6.69.22 1.32.19 1.81.11.55-.08 1.65-.67 1.89-1.33.23-.65.23-1.21.16-1.33-.07-.12-.26-.19-.54-.33z"
+                                              StrokeThickness="0.3"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"
+                                              StrokeLineJoin="Round">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="#9099A8"/>
+                                                    <Setter Property="Fill" Value="#9099A8"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver,
+                                                                     RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                                                     Value="True">
+                                                            <Setter Property="Stroke" Value="#FF8C42"/>
+                                                            <Setter Property="Fill" Value="#FF8C42"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+                                    </Canvas>
+                                </Viewbox>
+                            </Border>
+
+                            <!-- Text Info -->
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="WHATSAPP" Style="{StaticResource LabelText}"/>
+                                <TextBlock Text="+212 600 144 024" Margin="0,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ValueText}">
+                                            <Setter Property="Foreground" Value="#2D3142"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMouseOver,
+                                                             RelativeSource={RelativeSource AncestorType=StackPanel,
+                                                             AncestorLevel=2}}"
+                                                             Value="True">
+                                                    <Setter Property="Foreground" Value="#FF8C42"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+
                     </StackPanel>
+
                 </Grid>
             </Border>
 
@@ -213,6 +499,42 @@
                 </StackPanel>
             </Border>
 
+            <!-- Ownership Notice -->
+            <Border Grid.Row="3" Style="{StaticResource Card}" Margin="0,20,0,0"
+        BorderBrush="#FF8C42" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8"
+                Background="#FFF3EA" Margin="0,0,14,0" VerticalAlignment="Top">
+                        <Viewbox Width="18" Height="18">
+                            <Canvas Width="24" Height="24">
+                                <Path Data="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                          Stroke="#FF8C42" StrokeThickness="1.5"
+                          Fill="Transparent" StrokeLineJoin="Round"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Ownership &amp; License"
+                       FontSize="13" FontWeight="Bold"
+                       Foreground="#1A1D23" FontFamily="Segoe UI"/>
+                        <TextBlock Text="This application was developed by Ismail. It is strictly personal and may not be copied, shared, or redistributed without explicit permission from the developer."
+                       FontSize="12" Foreground="#9099A8"
+                       FontFamily="Segoe UI"
+                       TextWrapping="Wrap"
+                       Margin="0,3,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+
+
         </Grid>
     </ScrollViewer>
+    
 </UserControl>
