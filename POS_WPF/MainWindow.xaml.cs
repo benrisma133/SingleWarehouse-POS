@@ -1,4 +1,5 @@
 ﻿using POS_BLL;
+using POS_WPF.Popup;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -648,27 +649,30 @@ namespace POS_WPF
         private void Notification_Click(object sender, MouseButtonEventArgs e)
         {
             var border = sender as Border;
-            var notif = border.DataContext as StockNotification;
+            var notif = border?.DataContext as StockNotification;
 
-            if (notif == null || notif.IsRead) return;
+            if (notif == null) return;
 
-            // ✅ show popup
-            MessageBox.Show(
-                $"{notif.ProductName}\n\n{notif.SubText}",
-                notif.TagLabel,
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            // ── Load product details ─────────────────────
+            clsProduct product = clsProduct.FindByID(notif.ProductID);
 
-            // ✅ mark as read in DB
-            clsNotification.MarkAsRead(notif.NotificationID);
+            // ── Show modern popup ────────────────────────
+            var popup = new ProductNotificationPopup(notif, product)
+            {
+                Owner = Window.GetWindow(this)
+            };
+            popup.ShowDialog();
 
-            // ✅ update UI
-            notif.IsRead = true;
-            NotifList.Items.Refresh();
+            // ── Mark as read (only if not already) ──────
+            if (!notif.IsRead)
+            {
+                clsNotification.MarkAsRead(notif.NotificationID);
+                notif.IsRead = true;
+                NotifList.Items.Refresh();
 
-            // ✅ update badge
-            var list = NotifList.ItemsSource as List<StockNotification>;
-            UpdateBadgeCount(list.Count(n => !n.IsRead));
+                var list = NotifList.ItemsSource as List<StockNotification>;
+                UpdateBadgeCount(list?.Count(n => !n.IsRead) ?? 0);
+            }
         }
 
         private void Delete_PreviewMouseDown(object sender, MouseButtonEventArgs e)
