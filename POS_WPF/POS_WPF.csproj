@@ -264,6 +264,9 @@
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
     <Compile Include="LanguageSettings\Localized.cs" />
+    <Compile Include="Login\frmLogin.xaml.cs">
+      <DependentUpon>frmLogin.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ModernPasswordInputDemo.xaml.cs">
       <DependentUpon>ModernPasswordInputDemo.xaml</DependentUpon>
     </Compile>
@@ -373,6 +376,10 @@
     <Page Include="Controls\TextArea.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Login\frmLogin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ModernPasswordInputDemo.xaml">
       <SubType>Designer</SubType>
