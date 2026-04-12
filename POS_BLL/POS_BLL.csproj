@@ -112,10 +112,12 @@
     <Compile Include="clsModel.cs" />
     <Compile Include="clsNotification.cs" />
     <Compile Include="clsNotify.cs" />
+    <Compile Include="clsPerson.cs" />
     <Compile Include="clsProduct.cs" />
     <Compile Include="clsSale.cs" />
     <Compile Include="clsSaleDetails.cs" />
     <Compile Include="clsSerie.cs" />
+    <Compile Include="clsUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
