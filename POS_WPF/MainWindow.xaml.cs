@@ -133,6 +133,9 @@ namespace POS_WPF
 
         private void SetActiveMenu(FrameworkElement clickedElement)
         {
+            // ── Reset profile style whenever a menu button is clicked ──
+            ResetProfileStyle();
+
             // Reset previous active
             if (_activeMenu is Button oldBtn)
             {
@@ -151,10 +154,23 @@ namespace POS_WPF
             }
         }
 
+        private void ResetProfileStyle()
+        {
+            isProfileActive = false;
+            ProfileBorder.Background = MenuNormalBg;
+
+            var path = ProfileIcon.ChildOfType<Path>().FirstOrDefault();
+            if (path != null) path.Fill = MenuNormalFg;
+
+            foreach (var tb in ProfileTextStack.Children.OfType<TextBlock>())
+                tb.Foreground = MenuNormalFg;
+        }
+
         public Geometry HamburgerPathData
         {
             get { return isSidebarOpen ? CloseIcon : HamburgerIcon; }
         }
+
         private void UpdateHamburgerIcon()
         {
             if (isSidebarOpen)
@@ -459,13 +475,13 @@ namespace POS_WPF
 
         private void ProfileBorder_Click(object sender, MouseButtonEventArgs e)
         {
-            // Mark profile as active
+            // ── Reset other menu buttons first ───────────────────────────────
+            SetActiveMenu(null); // pass null so no button gets Tag=Active
+
+            // ── NOW mark profile as active (after SetActiveMenu reset it) ───
             isProfileActive = true;
 
-            // Reset other menu buttons
-            SetActiveMenu(sender as Button); // optional if you want to clear button active states
-
-            // Set profile colors like active button
+            // ── Apply active colors ──────────────────────────────────────────
             ProfileBorder.Background = MenuActiveBg;
 
             var path = ProfileIcon.ChildOfType<Path>().FirstOrDefault();
@@ -474,15 +490,8 @@ namespace POS_WPF
             foreach (var tb in ProfileTextStack.Children.OfType<TextBlock>())
                 tb.Foreground = MenuActiveFg;
 
-            // Load content
-            MainContent.Children.Clear();
-            MainContent.Children.Add(new TextBlock
-            {
-                Text = "Profile Page - Coming Soon",
-                FontSize = 24,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            });
+            MainTitle.Text = "Profile";
+            PageContent.Content = new Pages.ProfilePage();
         }
 
         private void ProfileBorder_MouseEnter(object sender, MouseEventArgs e)
