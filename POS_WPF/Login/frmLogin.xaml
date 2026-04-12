@@ -5,6 +5,7 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         WindowStyle="None"
+        Loaded="Window_Loaded"
         AllowsTransparency="True"
         Background="Transparent"
         Title="POS Login" Height="580" Width="900">
@@ -455,7 +456,7 @@
                             Label="Password"
                             Placeholder="Enter your password"
                             IsRequired="True"
-                            MinLength="6"
+                            MinLength="5"
                             Margin="0,0,0,20"/>
 
                         <!-- Remember me row -->

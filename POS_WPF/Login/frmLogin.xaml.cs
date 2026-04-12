@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using POS_BLL;
+using POS_WPF.Global;
+using POS_WPF.Utils;
+using System.Windows;
 using System.Windows.Input;
 
 namespace POS_WPF.Login
@@ -17,6 +20,34 @@ namespace POS_WPF.Login
             };
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            string username = string.Empty;
+            string hashedPassword = string.Empty;
+
+            if (clsGlobal.GetStoredCredential(ref username, ref hashedPassword))
+            {
+                clsUser user = clsUser.FindByUsernameAndPassword(username, hashedPassword);
+
+                if (user != null)
+                {
+                    clsGlobal.CurrentUser = user;
+
+                    MainWindow main = new MainWindow();
+                    main.Show();
+                    this.Close();
+                    return;
+                }
+
+                // failed login → clear saved
+                clsGlobal.RememberUsernameAndPassword("", "");
+            }
+
+            TxtUsername.Text = username;
+            TxtPassword.Password = "";
+            TxtUsername.Focus();
+        }
+
         // ── Close button ─────────────────────────────────────────────────────
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
@@ -26,28 +57,50 @@ namespace POS_WPF.Login
         // ── Login button ─────────────────────────────────────────────────────
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(TxtUsername.Text) || string.IsNullOrWhiteSpace(TxtPassword.Password))
+            if (string.IsNullOrWhiteSpace(TxtUsername.Text) ||
+                string.IsNullOrWhiteSpace(TxtPassword.Password))
             {
                 ShowError("Please enter both username and password.");
                 return;
             }
 
-            if (TxtUsername.Text != "admin" || TxtPassword.Password != "password")
+            string username = TxtUsername.Text.Trim();
+            string hashedPassword = clsUtil.HashPassword(TxtPassword.Password);
+
+            clsUser user = clsUser.FindByUsernameAndPassword(username, hashedPassword);
+
+            if (user != null)
+            {
+                // (optional later) if you add IsActive
+                // if (!user.IsActive)
+                // {
+                //     ShowError("Your account is not active.");
+                //     return;
+                // }
+
+                // Remember Me
+                if (ChkRememberMe.IsChecked == true)
+                {
+                    clsGlobal.RememberUsernameAndPassword(username, hashedPassword);
+                }
+                else
+                {
+                    clsGlobal.RememberUsernameAndPassword("", "");
+                }
+
+                clsGlobal.CurrentUser = user;
+
+                HideError();
+
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.Show();
+                this.Close();
+            }
+            else
             {
                 ShowError("Invalid username or password.");
-                return;
+                TxtUsername.Focus();
             }
-
-
-
-            HideError();
-
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
-
-            this.Close();
-
-
         }
 
         // ── Remember Me ──────────────────────────────────────────────────────
