@@ -255,6 +255,10 @@
       <DependentUpon>TextArea.xaml</DependentUpon>
     </Compile>
     <Compile Include="DebugLoggerProvider.cs" />
+    <Compile Include="Dialogs\frmChangePassword.xaml.cs">
+      <DependentUpon>frmChangePassword.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Global\clsGlobal.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="LanguageSettings\LanguageManager.cs" />
@@ -297,6 +301,9 @@
     <Compile Include="Pages\ModelPage.xaml.cs">
       <DependentUpon>ModelPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ProfilePage.xaml.cs">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\SalesDetailsPage.xaml.cs">
       <DependentUpon>SalesDetailsPage.xaml</DependentUpon>
     </Compile>
@@ -338,6 +345,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\CardButtonsFactory.cs" />
+    <Compile Include="Utils\clsUtil.cs" />
     <Compile Include="WindowTest.xaml.cs">
       <DependentUpon>WindowTest.xaml</DependentUpon>
     </Compile>
@@ -376,6 +384,10 @@
     <Page Include="Controls\TextArea.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\frmChangePassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Login\frmLogin.xaml">
       <SubType>Designer</SubType>
@@ -418,6 +430,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\ModelPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ProfilePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
