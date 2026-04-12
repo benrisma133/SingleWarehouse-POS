@@ -143,12 +143,14 @@
     <Compile Include="clsDepartment.cs" />
     <Compile Include="clsModel.cs" />
     <Compile Include="clsNotifications.cs" />
+    <Compile Include="clsPerson.cs" />
     <Compile Include="clsProduct.cs" />
     <Compile Include="clsSaleDetails.cs" />
     <Compile Include="clsSales.cs" />
     <Compile Include="clsSerie.cs" />
     <Compile Include="clsStock.cs" />
     <Compile Include="clsDataAccessSettigs.cs" />
+    <Compile Include="clsUser.cs" />
     <Compile Include="DbHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
