@@ -1,5 +1,6 @@
 ﻿using POS_BLL;
 using POS_WPF.Brand; // adjust namespace to where frmAddEditBrand lives
+using POS_WPF.Dialogs;
 using POS_WPF.UI;
 using System;
 using System.Data;
@@ -463,28 +464,68 @@ namespace POS_WPF.Pages
         {
             if (sender is Button btn && btn.Tag is int brandId)
             {
-                var result = MessageBox.Show(
-                    "This will permanently delete this brand.\n\nDo you want to proceed?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
+                // ✔ Check dependencies
+                var canDelete = clsBrand.CanDelete(brandId, out var deps);
 
-                if (result == MessageBoxResult.Yes)
+                // ❌ Cannot delete → show warning dialog
+                if (!canDelete)
                 {
+                    var dialog = new frmConfirmDelete(
+                        title: "Warning",
+                        message:
+                            $"Cannot delete this brand.\n\n" +
+                            $"It is linked with:\n" +
+                            $"- {deps.Series} Series\n" +
+                            $"- {deps.Models} Models\n" +
+                            $"- {deps.Products} Products\n\n" +
+                            $"Do you want to delete anyway?");
+
+                    dialog.Owner = Window.GetWindow(this);
+
+                    if (dialog.ShowDialog() != true)
+                        return;
+
+                    // user chose "Delete Anyway"
                     if (clsBrand.Delete(brandId))
                     {
-                        MessageBox.Show("Brand deleted successfully.",
-                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         await LoadBrandsAsync();
                     }
                     else
                     {
                         MessageBox.Show(
-                            "Error deleting brand. It might be linked to other records.",
-                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            "Unexpected error while deleting brand.\nPlease contact support.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
                     }
+
+                    return;
+                }
+
+                // ✔ No dependencies → simple confirm
+                var simpleDialog = new frmConfirmDelete(
+                    title: "Confirm Delete",
+                    message: "This will permanently delete this brand.\n\nAre you sure you want to continue?");
+
+                simpleDialog.Owner = Window.GetWindow(this);
+
+                if (simpleDialog.ShowDialog() != true)
+                    return;
+
+                if (clsBrand.Delete(brandId))
+                {
+                    await LoadBrandsAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Unexpected error while deleting brand.\nPlease contact support.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
         }
+
     }
 }
