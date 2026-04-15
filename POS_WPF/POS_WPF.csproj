@@ -258,6 +258,9 @@
     <Compile Include="Dialogs\frmChangePassword.xaml.cs">
       <DependentUpon>frmChangePassword.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\frmConfirmDelete.xaml.cs">
+      <DependentUpon>frmConfirmDelete.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Global\clsGlobal.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
@@ -386,6 +389,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\frmChangePassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\frmConfirmDelete.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
