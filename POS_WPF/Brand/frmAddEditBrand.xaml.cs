@@ -1,62 +1,60 @@
-﻿using Microsoft.Extensions.Logging;
-using POS_BLL;
-using POS_WPF.Category;
+﻿using POS_BLL;
 using POS_WPF.Controls;
-using POS_WPF.Pages;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace POS_WPF.Brand
 {
-    /// <summary>
-    /// Interaction logic for frmAddEditBrand.xaml
-    /// </summary>
     public partial class frmAddEditBrand : Window
     {
-
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode FormMode = enMode.AddNew;
+        // ============================
+        // FIELDS
+        // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _FormMode = enMode.AddNew;
 
         public bool IsSaved { get; private set; } = false;
 
-        private readonly ILogger _logger = AppLogger.CreateLogger<frmAddEditBrand>();
-
         private bool _isLoadingForm = false;
 
-        int _BrandID;
-        clsBrand _Brand;
+        private int _BrandID;
+        private clsBrand _Brand;
 
-        private List<int> _selectedWarehouseIDs = new List<int>();
-
-        private bool _isLoadingWarehouses = false;
-
+        // ============================
+        // CONSTRUCTORS
+        // ============================
         public frmAddEditBrand()
         {
             InitializeComponent();
-
-            FormMode = enMode.AddNew;
+            _FormMode = enMode.AddNew;
         }
 
-        public frmAddEditBrand(int BrandID)
+        public frmAddEditBrand(int brandID)
         {
             InitializeComponent();
+            _BrandID = brandID;
+            _FormMode = enMode.Update;
+        }
 
-            _BrandID = BrandID;
+        // ============================
+        // WINDOW EVENTS
+        // ============================
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _isLoadingForm = true;
 
-            FormMode = enMode.Update;
+            _ResetDefaultValues();
+
+            if (_FormMode == enMode.Update)
+                _LoadData();
+
+            _isLoadingForm = false;
         }
 
         private void Header_MouseDown(object sender, MouseButtonEventArgs e)
@@ -65,96 +63,20 @@ namespace POS_WPF.Brand
                 this.DragMove();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Close_Click(object sender, RoutedEventArgs e) => this.Close();
+        private void Cancel_Click(object sender, RoutedEventArgs e) => this.Close();
+
+        // ============================
+        // LOAD & RESET
+        // ============================
+        private void _ResetDefaultValues()
         {
-            _ResetDefaultValues();
-
-            _isLoadingForm = true;
-
-            if (FormMode == enMode.Update)
-            
-            {
-                // UPDATE: load actual selection
-                _LoadData();
-            }
-
-            _isLoadingForm = false;
-
-        }
-
-
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void ValidateInput(ModernInput control, string errorMessage,
-            Func<string, bool> existsFunc, Func<string, bool> existsExceptIdFunc)
-        {
-            if (_isLoadingForm) return;
-            if (control == null) return;
-
-            if (string.IsNullOrWhiteSpace(control.Text))
-                return;
-
-            control.Validate(live: true, externalValidator: text =>
-            {
-                text = text.Trim();
-
-                if (FormMode == enMode.Update)
-                {
-                    if (existsExceptIdFunc != null && existsExceptIdFunc(text))
-                        return errorMessage;
-                }
-                else
-                {
-                    if (existsFunc(text))
-                        return errorMessage;
-                }
-
-                return null;
-            });
-        }
-
-        private void BrandNameInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateInput(sender as ModernInput,
-                "Category name already exists.",
-                text => clsBrand.IsBrandExistByName(text),
-                text => clsBrand.IsBrandExistByName(text, _BrandID)
-            );
-        }
-
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        void _LoadData()
-        {
-            _Brand = clsBrand.FindByID(_BrandID);
-
-            if (_Brand == null)
-            {
-                MessageBox.Show("Brand record not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                this.Close();
-                return;
-            }
-
-            BrandName.Text = _Brand.Name;
-            BrandDescription.Text = _Brand.Description;
-
-        }
-
-        void _ResetDefaultValues()
-        {
-            if (FormMode == enMode.AddNew)
+            if (_FormMode == enMode.AddNew)
             {
                 _Brand = new clsBrand();
                 txtbTitle.Text = "Add New Brand";
-
-                BrandName.Text = "";
-                BrandDescription.Text = "";
+                BrandName.Text = string.Empty;
+                BrandDescription.Text = string.Empty;
             }
             else
             {
@@ -162,99 +84,105 @@ namespace POS_WPF.Brand
             }
         }
 
-        private bool ProcessFormData()
+        private void _LoadData()
         {
-            // Collect form data
-            _Brand.Name = BrandName.Text.Trim();
-            _Brand.Description = BrandDescription.Text;
+            _Brand = clsBrand.FindByID(_BrandID);
 
-            // Try to save brand
-            try
+            if (_Brand == null)
             {
-                if (!_Brand.Save())
-                {
-                    _logger.LogWarning("Failed to save brand: {BrandName}", _Brand.Name);
-                    MessageBox.Show(
-                        "Failed to save brand: " + _Brand.Name,
-                        "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error
-                    );
-                    return false;
-                }
-
-
-                if (FormMode == enMode.AddNew)
-                {
-                    // saved successfully, now save warehouses
-                    MessageBox.Show(
-                            "Brand saved successfully.",
-                            "Success",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information
-                        );
-
-
-                    IsSaved = true;
-                }
-                else if (FormMode == enMode.Update)
-                {
-                        MessageBox.Show(
-                            "Brand updated successfully.",
-                            "Success",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information
-                        );
-                }
-
-                return true;
+                MessageBox.Show("Brand record not found.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
+                return;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Unexpected error saving brand: {BrandName}", _Brand.Name);
-                MessageBox.Show(
-                    "حدث خطأ غير متوقع أثناء حفظ العلامة التجارية. المرجو الاتصال بالدعم.",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error
-                );
-                return false;
-            }
+
+            BrandName.Text = _Brand.Name;
+            BrandDescription.Text = _Brand.Description;
         }
 
+        // ============================
+        // LIVE VALIDATION
+        // ============================
+        private void BrandNameInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_isLoadingForm) return;
+
+            var control = sender as ModernInput;
+            if (control == null || string.IsNullOrWhiteSpace(control.Text)) return;
+
+            control.Validate(live: true, externalValidator: text =>
+            {
+                text = text.Trim();
+
+                bool exists = _FormMode == enMode.Update
+                    ? clsBrand.IsBrandExistByName(text, _BrandID)
+                    : clsBrand.IsBrandExistByName(text);
+
+                return exists ? "This brand name already exists." : null;
+            });
+        }
+
+        // ============================
+        // SAVE
+        // ============================
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             HideMessages();
 
-            ValidationResult validationResults = ValidateAllFields();
+            ValidationResult validation = _ValidateAllFields();
 
-            if (!validationResults.IsValid)
+            if (!validation.IsValid)
             {
-                ShowErrorMessage(validationResults.Errors);
-                ScrollToFirstError(validationResults.FirstInvalidControl);
+                ShowErrorMessage(validation.Errors);
+                ScrollToFirstError(validation.FirstInvalidControl);
                 return;
             }
 
-            // Validation passed — now try to save
-            bool saved = ProcessFormData();
+            _ProcessFormData();
+        }
 
-            if (saved)
+        private void _ProcessFormData()
+        {
+            _Brand.Name = BrandName.Text.Trim();
+            _Brand.Description = BrandDescription.Text.Trim();
+
+            try
             {
+                bool saved = _Brand.Save();
+
+                if (!saved)
+                {
+                    // Save() returned false — validation blocked it (name taken, etc.)
+                    // No need to log — nothing exceptional happened
+                    ShowErrorMessage(new List<string> { "• Failed to save. The brand name may already exist." });
+                    return;
+                }
+
+                IsSaved = true;
                 ShowSuccessMessage();
-
-
+            }
+            catch (Exception)
+            {
+                // DAL already logged this — just show a friendly message
+                MessageBox.Show(
+                    "An unexpected error occurred while saving. Please contact support.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
         }
 
-        private ValidationResult ValidateAllFields()
+        // ============================
+        // VALIDATION
+        // ============================
+        private ValidationResult _ValidateAllFields()
         {
             var result = new ValidationResult { IsValid = true };
             var errors = new List<string>();
 
-
-            // Force validation
+            // Required + format check
             BrandName.ValidateForce();
-
             if (!BrandName.IsValid)
             {
                 errors.Add($"• {BrandName.ValidationMessageText}");
@@ -262,25 +190,16 @@ namespace POS_WPF.Brand
                     result.FirstInvalidControl = BrandName;
             }
 
-            // Force validation with duplicate check
+            // Duplicate name check
             BrandName.Validate(live: false, externalValidator: text =>
             {
-                if (FormMode == enMode.Update)
-                {
-                    if (clsBrand.IsBrandExistByName(text.Trim(), _BrandID))
-                        return "This brand name already exists.";
-                }
-                else
-                {
-                    if (clsBrand.IsBrandExistByName(text.Trim()))
-                        return "This brand name already exists.";
-                }
+                bool exists = _FormMode == enMode.Update
+                    ? clsBrand.IsBrandExistByName(text.Trim(), _BrandID)
+                    : clsBrand.IsBrandExistByName(text.Trim());
 
-                return null; // no errors
+                return exists ? "This brand name already exists." : null;
             });
 
-
-            // Validate Bio - FORCE validation
             BrandDescription.ValidateForce();
             if (!BrandDescription.IsValid)
             {
@@ -289,8 +208,6 @@ namespace POS_WPF.Brand
                     result.FirstInvalidControl = BrandDescription;
             }
 
-
-            // Set result
             if (errors.Any())
             {
                 result.IsValid = false;
@@ -300,53 +217,35 @@ namespace POS_WPF.Brand
             return result;
         }
 
+        // ============================
+        // UI HELPERS
+        // ============================
         private void ShowErrorMessage(List<string> errors)
         {
             ErrorMessageText.Text = string.Join("\n", errors);
             ErrorMessageBox.Visibility = Visibility.Visible;
 
-            // Animate in
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = System.TimeSpan.FromMilliseconds(300)
-            };
-            ErrorMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            ErrorMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
-            // Optional: Scroll to top to show error
-            var scrollViewer = FindScrollViewer(this);
-            scrollViewer?.ScrollToTop();
+            FindScrollViewer(this)?.ScrollToTop();
         }
 
         private void ShowSuccessMessage()
         {
             SuccessMessageBox.Visibility = Visibility.Visible;
 
-            // Animate in
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = System.TimeSpan.FromMilliseconds(300)
-            };
-            SuccessMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            SuccessMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
-            // Optional: Auto-hide after 5 seconds
             var timer = new System.Windows.Threading.DispatcherTimer
             {
-                Interval = System.TimeSpan.FromSeconds(8)
+                Interval = TimeSpan.FromSeconds(8)
             };
-            timer.Tick += (s, e) =>
-            {
-                HideMessages();
-                timer.Stop();
-            };
+            timer.Tick += (s, e) => { HideMessages(); timer.Stop(); };
             timer.Start();
 
-            // Scroll to top to show success
-            var scrollViewer = FindScrollViewer(this);
-            scrollViewer?.ScrollToTop();
+            FindScrollViewer(this)?.ScrollToTop();
         }
 
         private void HideMessages()
@@ -357,29 +256,25 @@ namespace POS_WPF.Brand
 
         private void ScrollToFirstError(FrameworkElement control)
         {
-            if (control != null)
-            {
-                control.BringIntoView();
-            }
+            control?.BringIntoView();
         }
 
         private ScrollViewer FindScrollViewer(DependencyObject obj)
         {
-            if (obj is ScrollViewer scrollViewer)
-                return scrollViewer;
+            if (obj is ScrollViewer sv) return sv;
 
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(obj); i++)
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
             {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(obj, i);
-                var result = FindScrollViewer(child);
-                if (result != null)
-                    return result;
+                var result = FindScrollViewer(VisualTreeHelper.GetChild(obj, i));
+                if (result != null) return result;
             }
 
             return null;
         }
 
-        // Helper class for validation results
+        // ============================
+        // HELPER CLASS
+        // ============================
         private class ValidationResult
         {
             public bool IsValid { get; set; }
