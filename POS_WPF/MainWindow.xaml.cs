@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -298,53 +300,89 @@ namespace POS_WPF
             }
         }
 
-        private void ToggleSidebar(bool forceCollapse = false)
+        private CancellationTokenSource _sidebarCts;
+
+        private async void ToggleSidebar(bool forceCollapse = false)
         {
-            // Tell pages: sidebar is moving
-            //categoryPage.IsSidebarToggling = true;
-            //modelPage.IsSidebarToggling = true;
+            // Cancel any in-progress toggle (rapid clicks)
+            _sidebarCts?.Cancel();
+            _sidebarCts = new CancellationTokenSource();
+            var token = _sidebarCts.Token;
 
+            // ── Compute state on current thread (UI) ──────────────────────────────
             bool targetState = forceCollapse ? false : !isSidebarOpen;
-
-            long Timing = 190;
-
-            // -------- Profile --------
-            ProfileTextStack.Visibility = targetState ? Visibility.Visible : Visibility.Collapsed;
-
-            // Animate profile icon size
-            ProfileIcon.BeginAnimation(WidthProperty,
-                new DoubleAnimation(targetState ? 50 : 40, TimeSpan.FromMilliseconds(Timing)));
-            ProfileIcon.BeginAnimation(HeightProperty,
-                new DoubleAnimation(targetState ? 50 : 40, TimeSpan.FromMilliseconds(Timing)));
-
-            // -------- Sidebar width --------
-            double fromWidth = isSidebarOpen ? 280 : 60;
+            int timing = 200;
+            double fromWidth = Sidebar.ActualWidth;
             double toWidth = targetState ? 280 : 60;
+            double profileSize = targetState ? 50 : 40;
 
-            var sidebarAnim = new DoubleAnimation
+            // Commit state immediately (before any await)
+            isSidebarOpen = targetState;
+            UpdateHamburgerIcon();
+
+            // ── Hide text immediately if collapsing (UI thread) ───────────────────
+            if (!targetState)
+            {
+                ProfileTextStack.Visibility = Visibility.Collapsed;
+                SetSidebarButtonTextsVisibility(false);
+            }
+
+            // ── Fire all animations (UI thread, no blocking) ──────────────────────
+            var ease = new CubicEase { EasingMode = EasingMode.EaseInOut };
+            var duration = TimeSpan.FromMilliseconds(timing);
+
+            Sidebar.BeginAnimation(WidthProperty, new DoubleAnimation
             {
                 From = fromWidth,
                 To = toWidth,
-                Duration = TimeSpan.FromMilliseconds(Timing),
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
-            };
-            Sidebar.BeginAnimation(WidthProperty, sidebarAnim);
+                Duration = duration,
+                EasingFunction = ease
+            });
 
-            // -------- Main content margin --------
+            ProfileIcon.BeginAnimation(WidthProperty, new DoubleAnimation(profileSize, duration));
+            ProfileIcon.BeginAnimation(HeightProperty, new DoubleAnimation(profileSize, duration));
+
             var mainGrid = ((Grid)this.Content).Children[1] as Grid;
             if (mainGrid != null)
             {
-                var marginAnim = new ThicknessAnimation
+                mainGrid.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation
                 {
                     From = mainGrid.Margin,
                     To = new Thickness(toWidth, 0, 0, 0),
-                    Duration = TimeSpan.FromMilliseconds(Timing),
-                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
-                };
-                mainGrid.BeginAnimation(Grid.MarginProperty, marginAnim);
+                    Duration = duration,
+                    EasingFunction = ease
+                });
             }
 
-            // -------- Show/hide button texts --------
+            // ── Wait off the UI thread, then show text (opening only) ────────────
+            if (targetState)
+            {
+                try
+                {
+                    // Delay runs on a thread pool thread — UI is completely free
+                    await Task.Delay((int)(timing * 0.6), token);
+
+                    if (token.IsCancellationRequested)
+                        return;
+
+                    // Marshal back to UI thread for visibility changes
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (token.IsCancellationRequested) return;
+                        ProfileTextStack.Visibility = Visibility.Visible;
+                        SetSidebarButtonTextsVisibility(true);
+                    });
+                }
+                catch (TaskCanceledException)
+                {
+                    // A new toggle fired before the delay finished — do nothing
+                }
+            }
+        }
+
+        private void SetSidebarButtonTextsVisibility(bool visible)
+        {
+            var vis = visible ? Visibility.Visible : Visibility.Collapsed;
             foreach (var child in Sidebar.ChildOfType<StackPanel>().First().Children)
             {
                 if (child is Button btn)
@@ -355,31 +393,11 @@ namespace POS_WPF
                         {
                             var textBlock = gridChild.Children.OfType<TextBlock>().FirstOrDefault();
                             if (textBlock != null)
-                                textBlock.Visibility = targetState ? Visibility.Visible : Visibility.Collapsed;
+                                textBlock.Visibility = vis;
                         }
                     }
                 }
             }
-
-            // -------- End of animation --------
-            sidebarAnim.Completed += (s, e) =>
-            {
-                Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Loaded,
-                    new Action(() =>
-                    {
-                        //categoryPage.IsSidebarToggling = false;
-                        //modelPage.IsSidebarToggling = false;
-                    })
-                );
-            };
-
-
-            // Update state
-            isSidebarOpen = targetState;
-
-            // Update hamburger icon
-            UpdateHamburgerIcon();
         }
 
         private void Dashboard_Click(object sender, RoutedEventArgs e)
