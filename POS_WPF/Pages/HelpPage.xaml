@@ -314,7 +314,7 @@
                                 <Border CornerRadius="10" Background="#FFF8F8" Margin="0,0,0,4">
                                     <StackPanel>
                                         <Border CornerRadius="10" Cursor="Hand"
-                                                MouseLeftButtonUp="DeleteCategory_Toggle">
+                MouseLeftButtonUp="DeleteCategory_Toggle">
                                             <Grid Margin="14,12">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -322,20 +322,20 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Width="26" Height="26"
-                                                        CornerRadius="13" Background="#F05454"
-                                                        Margin="0,0,12,0">
+                        CornerRadius="13" Background="#F05454"
+                        Margin="0,0,12,0">
                                                     <TextBlock Text="3" FontSize="11" FontWeight="Bold"
-                                                               Foreground="White" FontFamily="Segoe UI"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
+                               Foreground="White" FontFamily="Segoe UI"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Grid.Column="1" Text="Delete Category"
-                                                           FontSize="13" FontWeight="SemiBold"
-                                                           Foreground="#1A1D23" FontFamily="Segoe UI"
-                                                           VerticalAlignment="Center"/>
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="#1A1D23" FontFamily="Segoe UI"
+                           VerticalAlignment="Center"/>
                                                 <TextBlock Grid.Column="2" Text="▾"
-                                                           FontSize="12" Foreground="#9099A8"
-                                                           VerticalAlignment="Center">
+                           FontSize="12" Foreground="#9099A8"
+                           VerticalAlignment="Center">
                                                     <TextBlock.RenderTransformOrigin>0.5,0.5</TextBlock.RenderTransformOrigin>
                                                     <TextBlock.RenderTransform>
                                                         <RotateTransform x:Name="DeleteArrowRotate" Angle="0"/>
@@ -345,46 +345,46 @@
                                         </Border>
 
                                         <Border x:Name="DeleteCategoryContent"
-                                                Height="0" ClipToBounds="True">
+                Height="0" ClipToBounds="True">
                                             <StackPanel x:Name="DeleteCategoryInner"
-                                                        Margin="14,0,14,0" Opacity="0">
+                        Margin="14,0,14,0" Opacity="0">
 
                                                 <Border Style="{StaticResource Divider}" Margin="0,0,0,10"/>
 
                                                 <TextBlock Text="How to delete a category:"
-                                                           FontSize="12" FontWeight="SemiBold"
-                                                           Foreground="#F05454" FontFamily="Segoe UI"
-                                                           Margin="0,0,0,8"/>
+                           FontSize="12" FontWeight="SemiBold"
+                           Foreground="#F05454" FontFamily="Segoe UI"
+                           Margin="0,0,0,8"/>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                        <Run FontWeight="SemiBold" Text="Find "/>
-                                                        <Run Text="the category you want to remove in the list."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Find "/>
+                        <Run Text="the category you want to remove in the list."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                        <Run FontWeight="SemiBold" Text="Click "/>
-                                                        <Run Text="the "/>
-                                                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
-                                                        <Run Text="icon next to the category."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Click "/>
+                        <Run Text="the "/>
+                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
+                        <Run Text="icon next to the category."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                        <Run FontWeight="SemiBold" Text="The system will check "/>
-                                                        <Run Text="if this category has linked products before proceeding."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="The system will check "/>
+                        <Run Text="if this category has linked products before proceeding."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
@@ -395,90 +395,123 @@
                                                         <ColumnDefinition Width="8"/>
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
+
+                                                    <!-- No linked products -->
                                                     <Border Grid.Column="0" CornerRadius="8"
-                                                            Background="#EDFAF4" Padding="10">
+                            Background="#EDFAF4" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="✅  No linked products"
-                                                                       FontSize="11.5" FontWeight="Bold"
-                                                                       Foreground="#2DBD74" FontFamily="Segoe UI"
-                                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#2DBD74" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                                       Text="The category is deleted immediately with a simple confirmation prompt."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The category is deleted immediately with a simple confirmation."/>
                                                         </StackPanel>
                                                     </Border>
+
+                                                    <!-- Has linked products -->
                                                     <Border Grid.Column="2" CornerRadius="8"
-                                                            Background="#FFF0F0" Padding="10">
+                            Background="#FFF0F0" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="⚠️  Has linked products"
-                                                                       FontSize="11.5" FontWeight="Bold"
-                                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                                       Text="A warning appears informing you that all products under this category will also be deleted."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The system shows a message with the total linked products count and asks if you want to delete anyway."/>
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
 
                                                 <!-- Warning Preview -->
                                                 <Border CornerRadius="8" Margin="0,10,0,0"
-                                                        Background="#FFF0F0" BorderBrush="#F05454"
-                                                        BorderThickness="1.2" Padding="12,10">
+                        Background="#FFF0F0" BorderBrush="#F05454"
+                        BorderThickness="1.2" Padding="12,10">
                                                     <StackPanel>
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                             <TextBlock Text="⚠️" FontSize="14"
-                                                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                             <TextBlock Text="Warning Message Preview"
-                                                                       FontSize="11.5" FontWeight="Bold"
-                                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                                       VerticalAlignment="Center"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                         <Border Height="1" Background="#FFCDD2" Margin="0,0,0,8"/>
                                                         <TextBlock FontSize="11.5" Foreground="#5C3333"
-                                                                   FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                                   FontStyle="Italic"
-                                                                   Text="&quot;This category has products linked to it. Deleting it will permanently remove all associated products as well. Are you sure you want to continue?&quot;"/>
+                                   FontFamily="Segoe UI" TextWrapping="Wrap"
+                                   FontStyle="Italic"
+                                   Text="&quot;Cannot delete this category. It is linked with: - 3 Products. Do you want to delete anyway?&quot;"/>
                                                         <StackPanel Orientation="Horizontal"
-                                                                    HorizontalAlignment="Right"
-                                                                    Margin="0,10,0,0">
+                                    HorizontalAlignment="Right"
+                                    Margin="0,10,0,0">
                                                             <Border CornerRadius="5" Background="#E0E0E0"
-                                                                    Padding="10,4" Margin="0,0,6,0">
+                                    Padding="10,4" Margin="0,0,6,0">
                                                                 <TextBlock Text="Cancel" FontSize="11"
-                                                                           Foreground="#555555"
-                                                                           FontFamily="Segoe UI"
-                                                                           FontWeight="SemiBold"/>
+                                           Foreground="#555555"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                             <Border CornerRadius="5" Background="#F05454"
-                                                                    Padding="10,4">
+                                    Padding="10,4">
                                                                 <TextBlock Text="Delete Anyway" FontSize="11"
-                                                                           Foreground="White"
-                                                                           FontFamily="Segoe UI"
-                                                                           FontWeight="SemiBold"/>
+                                           Foreground="White"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>
 
+                                                <!-- Deactivate tip -->
+                                                <Border CornerRadius="8" Background="#EEF0FF"
+                        Padding="12,8" Margin="0,10,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0"
+                                   Text="💡" FontSize="13"
+                                   VerticalAlignment="Top"
+                                   Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1"
+                                   FontSize="11.5" Foreground="#5B6BF8"
+                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Tip: "/>
+                            <Run Text="Instead of deleting, you can "/>
+                            <Run FontWeight="Bold" Text="deactivate"/>
+                            <Run Text=" the category. Deactivating hides it from the system without removing any data or breaking any existing links."/>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+
                                                 <!-- Final Warning -->
                                                 <Border CornerRadius="8" Background="#FFF8E1"
-                                                        Padding="12,8" Margin="0,10,0,14">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="🔴" FontSize="13"
-                                                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
-                                                        <TextBlock FontSize="11.5" Foreground="#B8860B"
-                                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                            <Run FontWeight="SemiBold" Text="Important: "/>
-                                                            <Run Text="This action is irreversible. Once confirmed, the category and all its products will be permanently deleted from the system."/>
+                        Padding="12,8" Margin="0,10,0,14">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0"
+                                   Text="🔴" FontSize="13"
+                                   VerticalAlignment="Top"
+                                   Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1"
+                                   FontSize="11.5" Foreground="#B8860B"
+                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Important: "/>
+                            <Run Text="Deleting a category that has linked products will permanently remove all those products as well. If you are not sure, use deactivate instead."/>
                                                         </TextBlock>
-                                                    </StackPanel>
+                                                    </Grid>
                                                 </Border>
 
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
                                 </Border>
-
                             </StackPanel>
                         </Border>
 
@@ -768,7 +801,7 @@
                                 <Border CornerRadius="10" Background="#FFF8F8" Margin="0,0,0,4">
                                     <StackPanel>
                                         <Border CornerRadius="10" Cursor="Hand"
-                                                MouseLeftButtonUp="DeleteModel_Toggle">
+                MouseLeftButtonUp="DeleteModel_Toggle">
                                             <Grid Margin="14,12">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -776,20 +809,20 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Width="26" Height="26"
-                                                        CornerRadius="13" Background="#F05454"
-                                                        Margin="0,0,12,0">
+                        CornerRadius="13" Background="#F05454"
+                        Margin="0,0,12,0">
                                                     <TextBlock Text="3" FontSize="11" FontWeight="Bold"
-                                                               Foreground="White" FontFamily="Segoe UI"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
+                               Foreground="White" FontFamily="Segoe UI"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Grid.Column="1" Text="Delete Model"
-                                                           FontSize="13" FontWeight="SemiBold"
-                                                           Foreground="#1A1D23" FontFamily="Segoe UI"
-                                                           VerticalAlignment="Center"/>
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="#1A1D23" FontFamily="Segoe UI"
+                           VerticalAlignment="Center"/>
                                                 <TextBlock Grid.Column="2" Text="▾"
-                                                           FontSize="12" Foreground="#9099A8"
-                                                           VerticalAlignment="Center">
+                           FontSize="12" Foreground="#9099A8"
+                           VerticalAlignment="Center">
                                                     <TextBlock.RenderTransformOrigin>0.5,0.5</TextBlock.RenderTransformOrigin>
                                                     <TextBlock.RenderTransform>
                                                         <RotateTransform x:Name="DeleteModelArrowRotate" Angle="0"/>
@@ -799,46 +832,46 @@
                                         </Border>
 
                                         <Border x:Name="DeleteModelContent"
-                                                Height="0" ClipToBounds="True">
+                Height="0" ClipToBounds="True">
                                             <StackPanel x:Name="DeleteModelInner"
-                                                        Margin="14,0,14,0" Opacity="0">
+                        Margin="14,0,14,0" Opacity="0">
 
                                                 <Border Style="{StaticResource Divider}" Margin="0,0,0,10"/>
 
                                                 <TextBlock Text="How to delete a model:"
-                                                           FontSize="12" FontWeight="SemiBold"
-                                                           Foreground="#F05454" FontFamily="Segoe UI"
-                                                           Margin="0,0,0,8"/>
+                           FontSize="12" FontWeight="SemiBold"
+                           Foreground="#F05454" FontFamily="Segoe UI"
+                           Margin="0,0,0,8"/>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                        <Run FontWeight="SemiBold" Text="Find "/>
-                                                        <Run Text="the model you want to remove in the list."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Find "/>
+                        <Run Text="the model you want to remove in the list."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                        <Run FontWeight="SemiBold" Text="Click "/>
-                                                        <Run Text="the "/>
-                                                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
-                                                        <Run Text="icon next to the model."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Click "/>
+                        <Run Text="the "/>
+                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
+                        <Run Text="icon next to the model."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                        <Run FontWeight="SemiBold" Text="The system will check "/>
-                                                        <Run Text="if this model has linked products before proceeding."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="The system will check "/>
+                        <Run Text="if this model has linked products before proceeding."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
@@ -849,90 +882,123 @@
                                                         <ColumnDefinition Width="8"/>
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
+
+                                                    <!-- No linked products -->
                                                     <Border Grid.Column="0" CornerRadius="8"
-                                                            Background="#EDFAF4" Padding="10">
+                            Background="#EDFAF4" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="✅  No linked products"
-                                                                       FontSize="11.5" FontWeight="Bold"
-                                                                       Foreground="#2DBD74" FontFamily="Segoe UI"
-                                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#2DBD74" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                                       Text="The model is deleted immediately with a simple confirmation prompt."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The model is deleted immediately with a simple confirmation."/>
                                                         </StackPanel>
                                                     </Border>
+
+                                                    <!-- Has linked products -->
                                                     <Border Grid.Column="2" CornerRadius="8"
-                                                            Background="#FFF0F0" Padding="10">
+                            Background="#FFF0F0" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="⚠️  Has linked products"
-                                                                       FontSize="11.5" FontWeight="Bold"
-                                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                                       Text="A warning appears informing you that all products under this model will also be deleted."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The system shows the total linked products count and asks if you want to delete anyway."/>
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
 
                                                 <!-- Warning Preview -->
                                                 <Border CornerRadius="8" Margin="0,10,0,0"
-                                                        Background="#FFF0F0" BorderBrush="#F05454"
-                                                        BorderThickness="1.2" Padding="12,10">
+                        Background="#FFF0F0" BorderBrush="#F05454"
+                        BorderThickness="1.2" Padding="12,10">
                                                     <StackPanel>
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                             <TextBlock Text="⚠️" FontSize="14"
-                                                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                             <TextBlock Text="Warning Message Preview"
-                                                                       FontSize="11.5" FontWeight="Bold"
-                                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                                       VerticalAlignment="Center"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                         <Border Height="1" Background="#FFCDD2" Margin="0,0,0,8"/>
                                                         <TextBlock FontSize="11.5" Foreground="#5C3333"
-                                                                   FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                                   FontStyle="Italic"
-                                                                   Text="&quot;This model has products linked to it. Deleting it will permanently remove all associated products as well. Are you sure you want to continue?&quot;"/>
+                                   FontFamily="Segoe UI" TextWrapping="Wrap"
+                                   FontStyle="Italic"
+                                   Text="&quot;Cannot delete this model. It is linked with: - 5 Products. Do you want to delete anyway?&quot;"/>
                                                         <StackPanel Orientation="Horizontal"
-                                                                    HorizontalAlignment="Right"
-                                                                    Margin="0,10,0,0">
+                                    HorizontalAlignment="Right"
+                                    Margin="0,10,0,0">
                                                             <Border CornerRadius="5" Background="#E0E0E0"
-                                                                    Padding="10,4" Margin="0,0,6,0">
+                                    Padding="10,4" Margin="0,0,6,0">
                                                                 <TextBlock Text="Cancel" FontSize="11"
-                                                                           Foreground="#555555"
-                                                                           FontFamily="Segoe UI"
-                                                                           FontWeight="SemiBold"/>
+                                           Foreground="#555555"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                             <Border CornerRadius="5" Background="#F05454"
-                                                                    Padding="10,4">
+                                    Padding="10,4">
                                                                 <TextBlock Text="Delete Anyway" FontSize="11"
-                                                                           Foreground="White"
-                                                                           FontFamily="Segoe UI"
-                                                                           FontWeight="SemiBold"/>
+                                           Foreground="White"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>
 
+                                                <!-- Deactivate tip -->
+                                                <Border CornerRadius="8" Background="#EEF0FF"
+                        Padding="12,8" Margin="0,10,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0"
+                                   Text="💡" FontSize="13"
+                                   VerticalAlignment="Top"
+                                   Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1"
+                                   FontSize="11.5" Foreground="#5B6BF8"
+                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Tip: "/>
+                            <Run Text="Instead of deleting, you can "/>
+                            <Run FontWeight="Bold" Text="deactivate"/>
+                            <Run Text=" the model. Deactivating hides it from the system without removing any data or breaking any existing product links."/>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+
                                                 <!-- Final Warning -->
                                                 <Border CornerRadius="8" Background="#FFF8E1"
-                                                        Padding="12,8" Margin="0,10,0,14">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="🔴" FontSize="13"
-                                                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
-                                                        <TextBlock FontSize="11.5" Foreground="#B8860B"
-                                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
-                                                            <Run FontWeight="SemiBold" Text="Important: "/>
-                                                            <Run Text="This action is irreversible. Once confirmed, the model and all its products will be permanently deleted from the system."/>
+                        Padding="12,8" Margin="0,10,0,14">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0"
+                                   Text="🔴" FontSize="13"
+                                   VerticalAlignment="Top"
+                                   Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1"
+                                   FontSize="11.5" Foreground="#B8860B"
+                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Important: "/>
+                            <Run Text="Deleting a model that has linked products will permanently remove all those products as well. If you are not sure, use deactivate instead."/>
                                                         </TextBlock>
-                                                    </StackPanel>
+                                                    </Grid>
                                                 </Border>
 
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
                                 </Border>
-
                             </StackPanel>
                         </Border>
 
@@ -1214,11 +1280,12 @@
                                     </StackPanel>
                                 </Border>
 
+                                
                                 <!-- ── 3. DELETE SERIES ── -->
                                 <Border CornerRadius="10" Background="#FFF8F8" Margin="0,0,0,4">
                                     <StackPanel>
                                         <Border CornerRadius="10" Cursor="Hand"
-                                MouseLeftButtonUp="DeleteSeries_Toggle">
+                MouseLeftButtonUp="DeleteSeries_Toggle">
                                             <Grid Margin="14,12">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -1226,20 +1293,20 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Width="26" Height="26"
-                                        CornerRadius="13" Background="#F05454"
-                                        Margin="0,0,12,0">
+                        CornerRadius="13" Background="#F05454"
+                        Margin="0,0,12,0">
                                                     <TextBlock Text="3" FontSize="11" FontWeight="Bold"
-                                               Foreground="White" FontFamily="Segoe UI"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
+                               Foreground="White" FontFamily="Segoe UI"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Grid.Column="1" Text="Delete Series"
-                                           FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#1A1D23" FontFamily="Segoe UI"
-                                           VerticalAlignment="Center"/>
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="#1A1D23" FontFamily="Segoe UI"
+                           VerticalAlignment="Center"/>
                                                 <TextBlock Grid.Column="2" Text="▾"
-                                           FontSize="12" Foreground="#9099A8"
-                                           VerticalAlignment="Center">
+                           FontSize="12" Foreground="#9099A8"
+                           VerticalAlignment="Center">
                                                     <TextBlock.RenderTransformOrigin>0.5,0.5</TextBlock.RenderTransformOrigin>
                                                     <TextBlock.RenderTransform>
                                                         <RotateTransform x:Name="DeleteSeriesArrowRotate" Angle="0"/>
@@ -1249,46 +1316,46 @@
                                         </Border>
 
                                         <Border x:Name="DeleteSeriesContent"
-                                Height="0" ClipToBounds="True">
+                Height="0" ClipToBounds="True">
                                             <StackPanel x:Name="DeleteSeriesInner"
-                                        Margin="14,0,14,0" Opacity="0">
+                        Margin="14,0,14,0" Opacity="0">
 
                                                 <Border Style="{StaticResource Divider}" Margin="0,0,0,10"/>
 
                                                 <TextBlock Text="How to delete a series:"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#F05454" FontFamily="Segoe UI"
-                                           Margin="0,0,0,8"/>
+                           FontSize="12" FontWeight="SemiBold"
+                           Foreground="#F05454" FontFamily="Segoe UI"
+                           Margin="0,0,0,8"/>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Find "/>
-                                        <Run Text="the series you want to remove in the list."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Find "/>
+                        <Run Text="the series you want to remove in the list."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Click "/>
-                                        <Run Text="the "/>
-                                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
-                                        <Run Text="icon next to the series."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Click "/>
+                        <Run Text="the "/>
+                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
+                        <Run Text="icon next to the series."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="The system will check "/>
-                                        <Run Text="if this series has any linked models or products before proceeding."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="The system will check "/>
+                        <Run Text="if this series has any linked models or products before proceeding."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
@@ -1307,82 +1374,82 @@
 
                                                     <!-- No relations -->
                                                     <Border Grid.Row="0" Grid.Column="0"
-                                            CornerRadius="8" Background="#EDFAF4" Padding="10">
+                            CornerRadius="8" Background="#EDFAF4" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="✅  No relations"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#2DBD74" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#2DBD74" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="The series is deleted immediately with a simple confirmation prompt."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The series is deleted immediately with a simple confirmation."/>
                                                         </StackPanel>
                                                     </Border>
 
                                                     <!-- Has models only -->
                                                     <Border Grid.Row="0" Grid.Column="2"
-                                            CornerRadius="8" Background="#FFF8E8" Padding="10">
+                            CornerRadius="8" Background="#FFF8E8" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="⚠️  Has linked models"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#E08C00" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#E08C00" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="A warning appears. Deleting the series will also remove all models under it."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The system shows the total linked models count and asks if you want to delete anyway."/>
                                                         </StackPanel>
                                                     </Border>
 
                                                     <!-- Has models + products -->
                                                     <Border Grid.Row="2" Grid.Column="0"
-                                            Grid.ColumnSpan="3"
-                                            CornerRadius="8" Background="#FFF0F0" Padding="10">
+                            Grid.ColumnSpan="3"
+                            CornerRadius="8" Background="#FFF0F0" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="🔴  Has linked models AND products"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="The most critical case. A strong warning appears informing you that the series, all its models, and all products under those models will be permanently deleted."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The system shows the total count of models and products linked and asks if you want to delete anyway."/>
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
 
                                                 <!-- Warning Preview -->
                                                 <Border CornerRadius="8" Margin="0,12,0,0"
-                                        Background="#FFF0F0" BorderBrush="#F05454"
-                                        BorderThickness="1.2" Padding="12,10">
+                        Background="#FFF0F0" BorderBrush="#F05454"
+                        BorderThickness="1.2" Padding="12,10">
                                                     <StackPanel>
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                             <TextBlock Text="⚠️" FontSize="14"
-                                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                             <TextBlock Text="Warning Message Preview"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       VerticalAlignment="Center"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                         <Border Height="1" Background="#FFCDD2" Margin="0,0,0,8"/>
                                                         <TextBlock FontSize="11.5" Foreground="#5C3333"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                   FontStyle="Italic"
-                                                   Text="&quot;This series has linked models and products. Deleting it will permanently remove the series, all its models, and all products under those models. This action cannot be undone. Are you sure you want to continue?&quot;"/>
+                                   FontFamily="Segoe UI" TextWrapping="Wrap"
+                                   FontStyle="Italic"
+                                   Text="&quot;Cannot delete this series. It is linked with: - 3 Models - 12 Products. Do you want to delete anyway?&quot;"/>
                                                         <StackPanel Orientation="Horizontal"
-                                                    HorizontalAlignment="Right"
-                                                    Margin="0,10,0,0">
+                                    HorizontalAlignment="Right"
+                                    Margin="0,10,0,0">
                                                             <Border CornerRadius="5" Background="#E0E0E0"
-                                                    Padding="10,4" Margin="0,0,6,0">
+                                    Padding="10,4" Margin="0,0,6,0">
                                                                 <TextBlock Text="Cancel" FontSize="11"
-                                                           Foreground="#555555"
-                                                           FontFamily="Segoe UI"
-                                                           FontWeight="SemiBold"/>
+                                           Foreground="#555555"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                             <Border CornerRadius="5" Background="#F05454"
-                                                    Padding="10,4">
+                                    Padding="10,4">
                                                                 <TextBlock Text="Delete Anyway" FontSize="11"
-                                                           Foreground="White"
-                                                           FontFamily="Segoe UI"
-                                                           FontWeight="SemiBold"/>
+                                           Foreground="White"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                         </StackPanel>
                                                     </StackPanel>
@@ -1390,80 +1457,96 @@
 
                                                 <!-- Cascade diagram -->
                                                 <Border CornerRadius="8" Background="#F9F6FF"
-                                        Padding="12,10" Margin="0,10,0,0">
+                        Padding="12,10" Margin="0,10,0,0">
                                                     <StackPanel>
                                                         <TextBlock Text="🔗  What gets deleted (cascade)"
-                                                   FontSize="11.5" FontWeight="Bold"
-                                                   Foreground="#7C4DFF" FontFamily="Segoe UI"
-                                                   Margin="0,0,0,10"/>
+                                   FontSize="11.5" FontWeight="Bold"
+                                   Foreground="#7C4DFF" FontFamily="Segoe UI"
+                                   Margin="0,0,0,10"/>
 
-                                                        <!-- Series row -->
+                                                        <!-- Series -->
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#7C4DFF"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#7C4DFF" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#7C4DFF"
-                                                       FontFamily="Segoe UI"
-                                                       Text="Series (deleted)"/>
+                                       Foreground="#7C4DFF" FontFamily="Segoe UI"
+                                       Text="Series (deleted)"/>
                                                         </StackPanel>
 
-                                                        <!-- Models row -->
+                                                        <!-- Models -->
                                                         <StackPanel Orientation="Horizontal" Margin="16,0,0,6">
-                                                            <TextBlock Text="└─" FontSize="11"
-                                                       Foreground="#9099A8"
-                                                       FontFamily="Consolas"
-                                                       Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#FF8C42"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#FF8C42" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#FF8C42"
-                                                       FontFamily="Segoe UI"
-                                                       Text="All Models under this series (deleted)"/>
+                                       Foreground="#FF8C42" FontFamily="Segoe UI"
+                                       Text="All Models under this series (deleted)"/>
                                                         </StackPanel>
 
-                                                        <!-- Products row -->
+                                                        <!-- Products -->
                                                         <StackPanel Orientation="Horizontal" Margin="32,0,0,0">
-                                                            <TextBlock Text="└─" FontSize="11"
-                                                       Foreground="#9099A8"
-                                                       FontFamily="Consolas"
-                                                       Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#F05454"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#F05454" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#F05454"
-                                                       FontFamily="Segoe UI"
-                                                       Text="All Products under those models (deleted)"/>
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Text="All Products under those models (deleted)"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>
 
+                                                <!-- Deactivate tip -->
+                                                <Border CornerRadius="8" Background="#EEF0FF"
+                        Padding="12,8" Margin="0,10,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="💡" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#5B6BF8" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Tip: "/>
+                            <Run Text="Instead of deleting, you can "/>
+                            <Run FontWeight="Bold" Text="deactivate"/>
+                            <Run Text=" the series. Deactivating hides it from the system without removing any models, products or breaking any existing links."/>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+
                                                 <!-- Final Warning -->
                                                 <Border CornerRadius="8" Background="#FFF8E1"
-                                        Padding="12,8" Margin="0,10,0,14">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="🔴" FontSize="13"
-                                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
-                                                        <TextBlock FontSize="11.5" Foreground="#B8860B"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
-                                            <Run FontWeight="SemiBold" Text="Important: "/>
-                                            <Run Text="Deleting a series is the most destructive action in the system. It will permanently remove the series, every model belonging to it, and every product under those models. This cannot be undone."/>
+                        Padding="12,8" Margin="0,10,0,14">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="🔴" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#B8860B" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Important: "/>
+                            <Run Text="Deleting a series will permanently remove all its models and every product under those models. If you are not sure, use deactivate instead."/>
                                                         </TextBlock>
-                                                    </StackPanel>
+                                                    </Grid>
                                                 </Border>
 
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
                                 </Border>
-
+                                
                             </StackPanel>
                         </Border>
 
@@ -1755,7 +1838,7 @@
                                 <Border CornerRadius="10" Background="#FFF8F8" Margin="0,0,0,4">
                                     <StackPanel>
                                         <Border CornerRadius="10" Cursor="Hand"
-                                MouseLeftButtonUp="DeleteBrand_Toggle">
+                MouseLeftButtonUp="DeleteBrand_Toggle">
                                             <Grid Margin="14,12">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -1763,20 +1846,20 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Width="26" Height="26"
-                                        CornerRadius="13" Background="#F05454"
-                                        Margin="0,0,12,0">
+                        CornerRadius="13" Background="#F05454"
+                        Margin="0,0,12,0">
                                                     <TextBlock Text="3" FontSize="11" FontWeight="Bold"
-                                               Foreground="White" FontFamily="Segoe UI"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
+                               Foreground="White" FontFamily="Segoe UI"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Grid.Column="1" Text="Delete Brand"
-                                           FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#1A1D23" FontFamily="Segoe UI"
-                                           VerticalAlignment="Center"/>
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="#1A1D23" FontFamily="Segoe UI"
+                           VerticalAlignment="Center"/>
                                                 <TextBlock Grid.Column="2" Text="▾"
-                                           FontSize="12" Foreground="#9099A8"
-                                           VerticalAlignment="Center">
+                           FontSize="12" Foreground="#9099A8"
+                           VerticalAlignment="Center">
                                                     <TextBlock.RenderTransformOrigin>0.5,0.5</TextBlock.RenderTransformOrigin>
                                                     <TextBlock.RenderTransform>
                                                         <RotateTransform x:Name="DeleteBrandArrowRotate" Angle="0"/>
@@ -1786,50 +1869,50 @@
                                         </Border>
 
                                         <Border x:Name="DeleteBrandContent"
-                                Height="0" ClipToBounds="True">
+                Height="0" ClipToBounds="True">
                                             <StackPanel x:Name="DeleteBrandInner"
-                                        Margin="14,0,14,0" Opacity="0">
+                        Margin="14,0,14,0" Opacity="0">
 
                                                 <Border Style="{StaticResource Divider}" Margin="0,0,0,10"/>
 
                                                 <TextBlock Text="How to delete a brand:"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#F05454" FontFamily="Segoe UI"
-                                           Margin="0,0,0,8"/>
+                           FontSize="12" FontWeight="SemiBold"
+                           Foreground="#F05454" FontFamily="Segoe UI"
+                           Margin="0,0,0,8"/>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Find "/>
-                                        <Run Text="the brand you want to remove in the list."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Find "/>
+                        <Run Text="the brand you want to remove in the list."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Click "/>
-                                        <Run Text="the "/>
-                                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
-                                        <Run Text="icon next to the brand."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Click "/>
+                        <Run Text="the "/>
+                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
+                        <Run Text="icon next to the brand."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="The system will check "/>
-                                        <Run Text="if this brand has any linked series, models, or products before proceeding."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="The system will check "/>
+                        <Run Text="if this brand has any linked series, models, or products before proceeding."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
-                                                <!-- Four Scenarios -->
+                                                <!-- Three Scenarios -->
                                                 <Grid>
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto"/>
@@ -1844,82 +1927,82 @@
 
                                                     <!-- No relations -->
                                                     <Border Grid.Row="0" Grid.Column="0"
-                                            CornerRadius="8" Background="#EDFAF4" Padding="10">
+                            CornerRadius="8" Background="#EDFAF4" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="✅  No relations"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#2DBD74" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#2DBD74" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="The brand is deleted immediately with a simple confirmation prompt."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The brand is deleted immediately with a simple confirmation prompt."/>
                                                         </StackPanel>
                                                     </Border>
 
                                                     <!-- Has series only -->
                                                     <Border Grid.Row="0" Grid.Column="2"
-                                            CornerRadius="8" Background="#FFF8E8" Padding="10">
+                            CornerRadius="8" Background="#FFF8E8" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="⚠️  Has linked series"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#E08C00" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#E08C00" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="A warning appears. Deleting the brand will also remove all series under it."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="A warning appears. Deleting the brand will also remove all series under it."/>
                                                         </StackPanel>
                                                     </Border>
 
-                                                    <!-- Has series + models + products (full width) -->
+                                                    <!-- Has series + models + products -->
                                                     <Border Grid.Row="2" Grid.Column="0"
-                                            Grid.ColumnSpan="3"
-                                            CornerRadius="8" Background="#FFF0F0" Padding="10">
+                            Grid.ColumnSpan="3"
+                            CornerRadius="8" Background="#FFF0F0" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="🔴  Has series, models AND products"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="The most critical case. A strong warning appears. Deleting the brand will permanently remove the brand, all its series, all models under those series, and all products under those models."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The most critical case. A strong warning appears. Deleting the brand will permanently remove the brand, all its series, all models under those series, and all products under those models."/>
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
 
                                                 <!-- Warning Preview -->
                                                 <Border CornerRadius="8" Margin="0,12,0,0"
-                                        Background="#FFF0F0" BorderBrush="#F05454"
-                                        BorderThickness="1.2" Padding="12,10">
+                        Background="#FFF0F0" BorderBrush="#F05454"
+                        BorderThickness="1.2" Padding="12,10">
                                                     <StackPanel>
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                             <TextBlock Text="⚠️" FontSize="14"
-                                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                             <TextBlock Text="Warning Message Preview"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       VerticalAlignment="Center"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                         <Border Height="1" Background="#FFCDD2" Margin="0,0,0,8"/>
                                                         <TextBlock FontSize="11.5" Foreground="#5C3333"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                   FontStyle="Italic"
-                                                   Text="&quot;This brand has linked series, models, and products. Deleting it will permanently remove the brand, all its series, all models under those series, and all products under those models. This action cannot be undone. Are you sure you want to continue?&quot;"/>
+                                   FontFamily="Segoe UI" TextWrapping="Wrap"
+                                   FontStyle="Italic"
+                                   Text="&quot;This brand has linked series, models, and products. Deleting it will permanently remove the brand, all its series, all models under those series, and all products under those models. This action cannot be undone. Are you sure you want to continue?&quot;"/>
                                                         <StackPanel Orientation="Horizontal"
-                                                    HorizontalAlignment="Right"
-                                                    Margin="0,10,0,0">
+                                    HorizontalAlignment="Right"
+                                    Margin="0,10,0,0">
                                                             <Border CornerRadius="5" Background="#E0E0E0"
-                                                    Padding="10,4" Margin="0,0,6,0">
+                                    Padding="10,4" Margin="0,0,6,0">
                                                                 <TextBlock Text="Cancel" FontSize="11"
-                                                           Foreground="#555555"
-                                                           FontFamily="Segoe UI"
-                                                           FontWeight="SemiBold"/>
+                                           Foreground="#555555"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                             <Border CornerRadius="5" Background="#F05454"
-                                                    Padding="10,4">
+                                    Padding="10,4">
                                                                 <TextBlock Text="Delete Anyway" FontSize="11"
-                                                           Foreground="White"
-                                                           FontFamily="Segoe UI"
-                                                           FontWeight="SemiBold"/>
+                                           Foreground="White"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                         </StackPanel>
                                                     </StackPanel>
@@ -1927,98 +2010,108 @@
 
                                                 <!-- Cascade diagram -->
                                                 <Border CornerRadius="8" Background="#FFF5F9"
-                                        Padding="12,10" Margin="0,10,0,0">
+                        Padding="12,10" Margin="0,10,0,0">
                                                     <StackPanel>
                                                         <TextBlock Text="🔗  What gets deleted (cascade)"
-                                                   FontSize="11.5" FontWeight="Bold"
-                                                   Foreground="#E91E8C" FontFamily="Segoe UI"
-                                                   Margin="0,0,0,10"/>
+                                   FontSize="11.5" FontWeight="Bold"
+                                   Foreground="#E91E8C" FontFamily="Segoe UI"
+                                   Margin="0,0,0,10"/>
 
                                                         <!-- Brand -->
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#E91E8C"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#E91E8C" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#E91E8C"
-                                                       FontFamily="Segoe UI"
-                                                       Text="Brand (deleted)"/>
+                                       Foreground="#E91E8C" FontFamily="Segoe UI"
+                                       Text="Brand (deleted)"/>
                                                         </StackPanel>
 
                                                         <!-- Series -->
                                                         <StackPanel Orientation="Horizontal" Margin="16,0,0,6">
-                                                            <TextBlock Text="└─" FontSize="11"
-                                                       Foreground="#9099A8"
-                                                       FontFamily="Consolas"
-                                                       Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#7C4DFF"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#7C4DFF" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#7C4DFF"
-                                                       FontFamily="Segoe UI"
-                                                       Text="All Series under this brand (deleted)"/>
+                                       Foreground="#7C4DFF" FontFamily="Segoe UI"
+                                       Text="All Series under this brand (deleted)"/>
                                                         </StackPanel>
 
                                                         <!-- Models -->
                                                         <StackPanel Orientation="Horizontal" Margin="32,0,0,6">
-                                                            <TextBlock Text="└─" FontSize="11"
-                                                       Foreground="#9099A8"
-                                                       FontFamily="Consolas"
-                                                       Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#FF8C42"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#FF8C42" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#FF8C42"
-                                                       FontFamily="Segoe UI"
-                                                       Text="All Models under those series (deleted)"/>
+                                       Foreground="#FF8C42" FontFamily="Segoe UI"
+                                       Text="All Models under those series (deleted)"/>
                                                         </StackPanel>
 
                                                         <!-- Products -->
                                                         <StackPanel Orientation="Horizontal" Margin="48,0,0,0">
-                                                            <TextBlock Text="└─" FontSize="11"
-                                                       Foreground="#9099A8"
-                                                       FontFamily="Consolas"
-                                                       Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#F05454"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#F05454" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#F05454"
-                                                       FontFamily="Segoe UI"
-                                                       Text="All Products under those models (deleted)"/>
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Text="All Products under those models (deleted)"/>
                                                         </StackPanel>
-
                                                     </StackPanel>
+                                                </Border>
+
+                                                <!-- Deactivate tip -->
+                                                <Border CornerRadius="8" Background="#EEF0FF"
+                        Padding="12,8" Margin="0,10,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="💡" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#5B6BF8" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Tip: "/>
+                            <Run Text="Instead of deleting, you can "/>
+                            <Run FontWeight="Bold" Text="deactivate"/>
+                            <Run Text=" the brand. Deactivating hides it from the system without removing any series, models, products or breaking any existing links."/>
+                                                        </TextBlock>
+                                                    </Grid>
                                                 </Border>
 
                                                 <!-- Final Warning -->
                                                 <Border CornerRadius="8" Background="#FFF8E1"
-                                        Padding="12,8" Margin="0,10,0,14">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="🔴" FontSize="13"
-                                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
-                                                        <TextBlock FontSize="11.5" Foreground="#B8860B"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
-                                            <Run FontWeight="SemiBold" Text="Important: "/>
-                                            <Run Text="Deleting a brand is the most destructive action in the entire system. It will permanently remove the brand, every series under it, every model under those series, and every product under those models. This cannot be undone under any circumstances."/>
+                        Padding="12,8" Margin="0,10,0,14">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="🔴" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#B8860B" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Important: "/>
+                            <Run Text="Deleting a brand is the most destructive action in the entire system. It will permanently remove the brand, every series under it, every model under those series, and every product under those models. This cannot be undone under any circumstances."/>
                                                         </TextBlock>
-                                                    </StackPanel>
+                                                    </Grid>
                                                 </Border>
 
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
                                 </Border>
-
                             </StackPanel>
                         </Border>
 
@@ -2448,7 +2541,7 @@
                                 <Border CornerRadius="10" Background="#FFF8F8" Margin="0,0,0,4">
                                     <StackPanel>
                                         <Border CornerRadius="10" Cursor="Hand"
-                                MouseLeftButtonUp="DeleteProduct_Toggle">
+                MouseLeftButtonUp="DeleteProduct_Toggle">
                                             <Grid Margin="14,12">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -2456,20 +2549,20 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Width="26" Height="26"
-                                        CornerRadius="13" Background="#F05454"
-                                        Margin="0,0,12,0">
+                        CornerRadius="13" Background="#F05454"
+                        Margin="0,0,12,0">
                                                     <TextBlock Text="3" FontSize="11" FontWeight="Bold"
-                                               Foreground="White" FontFamily="Segoe UI"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
+                               Foreground="White" FontFamily="Segoe UI"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Grid.Column="1" Text="Delete Product"
-                                           FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#1A1D23" FontFamily="Segoe UI"
-                                           VerticalAlignment="Center"/>
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="#1A1D23" FontFamily="Segoe UI"
+                           VerticalAlignment="Center"/>
                                                 <TextBlock Grid.Column="2" Text="▾"
-                                           FontSize="12" Foreground="#9099A8"
-                                           VerticalAlignment="Center">
+                           FontSize="12" Foreground="#9099A8"
+                           VerticalAlignment="Center">
                                                     <TextBlock.RenderTransformOrigin>0.5,0.5</TextBlock.RenderTransformOrigin>
                                                     <TextBlock.RenderTransform>
                                                         <RotateTransform x:Name="DeleteProductArrowRotate" Angle="0"/>
@@ -2479,46 +2572,46 @@
                                         </Border>
 
                                         <Border x:Name="DeleteProductContent"
-                                Height="0" ClipToBounds="True">
+                Height="0" ClipToBounds="True">
                                             <StackPanel x:Name="DeleteProductInner"
-                                        Margin="14,0,14,0" Opacity="0">
+                        Margin="14,0,14,0" Opacity="0">
 
                                                 <Border Style="{StaticResource Divider}" Margin="0,0,0,10"/>
 
                                                 <TextBlock Text="How to delete a product:"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#F05454" FontFamily="Segoe UI"
-                                           Margin="0,0,0,8"/>
+                           FontSize="12" FontWeight="SemiBold"
+                           Foreground="#F05454" FontFamily="Segoe UI"
+                           Margin="0,0,0,8"/>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Find "/>
-                                        <Run Text="the product you want to remove in the list."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Find "/>
+                        <Run Text="the product you want to remove in the list."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Click "/>
-                                        <Run Text="the "/>
-                                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
-                                        <Run Text="icon next to the product."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Click "/>
+                        <Run Text="the "/>
+                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
+                        <Run Text="icon next to the product."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="The system will check "/>
-                                        <Run Text="if this product has any records in the Sale Details table before proceeding."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="The system will check "/>
+                        <Run Text="if this product has any records in the Sale Details table before proceeding."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
@@ -2531,81 +2624,81 @@
                                                     </Grid.ColumnDefinitions>
 
                                                     <Border Grid.Column="0" CornerRadius="8"
-                                            Background="#EDFAF4" Padding="10">
+                            Background="#EDFAF4" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="✅  No sale records"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#2DBD74" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#2DBD74" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="The product is deleted immediately with a simple confirmation prompt."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The product is deleted immediately with a simple confirmation prompt."/>
                                                         </StackPanel>
                                                     </Border>
 
                                                     <Border Grid.Column="2" CornerRadius="8"
-                                            Background="#FFF0F0" Padding="10">
+                            Background="#FFF0F0" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="⚠️  Has sale records"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="A warning appears. Deleting the product will also remove all its records from Sale Details."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="A warning appears. Deleting the product will also remove all its records from Sale Details."/>
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
 
                                                 <!-- What is Sale Details -->
                                                 <Border CornerRadius="8" Background="#FFF8F0"
-                                        BorderBrush="#FFD0A0" BorderThickness="1"
-                                        Padding="12,10" Margin="0,10,0,0">
+                        BorderBrush="#FFD0A0" BorderThickness="1"
+                        Padding="12,10" Margin="0,10,0,0">
                                                     <StackPanel>
                                                         <TextBlock Text="📋  What is the Sale Details table?"
-                                                   FontSize="11.5" FontWeight="Bold"
-                                                   Foreground="#CC6600" FontFamily="Segoe UI"
-                                                   Margin="0,0,0,6"/>
+                                   FontSize="11.5" FontWeight="Bold"
+                                   Foreground="#CC6600" FontFamily="Segoe UI"
+                                   Margin="0,0,0,6"/>
                                                         <TextBlock FontSize="11.5" Foreground="#4A5060"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                   Text="The Sale Details table stores every individual product sold in each transaction. It records the product, quantity sold, and price at the time of sale. Deleting a product removes its entry from this history."/>
+                                   FontFamily="Segoe UI" TextWrapping="Wrap"
+                                   Text="The Sale Details table stores every individual product sold in each transaction. It records the product, quantity sold, and price at the time of sale. Deleting a product removes its entry from this history."/>
                                                     </StackPanel>
                                                 </Border>
 
                                                 <!-- Warning Preview -->
                                                 <Border CornerRadius="8" Margin="0,10,0,0"
-                                        Background="#FFF0F0" BorderBrush="#F05454"
-                                        BorderThickness="1.2" Padding="12,10">
+                        Background="#FFF0F0" BorderBrush="#F05454"
+                        BorderThickness="1.2" Padding="12,10">
                                                     <StackPanel>
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                                             <TextBlock Text="⚠️" FontSize="14"
-                                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                             <TextBlock Text="Warning Message Preview"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       VerticalAlignment="Center"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                         <Border Height="1" Background="#FFCDD2" Margin="0,0,0,8"/>
                                                         <TextBlock FontSize="11.5" Foreground="#5C3333"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                   FontStyle="Italic"
-                                                   Text="&quot;This product has records in Sale Details. Deleting it will permanently remove the product and all its associated sale detail records. Are you sure you want to continue?&quot;"/>
+                                   FontFamily="Segoe UI" TextWrapping="Wrap"
+                                   FontStyle="Italic"
+                                   Text="&quot;This product has records in Sale Details. Deleting it will permanently remove the product and all its associated sale detail records. Are you sure you want to continue?&quot;"/>
                                                         <StackPanel Orientation="Horizontal"
-                                                    HorizontalAlignment="Right"
-                                                    Margin="0,10,0,0">
+                                    HorizontalAlignment="Right"
+                                    Margin="0,10,0,0">
                                                             <Border CornerRadius="5" Background="#E0E0E0"
-                                                    Padding="10,4" Margin="0,0,6,0">
+                                    Padding="10,4" Margin="0,0,6,0">
                                                                 <TextBlock Text="Cancel" FontSize="11"
-                                                           Foreground="#555555"
-                                                           FontFamily="Segoe UI"
-                                                           FontWeight="SemiBold"/>
+                                           Foreground="#555555"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                             <Border CornerRadius="5" Background="#F05454"
-                                                    Padding="10,4">
+                                    Padding="10,4">
                                                                 <TextBlock Text="Delete Anyway" FontSize="11"
-                                                           Foreground="White"
-                                                           FontFamily="Segoe UI"
-                                                           FontWeight="SemiBold"/>
+                                           Foreground="White"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
                                                             </Border>
                                                         </StackPanel>
                                                     </StackPanel>
@@ -2613,56 +2706,76 @@
 
                                                 <!-- Cascade diagram -->
                                                 <Border CornerRadius="8" Background="#F2FBF2"
-                                        Padding="12,10" Margin="0,10,0,0">
+                        Padding="12,10" Margin="0,10,0,0">
                                                     <StackPanel>
                                                         <TextBlock Text="🔗  What gets deleted (cascade)"
-                                                   FontSize="11.5" FontWeight="Bold"
-                                                   Foreground="#2E7D32" FontFamily="Segoe UI"
-                                                   Margin="0,0,0,10"/>
+                                   FontSize="11.5" FontWeight="Bold"
+                                   Foreground="#2E7D32" FontFamily="Segoe UI"
+                                   Margin="0,0,0,10"/>
 
                                                         <!-- Product -->
                                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#2E7D32"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#2E7D32" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#2E7D32"
-                                                       FontFamily="Segoe UI"
-                                                       Text="Product (deleted)"/>
+                                       Foreground="#2E7D32" FontFamily="Segoe UI"
+                                       Text="Product (deleted)"/>
                                                         </StackPanel>
 
                                                         <!-- Sale Details -->
                                                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
-                                                            <TextBlock Text="└─" FontSize="11"
-                                                       Foreground="#9099A8"
-                                                       FontFamily="Consolas"
-                                                       Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
                                                             <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#F05454"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
+                                    Background="#F05454" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
                                                             <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#F05454"
-                                                       FontFamily="Segoe UI"
-                                                       Text="All Sale Detail records for this product (deleted)"/>
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Text="All Sale Detail records for this product (deleted)"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>
 
+                                                <!-- Deactivate tip -->
+                                                <Border CornerRadius="8" Background="#EEF0FF"
+                        Padding="12,8" Margin="0,10,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="💡" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#5B6BF8" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Tip: "/>
+                            <Run Text="Instead of deleting, you can "/>
+                            <Run FontWeight="Bold" Text="deactivate"/>
+                            <Run Text=" the product. Deactivating hides it from the system without removing any sale history or breaking any existing records."/>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+
                                                 <!-- Final Warning -->
                                                 <Border CornerRadius="8" Background="#FFF8E1"
-                                        Padding="12,8" Margin="0,10,0,14">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="🔴" FontSize="13"
-                                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
-                                                        <TextBlock FontSize="11.5" Foreground="#B8860B"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
-                                            <Run FontWeight="SemiBold" Text="Important: "/>
-                                            <Run Text="Deleting a product that has been sold before will erase its sales history. Consider keeping the product and setting its quantity to zero instead of deleting it."/>
+                        Padding="12,8" Margin="0,10,0,14">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="🔴" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#B8860B" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Important: "/>
+                            <Run Text="Deleting a product that has been sold before will erase its entire sales history. If you are not sure, use deactivate instead."/>
                                                         </TextBlock>
-                                                    </StackPanel>
+                                                    </Grid>
                                                 </Border>
 
                                             </StackPanel>
@@ -3013,7 +3126,7 @@
                                 <Border CornerRadius="10" Background="#FFF8F8" Margin="0,0,0,4">
                                     <StackPanel>
                                         <Border CornerRadius="10" Cursor="Hand"
-                                MouseLeftButtonUp="DeleteClient_Toggle">
+                MouseLeftButtonUp="DeleteClient_Toggle">
                                             <Grid Margin="14,12">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -3021,20 +3134,20 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Width="26" Height="26"
-                                        CornerRadius="13" Background="#F05454"
-                                        Margin="0,0,12,0">
+                        CornerRadius="13" Background="#F05454"
+                        Margin="0,0,12,0">
                                                     <TextBlock Text="3" FontSize="11" FontWeight="Bold"
-                                               Foreground="White" FontFamily="Segoe UI"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
+                               Foreground="White" FontFamily="Segoe UI"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Grid.Column="1" Text="Delete Client"
-                                           FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#1A1D23" FontFamily="Segoe UI"
-                                           VerticalAlignment="Center"/>
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="#1A1D23" FontFamily="Segoe UI"
+                           VerticalAlignment="Center"/>
                                                 <TextBlock Grid.Column="2" Text="▾"
-                                           FontSize="12" Foreground="#9099A8"
-                                           VerticalAlignment="Center">
+                           FontSize="12" Foreground="#9099A8"
+                           VerticalAlignment="Center">
                                                     <TextBlock.RenderTransformOrigin>0.5,0.5</TextBlock.RenderTransformOrigin>
                                                     <TextBlock.RenderTransform>
                                                         <RotateTransform x:Name="DeleteClientArrowRotate" Angle="0"/>
@@ -3043,139 +3156,215 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border x:Name="DeleteClientContent" Height="0" ClipToBounds="True">
-                                            <StackPanel x:Name="DeleteClientInner" Margin="14,0,14,0" Opacity="0">
+                                        <Border x:Name="DeleteClientContent"
+                Height="0" ClipToBounds="True">
+                                            <StackPanel x:Name="DeleteClientInner"
+                        Margin="14,0,14,0" Opacity="0">
 
                                                 <Border Style="{StaticResource Divider}" Margin="0,0,0,10"/>
 
                                                 <TextBlock Text="How to delete a client:"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#F05454" FontFamily="Segoe UI"
-                                           Margin="0,0,0,8"/>
+                           FontSize="12" FontWeight="SemiBold"
+                           Foreground="#F05454" FontFamily="Segoe UI"
+                           Margin="0,0,0,8"/>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Find "/>
-                                        <Run Text="the client you want to remove in the list."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Find "/>
+                        <Run Text="the client you want to remove in the list."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="Click "/>
-                                        <Run Text="the "/>
-                                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
-                                        <Run Text="icon next to the client."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="Click "/>
+                        <Run Text="the "/>
+                        <Run FontWeight="Bold" Foreground="#F05454" Text="Delete 🗑️ "/>
+                        <Run Text="icon next to the client."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                                     <Ellipse Width="6" Height="6" Fill="#F05454"
-                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                     <TextBlock FontSize="12" Foreground="#4A5060"
-                                               FontFamily="Segoe UI" TextWrapping="Wrap">
-                                        <Run FontWeight="SemiBold" Text="The system will check "/>
-                                        <Run Text="if this client has any linked sales before proceeding."/>
+                               FontFamily="Segoe UI" TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="The system will check "/>
+                        <Run Text="if this client has any linked sales before proceeding."/>
                                                     </TextBlock>
                                                 </StackPanel>
 
+                                                <!-- Two Scenarios -->
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="8"/>
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
+
                                                     <Border Grid.Column="0" CornerRadius="8"
-                                            Background="#EDFAF4" Padding="10">
+                            Background="#EDFAF4" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="✅  No sales"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#2DBD74" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#2DBD74" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="The client is deleted immediately with a simple confirmation."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="The client is deleted immediately with a simple confirmation prompt."/>
                                                         </StackPanel>
                                                     </Border>
+
                                                     <Border Grid.Column="2" CornerRadius="8"
-                                            Background="#FFF0F0" Padding="10">
+                            Background="#FFF0F0" Padding="10">
                                                         <StackPanel>
                                                             <TextBlock Text="⚠️  Has linked sales"
-                                                       FontSize="11.5" FontWeight="Bold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       Margin="0,0,0,5"/>
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Margin="0,0,0,5"/>
                                                             <TextBlock FontSize="11" Foreground="#4A5060"
-                                                       FontFamily="Segoe UI" TextWrapping="Wrap"
-                                                       Text="A warning appears. Deleting the client will also remove all their sales and sale detail records."/>
+                                       FontFamily="Segoe UI" TextWrapping="Wrap"
+                                       Text="A warning appears. Deleting the client will also remove all their sales and sale detail records."/>
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
 
-                                                <!-- Cascade -->
-                                                <Border CornerRadius="8" Background="#F0F8FF"
-                                        Padding="12,10" Margin="0,10,0,0">
+                                                <!-- Warning Preview -->
+                                                <Border CornerRadius="8" Margin="0,10,0,0"
+                        Background="#FFF0F0" BorderBrush="#F05454"
+                        BorderThickness="1.2" Padding="12,10">
                                                     <StackPanel>
-                                                        <TextBlock Text="🔗  What gets deleted (cascade)"
-                                                   FontSize="11.5" FontWeight="Bold"
-                                                   Foreground="#1565C0" FontFamily="Segoe UI"
-                                                   Margin="0,0,0,10"/>
-                                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                                            <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#1565C0" VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
-                                                            <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#1565C0" FontFamily="Segoe UI"
-                                                       Text="Client (deleted)"/>
+                                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                            <TextBlock Text="⚠️" FontSize="14"
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                            <TextBlock Text="Warning Message Preview"
+                                       FontSize="11.5" FontWeight="Bold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       VerticalAlignment="Center"/>
                                                         </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Margin="16,0,0,6">
-                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
-                                                       FontFamily="Consolas" Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
-                                                            <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#FF8C42" VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
-                                                            <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#FF8C42" FontFamily="Segoe UI"
-                                                       Text="All Sales for this client (deleted)"/>
-                                                        </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Margin="32,0,0,0">
-                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
-                                                       FontFamily="Consolas" Margin="0,0,6,0"
-                                                       VerticalAlignment="Center"/>
-                                                            <Border Width="8" Height="8" CornerRadius="4"
-                                                    Background="#F05454" VerticalAlignment="Center"
-                                                    Margin="0,0,10,0"/>
-                                                            <TextBlock FontSize="11.5" FontWeight="SemiBold"
-                                                       Foreground="#F05454" FontFamily="Segoe UI"
-                                                       Text="All Sale Details under those sales (deleted)"/>
+                                                        <Border Height="1" Background="#FFCDD2" Margin="0,0,0,8"/>
+                                                        <TextBlock FontSize="11.5" Foreground="#5C3333"
+                                   FontFamily="Segoe UI" TextWrapping="Wrap"
+                                   FontStyle="Italic"
+                                   Text="&quot;This client has linked sales. Deleting them will permanently remove the client, all their sales, and all sale detail records under those sales. This action cannot be undone. Are you sure you want to continue?&quot;"/>
+                                                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,10,0,0">
+                                                            <Border CornerRadius="5" Background="#E0E0E0"
+                                    Padding="10,4" Margin="0,0,6,0">
+                                                                <TextBlock Text="Cancel" FontSize="11"
+                                           Foreground="#555555"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
+                                                            </Border>
+                                                            <Border CornerRadius="5" Background="#F05454"
+                                    Padding="10,4">
+                                                                <TextBlock Text="Delete Anyway" FontSize="11"
+                                           Foreground="White"
+                                           FontFamily="Segoe UI"
+                                           FontWeight="SemiBold"/>
+                                                            </Border>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>
 
-                                                <Border CornerRadius="8" Background="#FFF8E1"
-                                        Padding="12,8" Margin="0,10,0,14">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="🔴" FontSize="13"
-                                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
-                                                        <TextBlock FontSize="11.5" Foreground="#B8860B"
-                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
-                                            <Run FontWeight="SemiBold" Text="Important: "/>
-                                            <Run Text="Deleting a client removes their entire sales history permanently. Consider keeping the client record even if they are no longer active."/>
-                                                        </TextBlock>
+                                                <!-- Cascade diagram -->
+                                                <Border CornerRadius="8" Background="#F0F8FF"
+                        Padding="12,10" Margin="0,10,0,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="🔗  What gets deleted (cascade)"
+                                   FontSize="11.5" FontWeight="Bold"
+                                   Foreground="#1565C0" FontFamily="Segoe UI"
+                                   Margin="0,0,0,10"/>
+
+                                                        <!-- Client -->
+                                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                                            <Border Width="8" Height="8" CornerRadius="4"
+                                    Background="#1565C0" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
+                                                            <TextBlock FontSize="11.5" FontWeight="SemiBold"
+                                       Foreground="#1565C0" FontFamily="Segoe UI"
+                                       Text="Client (deleted)"/>
+                                                        </StackPanel>
+
+                                                        <!-- Sales -->
+                                                        <StackPanel Orientation="Horizontal" Margin="16,0,0,6">
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
+                                                            <Border Width="8" Height="8" CornerRadius="4"
+                                    Background="#FF8C42" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
+                                                            <TextBlock FontSize="11.5" FontWeight="SemiBold"
+                                       Foreground="#FF8C42" FontFamily="Segoe UI"
+                                       Text="All Sales for this client (deleted)"/>
+                                                        </StackPanel>
+
+                                                        <!-- Sale Details -->
+                                                        <StackPanel Orientation="Horizontal" Margin="32,0,0,0">
+                                                            <TextBlock Text="└─" FontSize="11" Foreground="#9099A8"
+                                       FontFamily="Consolas" Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
+                                                            <Border Width="8" Height="8" CornerRadius="4"
+                                    Background="#F05454" VerticalAlignment="Center"
+                                    Margin="0,0,10,0"/>
+                                                            <TextBlock FontSize="11.5" FontWeight="SemiBold"
+                                       Foreground="#F05454" FontFamily="Segoe UI"
+                                       Text="All Sale Details under those sales (deleted)"/>
+                                                        </StackPanel>
                                                     </StackPanel>
+                                                </Border>
+
+                                                <!-- Deactivate tip -->
+                                                <Border CornerRadius="8" Background="#EEF0FF"
+                        Padding="12,8" Margin="0,10,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="💡" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#5B6BF8" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Tip: "/>
+                            <Run Text="Instead of deleting, you can "/>
+                            <Run FontWeight="Bold" Text="deactivate"/>
+                            <Run Text=" the client. Deactivating hides them from the system without removing any sales history or breaking any existing records."/>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+
+                                                <!-- Final Warning -->
+                                                <Border CornerRadius="8" Background="#FFF8E1"
+                        Padding="12,8" Margin="0,10,0,14">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="🔴" FontSize="13"
+                                   VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="1" FontSize="11.5"
+                                   Foreground="#B8860B" FontFamily="Segoe UI"
+                                   TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Important: "/>
+                            <Run Text="Deleting a client removes their entire sales history permanently. If you are not sure, use deactivate instead."/>
+                                                        </TextBlock>
+                                                    </Grid>
                                                 </Border>
 
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
                                 </Border>
-
                             </StackPanel>
                         </Border>
                     </StackPanel>
