@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using POS_DAL;
 
@@ -7,19 +6,23 @@ namespace POS_BLL
 {
     public class clsBrand
     {
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode _Mode;
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _Mode;
 
         public int BrandID { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 
+        // ============================
+        // CONSTRUCTORS
+        // ============================
+
         public clsBrand()
         {
             _Mode = enMode.AddNew;
             BrandID = -1;
-            Name = "";
-            Description = "";
+            Name = string.Empty;
+            Description = string.Empty;
         }
 
         private clsBrand(int brandID, string name, string description)
@@ -30,39 +33,88 @@ namespace POS_BLL
             Description = description;
         }
 
+        // ============================
+        // FIND
+        // ============================
+
+        /// <summary>Returns the brand with the given ID, or null if not found.</summary>
         public static clsBrand FindByID(int brandID)
         {
             string name = string.Empty;
             string description = string.Empty;
 
-            var dr = clsBrandsData.GetByID(brandID, ref name, ref description);
-            if (!dr) return null;
+            if (!clsBrandsData.GetByID(brandID, ref name, ref description))
+                return null;
+
             return new clsBrand(brandID, name, description);
         }
 
+        /// <summary>Returns the brand with the given name, or null if not found.</summary>
         public static clsBrand FindByName(string name)
         {
             int brandID = -1;
             string description = string.Empty;
 
-            var dr = clsBrandsData.GetByName(name, ref brandID, ref description);
-            if (!dr) return null;
+            if (!clsBrandsData.GetByName(name, ref brandID, ref description))
+                return null;
+
             return new clsBrand(brandID, name, description);
         }
 
-        bool _AddNew()
+        // ============================
+        // PRIVATE SAVE HELPERS
+        // ============================
+
+        private bool _AddNew()
         {
-            this.BrandID = clsBrandsData.AddNew(this.Name, this.Description);
-            return this.BrandID != -1;
+            BrandID = clsBrandsData.AddNew(Name, Description);
+            return BrandID != -1;
         }
 
-        bool _Update()
+        private bool _Update()
         {
-            return clsBrandsData.Update(this.BrandID, this.Name, this.Description);
+            return clsBrandsData.Update(BrandID, Name, Description);
         }
 
+        // ============================
+        // VALIDATION
+        // ============================
+
+        /// <summary>
+        /// Returns true if the object is in a valid state to be saved.
+        /// Call this before Save() if you want to surface errors in the UI
+        /// without relying on exceptions.
+        /// </summary>
+        public bool IsValid()
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+                return false;
+
+            // On add: reject if the name is already taken
+            if (_Mode == enMode.AddNew && clsBrandsData.IsBrandExistByName(Name))
+                return false;
+
+            // On update: reject if another brand already has this name
+            if (_Mode == enMode.Update && clsBrandsData.IsBrandExistByName(Name, BrandID))
+                return false;
+
+            return true;
+        }
+
+        // ============================
+        // SAVE
+        // ============================
+
+        /// <summary>
+        /// Validates then persists the brand (insert or update).
+        /// Returns false if validation fails or the DAL reports no rows affected.
+        /// Throws if the DAL encounters a database error.
+        /// </summary>
         public bool Save()
         {
+            if (!IsValid())
+                return false;
+
             switch (_Mode)
             {
                 case enMode.AddNew:
@@ -76,19 +128,28 @@ namespace POS_BLL
                 case enMode.Update:
                     return _Update();
             }
+
             return false;
         }
 
+        // ============================
+        // STATIC OPERATIONS
+        // ============================
+
+        /// <summary>
+        /// Deletes the brand with the given ID.
+        /// Returns false if the brand is linked to other records (FK constraint).
+        /// </summary>
         public static bool Delete(int brandID)
         {
             return clsBrandsData.Delete(brandID);
         }
 
+        /// <summary>Returns all brands as a DataTable.</summary>
         public static DataTable GetAll()
         {
             return clsBrandsData.GetAll();
         }
-
 
         public static bool IsBrandExistByName(string name)
         {
@@ -100,7 +161,15 @@ namespace POS_BLL
             return clsBrandsData.IsBrandExistByName(name, ignoreBrandID);
         }
 
+        // ============================
+        // CAN DELETE BRAND
+        // ============================
+        public static bool CanDelete(int brandID, out (int Series, int Models, int Products) deps)
+        {
+            deps = clsBrandsData.GetBrandDependencies(brandID);
 
+            return deps.Series == 0 && deps.Models == 0 && deps.Products == 0;
+        }
 
     }
 }
