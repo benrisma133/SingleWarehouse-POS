@@ -1,13 +1,14 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace POS_DAL
 {
     public static class clsBrandsData
     {
+        private const string _className = nameof(clsBrandsData);
+
         // ============================
         // ADD NEW BRAND
         // ============================
@@ -32,6 +33,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(AddNew), ex);
                 throw new Exception("Error in AddNew Brand: " + ex.Message);
             }
         }
@@ -62,6 +64,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Update), ex);
                 throw new Exception("Error in Update Brand: " + ex.Message);
             }
         }
@@ -88,11 +91,12 @@ namespace POS_DAL
             }
             catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
             {
-                // Brand is linked to Series or Models
+                // FK violation — expected business rule, not a real error
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Delete), ex);
                 return false;
             }
         }
@@ -128,6 +132,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByID), ex);
                 throw new Exception("Error in GetByID Brand: " + ex.Message);
             }
         }
@@ -164,6 +169,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByName), ex);
                 throw new Exception("Error in GetByName Brand: " + ex.Message);
             }
         }
@@ -194,6 +200,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetAll), ex);
                 throw new Exception("Error in GetAll Brands: " + ex.Message);
             }
         }
@@ -229,11 +236,61 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(IsBrandExistByName), ex);
                 throw new Exception("Error in IsBrandExistByName: " + ex.Message);
             }
         }
 
-        
+
+        // ============================
+        // GET BRAND DEPENDENCIES
+        // ============================
+        public static (int SeriesCount, int ModelsCount, int ProductsCount) GetBrandDependencies(int brandID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT
+                    (SELECT COUNT(*) FROM Series WHERE BrandID = @BrandID) AS SeriesCount,
+
+                    (SELECT COUNT(*)
+                     FROM Models m
+                     INNER JOIN Series s ON m.SeriesID = s.SeriesID
+                     WHERE s.BrandID = @BrandID) AS ModelsCount,
+
+                    (SELECT COUNT(*)
+                     FROM Products p
+                     INNER JOIN Models m ON p.ModelID = m.ModelID
+                     INNER JOIN Series s ON m.SeriesID = s.SeriesID
+                     WHERE s.BrandID = @BrandID) AS ProductsCount
+            ";
+
+                    command.Parameters.AddWithValue("@BrandID", brandID);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int series = Convert.ToInt32(reader["SeriesCount"]);
+                            int models = Convert.ToInt32(reader["ModelsCount"]);
+                            int products = Convert.ToInt32(reader["ProductsCount"]);
+
+                            return (series, models, products);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetBrandDependencies), ex);
+            }
+
+            return (0, 0, 0);
+        }
+
 
     }
 }
