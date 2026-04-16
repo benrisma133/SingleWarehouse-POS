@@ -117,34 +117,57 @@ namespace POS_WPF
             _notifyIcon.ShowBalloonTip(3000, title, message, System.Windows.Forms.ToolTipIcon.Warning);
         }
 
+
+        // ── Class-level fields ────────────────────────────────────────────────────
+        private List<TextBlock> _sidebarButtonTexts;
+        private CancellationTokenSource _sidebarCts;
+        private FrameworkElement _activeMenu = null;
+        private bool isSidebarOpen = true;
+        private bool userClosedSidebar = false;
+        private bool shouldRestoreDeptExpanded = false;
+        private bool isDeptExpanded = false;
+        private bool isProfileActive = false;
+
+        private readonly Brush MenuNormalBg = new SolidColorBrush(Color.FromRgb(74, 74, 74));
+        private readonly Brush MenuHoverBg = new SolidColorBrush(Color.FromRgb(92, 92, 92));
+        private readonly Brush MenuActiveBg = new SolidColorBrush(Color.FromRgb(92, 92, 92));
+        private readonly Brush MenuActiveFg = new SolidColorBrush(Color.FromRgb(255, 140, 66));
+        private readonly Brush MenuNormalFg = new SolidColorBrush(Color.FromRgb(245, 245, 245));
+
         private Geometry HamburgerIcon = Geometry.Parse("M4 6H20 M4 12H20 M4 18H20");
         private Geometry CloseIcon = Geometry.Parse("M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4l-6.3 6.31-1.41-1.42L9.17 12 2.88 5.71l1.41-1.42 6.3 6.3 6.29-6.3z");
         private Geometry LeftArrowIcon = Geometry.Parse("M11.7071 4.29289C12.0976 4.68342 12.0976 5.31658 11.7071 5.70711L6.41421 11H20C20.5523 11 21 11.4477 21 12C21 12.5523 20.5523 13 20 13H6.41421L11.7071 18.2929C12.0976 18.6834 12.0976 19.3166 11.7071 19.7071C11.3166 20.0976 10.6834 20.0976 10.2929 19.7071L3.29289 12.7071C3.10536 12.5196 3 12.2652 3 12C3 11.7348 3.10536 11.4804 3.29289 11.2929L10.2929 4.29289C10.6834 3.90237 11.3166 3.90237 11.7071 4.29289Z");
 
-        private FrameworkElement _activeMenu = null;
+        // ── Loaded ────────────────────────────────────────────────────────────────
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitNotifyIcon();
+            UpdateHamburgerIcon();
+            SetActiveMenu(DashboardButton);
+            LoadStockNotifications();
 
+            // Cache sidebar TextBlocks ONCE here — avoids traversal on every toggle
+            _sidebarButtonTexts = Sidebar
+                .ChildOfType<StackPanel>().First().Children
+                .OfType<Button>()
+                .SelectMany(btn => btn.ContentOfType<Grid>())
+                .Where(g => g.ColumnDefinitions.Count > 1)
+                .Select(g => g.Children.OfType<TextBlock>().FirstOrDefault())
+                .Where(tb => tb != null)
+                .ToList();
 
-        private readonly Brush MenuNormalBg = new SolidColorBrush(Color.FromRgb(74, 74, 74));      // #4A4A4A
-        private readonly Brush MenuHoverBg  = new SolidColorBrush(Color.FromRgb(92, 92, 92));      // #5C5C5C
-        private readonly Brush MenuActiveBg = new SolidColorBrush(Color.FromRgb(92, 92, 92));      // SAME AS HOVER
-        private readonly Brush MenuActiveFg = new SolidColorBrush(Color.FromRgb(255, 140, 66));    // #FF8C42
-        private readonly Brush MenuNormalFg = new SolidColorBrush(Color.FromRgb(245, 245, 245));   // #F5F5F5
+            MainTitle.Text = "Dashboard";
+            PageContent.Content = new Pages.DashboardPage();
+        }
 
-        //Pages.CategoryPage categoryPage = new CategoryPage();
-        //Pages.ModelPage modelPage = new ModelPage();
-
+        // ── Active menu ───────────────────────────────────────────────────────────
         private void SetActiveMenu(FrameworkElement clickedElement)
         {
-            // ── Reset profile style whenever a menu button is clicked ──
             ResetProfileStyle();
 
-            // Reset previous active
             if (_activeMenu is Button oldBtn)
-            {
                 oldBtn.ClearValue(Button.TagProperty);
-            }
 
-            // Set new active
             if (clickedElement is Button newBtn)
             {
                 newBtn.Tag = "Active";
