@@ -24,32 +24,51 @@ namespace POS_WPF.Pages
 
         private async Task LoadSalesAsync(string filter = "")
         {
+            // ── Show loading overlay ──
+            LoadingOverlay.Visibility = Visibility.Visible;
             SaleCardsContainer.Children.Clear();
-
-            DataTable dt = await Task.Run(() => clsSaleDetails.GetAllSales(filter));
-
-            if (dt.Rows.Count == 0)
-            {
-                NoSalesMessage.Visibility = Visibility.Visible;
-                txtTotalSales.Text = "Total Sales : 0";
-                return;
-            }
-
             NoSalesMessage.Visibility = Visibility.Collapsed;
-            txtTotalSales.Text = $"Total Sales : {dt.Rows.Count}";
 
-            foreach (DataRow row in dt.Rows)
+            // Small delay so the overlay renders before the Task.Run blocks the thread
+            await Task.Delay(50);
+
+            try
             {
-                int saleID = Convert.ToInt32(row["SaleID"]);
-                string date = Convert.ToDateTime(row["SaleDate"]).ToString("dd MMM yyyy  HH:mm");
-                string client = row["ClientName"].ToString();
-                string phone = row["ClientPhone"]?.ToString() ?? "";
-                string email = row["ClientEmail"]?.ToString() ?? "";
-                decimal total = Convert.ToDecimal(row["TotalPrice"]);
-                int items = Convert.ToInt32(row["ItemCount"]);
+                DataTable dt = await Task.Run(() => clsSaleDetails.GetAllSales(filter));
 
-                SaleCardsContainer.Children.Add(
-                    CreateSaleCard(saleID, date, client, phone, email, total, items));
+                if (dt.Rows.Count == 0)
+                {
+                    NoSalesMessage.Visibility = Visibility.Visible;
+                    txtTotalSales.Text = "Total Sales : 0";
+                    return;
+                }
+
+                txtTotalSales.Text = $"Total Sales : {dt.Rows.Count}";
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    int saleID = Convert.ToInt32(row["SaleID"]);
+                    string date = Convert.ToDateTime(row["SaleDate"]).ToString("dd MMM yyyy  HH:mm");
+                    string client = row["ClientName"].ToString();
+                    string phone = row["ClientPhone"]?.ToString() ?? "";
+                    string email = row["ClientEmail"]?.ToString() ?? "";
+                    decimal total = Convert.ToDecimal(row["TotalPrice"]);
+                    int items = Convert.ToInt32(row["ItemCount"]);
+
+                    SaleCardsContainer.Children.Add(
+                        CreateSaleCard(saleID, date, client, phone, email, total, items));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading sales: " + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                // ── Hide loading overlay ──
+                await Task.Delay(100);          // brief pause so it doesn't flash
+                LoadingOverlay.Visibility = Visibility.Collapsed;
             }
         }
 
