@@ -31,4 +31,12 @@ public static class UIHelper
                 foreach (var child in ContentOfType<T>(c)) yield return child;
         }
     }
+
+    public static T WithCanvas<T>(this T element, double left, double top)
+        where T : UIElement
+    {
+        Canvas.SetLeft(element, left);
+        Canvas.SetTop(element, top);
+        return element;
+    }
 }
