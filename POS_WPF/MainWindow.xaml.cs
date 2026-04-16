@@ -168,166 +168,122 @@ namespace POS_WPF
                 tb.Foreground = MenuNormalFg;
         }
 
-        public Geometry HamburgerPathData
-        {
-            get { return isSidebarOpen ? CloseIcon : HamburgerIcon; }
-        }
-
+        // ── Hamburger icon ────────────────────────────────────────────────────────
         private void UpdateHamburgerIcon()
         {
             if (isSidebarOpen)
             {
-                // Sidebar open → show left arrow (close)
                 HamburgerPath.Data = LeftArrowIcon;
                 HamburgerBtn.HorizontalAlignment = HorizontalAlignment.Right;
                 HamburgerBtn.Margin = new Thickness(0, 10, 6, 0);
             }
             else
             {
-                // Sidebar closed → show hamburger icon
                 HamburgerPath.Data = HamburgerIcon;
                 HamburgerBtn.HorizontalAlignment = HorizontalAlignment.Center;
                 HamburgerBtn.Margin = new Thickness(0, 10, 0, 0);
             }
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        // ── Hamburger click ───────────────────────────────────────────────────────
+        private async void HamburgerBtn_Click(object sender, RoutedEventArgs e)
         {
-            InitNotifyIcon();
-            UpdateHamburgerIcon();
-            SetActiveMenu(DashboardButton); // give Dashboard x:Name="DashboardButton"
-            LoadStockNotifications();
-
-            MainTitle.Text = "Dashboard";
-            PageContent.Content = new Pages.DashboardPage();
-        }
-
-        private bool isSidebarOpen = true;
-
-        private bool userClosedSidebar = false; // track if user manually closed
-
-        private bool shouldRestoreDeptExpanded = false;
-
-        private void HamburgerBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // Sidebar is OPEN and user is closing it
             if (isSidebarOpen)
             {
-                // Remember submenu state
                 shouldRestoreDeptExpanded = isDeptExpanded;
-
-                // Collapse submenu visually if open
-                if (isDeptExpanded)
-                {
-                    CollapseDepartmentsSubmenu();
-                }
+                if (isDeptExpanded) CollapseDepartmentsSubmenu();
             }
             else
             {
-                // Sidebar is CLOSED and user is opening it
-                ToggleSidebar();
-
-                // Restore submenu if needed
-                if (shouldRestoreDeptExpanded)
-                {
-                    ExpandDepartmentsSubmenu();
-                }
-
+                await ToggleSidebar();
+                if (shouldRestoreDeptExpanded) ExpandDepartmentsSubmenu();
                 return;
             }
 
-            ToggleSidebar();
+            await ToggleSidebar();
             userClosedSidebar = !isSidebarOpen;
         }
 
+        // ── Window resize ─────────────────────────────────────────────────────────
+        private async void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (this.ActualWidth < 1100)
+            {
+                HamburgerBtn.Visibility = Visibility.Collapsed;
+                if (isSidebarOpen)
+                    await ToggleSidebar(forceCollapse: true);
+            }
+            else
+            {
+                HamburgerBtn.Visibility = Visibility.Visible;
+                if (!isSidebarOpen && !userClosedSidebar)
+                    await ToggleSidebar(forceCollapse: false);
+            }
+        }
+
+        // ── Submenus ──────────────────────────────────────────────────────────────
         private void CollapseDepartmentsSubmenu()
         {
-            double height = DepartmentsSubmenu.ActualHeight;
-
             var animation = new DoubleAnimation
             {
-                From = height,
+                From = DepartmentsSubmenu.ActualHeight,
                 To = 0,
                 Duration = TimeSpan.FromMilliseconds(200),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
             };
-
             DepartmentsSubmenuContainer.BeginAnimation(Border.HeightProperty, animation);
-
-            CatalogArrow.Data = Geometry.Parse("M6 9L12 15L18 9"); // Down
+            CatalogArrow.Data = Geometry.Parse("M6 9L12 15L18 9");
             isDeptExpanded = false;
         }
 
         private void ExpandDepartmentsSubmenu()
         {
-            double height = DepartmentsSubmenu.ActualHeight;
-
             var animation = new DoubleAnimation
             {
                 From = 0,
-                To = height,
+                To = DepartmentsSubmenu.ActualHeight,
                 Duration = TimeSpan.FromMilliseconds(200),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
             };
-
-            animation.Completed += (s, _) =>
-            {
-                DepartmentsSubmenuContainer.Height = double.NaN;
-            };
-
+            animation.Completed += (s, _) => DepartmentsSubmenuContainer.Height = double.NaN;
             DepartmentsSubmenuContainer.BeginAnimation(Border.HeightProperty, animation);
-
-            CatalogArrow.Data = Geometry.Parse("M6 15L12 9L18 15"); // Up
+            CatalogArrow.Data = Geometry.Parse("M6 15L12 9L18 15");
             isDeptExpanded = true;
         }
 
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        private async void _ShowItems()
         {
-            if (this.ActualWidth < 1100)
-            {
-                HamburgerBtn.Visibility = Visibility.Collapsed;
+            if (!isSidebarOpen)
+                await ToggleSidebar();
 
-                if (isSidebarOpen)
-                    ToggleSidebar(forceCollapse: true); // force collapse
-            }
-            else
-            {
-                HamburgerBtn.Visibility = Visibility.Visible;
-
-                // Only expand if user didn't manually close before
-                if (!isSidebarOpen && !userClosedSidebar)
-                    ToggleSidebar(forceCollapse: false);
-            }
+            if (!isDeptExpanded) ExpandDepartmentsSubmenu();
+            else CollapseDepartmentsSubmenu();
         }
 
-        private CancellationTokenSource _sidebarCts;
-
-        private async void ToggleSidebar(bool forceCollapse = false)
+        // ── Core toggle ───────────────────────────────────────────────────────────
+        private async Task ToggleSidebar(bool forceCollapse = false)
         {
-            // Cancel any in-progress toggle (rapid clicks)
             _sidebarCts?.Cancel();
             _sidebarCts = new CancellationTokenSource();
             var token = _sidebarCts.Token;
 
-            // ── Compute state on current thread (UI) ──────────────────────────────
             bool targetState = forceCollapse ? false : !isSidebarOpen;
-            int timing = 200;
+            const int timing = 200;
             double fromWidth = Sidebar.ActualWidth;
             double toWidth = targetState ? 280 : 60;
             double profileSize = targetState ? 50 : 40;
 
-            // Commit state immediately (before any await)
+            // Commit state before any await
             isSidebarOpen = targetState;
             UpdateHamburgerIcon();
 
-            // ── Hide text immediately if collapsing (UI thread) ───────────────────
+            // Collapse: hide text instantly before animation starts
             if (!targetState)
             {
                 ProfileTextStack.Visibility = Visibility.Collapsed;
                 SetSidebarButtonTextsVisibility(false);
             }
 
-            // ── Fire all animations (UI thread, no blocking) ──────────────────────
             var ease = new CubicEase { EasingMode = EasingMode.EaseInOut };
             var duration = TimeSpan.FromMilliseconds(timing);
 
@@ -342,8 +298,7 @@ namespace POS_WPF
             ProfileIcon.BeginAnimation(WidthProperty, new DoubleAnimation(profileSize, duration));
             ProfileIcon.BeginAnimation(HeightProperty, new DoubleAnimation(profileSize, duration));
 
-            var mainGrid = ((Grid)this.Content).Children[1] as Grid;
-            if (mainGrid != null)
+            if (((Grid)this.Content).Children[1] is Grid mainGrid)
             {
                 mainGrid.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation
                 {
@@ -354,162 +309,180 @@ namespace POS_WPF
                 });
             }
 
-            // ── Wait off the UI thread, then show text (opening only) ────────────
+            // Expand: wait until sidebar is wide enough, then show text
             if (targetState)
             {
                 try
                 {
-                    // Delay runs on a thread pool thread — UI is completely free
                     await Task.Delay((int)(timing * 0.6), token);
-
-                    if (token.IsCancellationRequested)
-                        return;
-
-                    // Marshal back to UI thread for visibility changes
-                    Dispatcher.Invoke(() =>
-                    {
-                        if (token.IsCancellationRequested) return;
-                        ProfileTextStack.Visibility = Visibility.Visible;
-                        SetSidebarButtonTextsVisibility(true);
-                    });
+                    // Back on UI thread after await — no Dispatcher needed
+                    ProfileTextStack.Visibility = Visibility.Visible;
+                    SetSidebarButtonTextsVisibility(true);
                 }
-                catch (TaskCanceledException)
-                {
-                    // A new toggle fired before the delay finished — do nothing
-                }
+                catch (TaskCanceledException) { }
             }
         }
 
+        // ── O(1) visibility flip — uses cached list, zero traversal ──────────────
         private void SetSidebarButtonTextsVisibility(bool visible)
         {
+            if (_sidebarButtonTexts == null) return;
             var vis = visible ? Visibility.Visible : Visibility.Collapsed;
-            foreach (var child in Sidebar.ChildOfType<StackPanel>().First().Children)
-            {
-                if (child is Button btn)
-                {
-                    foreach (var gridChild in btn.ContentOfType<Grid>())
-                    {
-                        if (gridChild.ColumnDefinitions.Count > 1)
-                        {
-                            var textBlock = gridChild.Children.OfType<TextBlock>().FirstOrDefault();
-                            if (textBlock != null)
-                                textBlock.Visibility = vis;
-                        }
-                    }
-                }
-            }
+            foreach (var tb in _sidebarButtonTexts)
+                tb.Visibility = vis;
+        }
+
+        // ── Cached page instances (lazy) ─────────────────────────────────────────
+        private Pages.DashboardPage _dashboardPage;
+        private Pages.ClientPage _clientPage;
+        private Pages.SalesPage _salesPage;
+        private Pages.SalesDetailsPage _salesDetailsPage;
+        private Pages.BrandPage _brandPage;
+        private Pages.SeriePage _seriePage;
+        private Pages.ProductPage _productPage;
+        private Pages.CategoryPage _categoryPage;
+        private Pages.ModelPage _modelPage;
+        private Pages.SettingsPage _settingsPage;
+        private Pages.ProfilePage _profilePage;
+        private Pages.AboutMePage _aboutMePage;
+        private Pages.AboutSystemPage _aboutSystemPage;
+        private Pages.HelpPage _helpPage;
+        private Pages.FeedbackPage _feedbackPage;
+
+        private void NavigateTo(ref Pages.DashboardPage page, string title, Button btn)
+        {
+            SetActiveMenu(btn);
+            MainTitle.Text = title;
+            if (page == null) page = new Pages.DashboardPage();
+            PageContent.Content = page;
         }
 
         private void Dashboard_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Dashboard";
-            PageContent.Content = new Pages.DashboardPage();
+            if (_dashboardPage == null) _dashboardPage = new Pages.DashboardPage();
+            PageContent.Content = _dashboardPage;
+            _dashboardPage.Refresh(); // reload data without rebuilding UI
         }
 
         private void Client_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Clients";
-            PageContent.Content = new Pages.ClientPage();
+            if (_clientPage == null) _clientPage = new Pages.ClientPage();
+            PageContent.Content = _clientPage;
         }
 
         private void NewSale_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "New Sale";
-            PageContent.Content = new Pages.SalesPage();
+            if (_salesPage == null) _salesPage = new Pages.SalesPage();
+            PageContent.Content = _salesPage;
         }
 
         private void SaleDetails_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Sales Details";
-            PageContent.Content = new Pages.SalesDetailsPage();
+            if (_salesDetailsPage == null) _salesDetailsPage = new Pages.SalesDetailsPage();
+            PageContent.Content = _salesDetailsPage;
         }
 
         private void Brands_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Brands";
-            PageContent.Content = new Pages.BrandPage();
+            if (_brandPage == null) _brandPage = new Pages.BrandPage();
+            PageContent.Content = _brandPage;
         }
 
         private void Series_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Series";
-            PageContent.Content = new Pages.SeriePage();
+            if (_seriePage == null) _seriePage = new Pages.SeriePage();
+            PageContent.Content = _seriePage;
         }
 
         private void Product_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Products";
-            PageContent.Content = new Pages.ProductPage();
+            if (_productPage == null) _productPage = new Pages.ProductPage();
+            PageContent.Content = _productPage;
         }
 
         private void Category_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Categories";
-            PageContent.Content = new Pages.CategoryPage();
-        }
-
-        private bool isDeptExpanded = false;
-
-        private void _ShowItems()
-        {
-            if (!isSidebarOpen)
-                ToggleSidebar();
-
-            if (!isDeptExpanded)
-                ExpandDepartmentsSubmenu();
-            else
-                CollapseDepartmentsSubmenu();
-        }
-
-        private void Catalog_Click(object sender, RoutedEventArgs e)
-        {
-            _ShowItems();
+            if (_categoryPage == null) _categoryPage = new Pages.CategoryPage();
+            PageContent.Content = _categoryPage;
         }
 
         private void Model_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
             MainTitle.Text = "Models";
-            PageContent.Content = new Pages.ModelPage();
+            if (_modelPage == null) _modelPage = new Pages.ModelPage();
+            PageContent.Content = _modelPage;
         }
 
         private void Setting_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(sender as Button);
-            // Comming soon - for demo, just change title
             MainTitle.Text = "Settings";
-            PageContent.Content = new Pages.SettingsPage();
+            if (_settingsPage == null) _settingsPage = new Pages.SettingsPage();
+            PageContent.Content = _settingsPage;
         }
 
-        private bool isProfileActive = false; // track if profile is selected
+        private void AboutMe_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "About Me";
+            if (_aboutMePage == null) _aboutMePage = new Pages.AboutMePage();
+            PageContent.Content = _aboutMePage;
+        }
+
+        private void AboutSystem_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "About System";
+            if (_aboutSystemPage == null) _aboutSystemPage = new Pages.AboutSystemPage();
+            PageContent.Content = _aboutSystemPage;
+        }
+
+        private void Help_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "Help";
+            if (_helpPage == null) _helpPage = new Pages.HelpPage();
+            PageContent.Content = _helpPage;
+        }
+
+        private void Feedback_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(sender as Button);
+            MainTitle.Text = "Feedback";
+            if (_feedbackPage == null) _feedbackPage = new Pages.FeedbackPage();
+            PageContent.Content = _feedbackPage;
+        }
 
         private void ProfileBorder_Click(object sender, MouseButtonEventArgs e)
         {
-            // ── Reset other menu buttons first ───────────────────────────────
-            SetActiveMenu(null); // pass null so no button gets Tag=Active
-
-            // ── NOW mark profile as active (after SetActiveMenu reset it) ───
+            SetActiveMenu(null);
             isProfileActive = true;
-
-            // ── Apply active colors ──────────────────────────────────────────
             ProfileBorder.Background = MenuActiveBg;
-
             var path = ProfileIcon.ChildOfType<Path>().FirstOrDefault();
             if (path != null) path.Fill = MenuActiveFg;
-
             foreach (var tb in ProfileTextStack.Children.OfType<TextBlock>())
                 tb.Foreground = MenuActiveFg;
 
             MainTitle.Text = "Profile";
-            PageContent.Content = new Pages.ProfilePage();
+            if (_profilePage == null) _profilePage = new Pages.ProfilePage();
+            PageContent.Content = _profilePage;
         }
 
         private void ProfileBorder_MouseEnter(object sender, MouseEventArgs e)
@@ -556,11 +529,11 @@ namespace POS_WPF
             e.Handled = true;
         }
 
+        private void Catalog_Click(object sender, RoutedEventArgs e)
+        {
+            _ShowItems();
+        }
 
-        // Tune this threshold to whatever "low" means for you
-        private const int LowStockThreshold = 10;
-
-        // ── Called from MainWindow_Loaded or wherever you refresh data ──
         private void LoadStockNotifications()
         {
             var notifications = new List<StockNotification>();
@@ -732,33 +705,7 @@ namespace POS_WPF
             }
         }
 
-        private void AboutMe_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveMenu(sender as Button);
-            MainTitle.Text = "About Me";
-            PageContent.Content = new Pages.AboutMePage();
-        }
-
-        private void AboutSystem_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveMenu(sender as Button);
-            MainTitle.Text = "About System";
-            PageContent.Content = new Pages.AboutSystemPage();
-        }
-
-        private void Help_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveMenu(sender as Button);
-            MainTitle.Text = "Help";
-            PageContent.Content = new Pages.HelpPage();
-        }
-
-        private void Feedback_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveMenu(sender as Button);
-            MainTitle.Text = "Feedback";
-            PageContent.Content = new Pages.FeedbackPage();
-        }
+        
 
     }
 }
