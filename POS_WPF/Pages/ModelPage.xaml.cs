@@ -57,7 +57,7 @@ namespace POS_WPF.Pages
                 if (LoadingOverlay != null)
                     LoadingOverlay.Visibility = Visibility.Visible;
                 if (txtTitle != null)
-                    txtTitle.Text = "Loading...";
+                    txtTitle.Text = "Model Management";
 
                 string filter = (await Task.Run(() => GetSearchText()))?.ToLower() ?? "";
 
