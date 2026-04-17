@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Data;
 using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 
 namespace POS_DAL
 {
     public static class clsProductData
     {
+        private const string _className = nameof(clsProductData);
+
         // ============================
         // GET PRODUCT BY ID
         // ============================
@@ -51,7 +54,8 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Error fetching product: " + ex.Message);
+                clsLog.LogError(_className, nameof(GetProduct), ex);
+                throw new Exception("Error in GetProduct: " + ex.Message);
             }
 
             return false;
@@ -82,11 +86,13 @@ namespace POS_DAL
                     command.Parameters.AddWithValue("@Description", description ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@Quantity", quantity);
 
-                    return Convert.ToInt32(command.ExecuteScalar());
+                    object result = command.ExecuteScalar();
+                    return result == null ? -1 : Convert.ToInt32((long)result);
                 }
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(AddNew), ex);
                 throw new Exception("Error in AddNew Product: " + ex.Message);
             }
         }
@@ -94,7 +100,7 @@ namespace POS_DAL
         // ============================
         // UPDATE PRODUCT
         // ============================
-        public static void Update(
+        public static bool Update(
             int productID, string productName, string description, decimal price,
             int? categoryID, int? modelID, int quantity)
         {
@@ -122,11 +128,13 @@ namespace POS_DAL
                     command.Parameters.AddWithValue("@ModelID", modelID ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@Quantity", quantity);
 
-                    command.ExecuteNonQuery();
+                    int rows = command.ExecuteNonQuery();
+                    return rows > 0;
                 }
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Update), ex);
                 throw new Exception("Error in Update Product: " + ex.Message);
             }
         }
@@ -134,7 +142,7 @@ namespace POS_DAL
         // ============================
         // DELETE PRODUCT
         // ============================
-        public static void DeleteCompletely(int productID)
+        public static bool Delete(int productID)
         {
             try
             {
@@ -143,11 +151,14 @@ namespace POS_DAL
                 {
                     command.CommandText = "DELETE FROM Products WHERE ProductID = @ProductID;";
                     command.Parameters.AddWithValue("@ProductID", productID);
-                    command.ExecuteNonQuery();
+
+                    int rows = command.ExecuteNonQuery();
+                    return rows > 0;
                 }
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Delete), ex);
                 throw new Exception("Error in Delete Product: " + ex.Message);
             }
         }
@@ -160,8 +171,7 @@ namespace POS_DAL
             try
             {
                 using (SqliteConnection connection = DbHelper.OpenConnection())
-                using (SqliteCommand command =
-                    new SqliteCommand("SELECT * FROM vw_ProductDetailsFull", connection))
+                using (SqliteCommand command = new SqliteCommand("SELECT * FROM vw_ProductDetailsFull", connection))
                 {
                     DataTable dt = new DataTable();
                     using (SqliteDataReader reader = command.ExecuteReader())
@@ -173,7 +183,8 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Error fetching product details: " + ex.Message);
+                clsLog.LogError(_className, nameof(GetAllProductDetails), ex);
+                throw new Exception("Error in GetAllProductDetails: " + ex.Message);
             }
         }
 
@@ -187,8 +198,7 @@ namespace POS_DAL
                 using (SqliteConnection connection = DbHelper.OpenConnection())
                 using (SqliteCommand command = connection.CreateCommand())
                 {
-                    command.CommandText =
-                        "SELECT Quantity FROM Products WHERE ProductID = @ProductID;";
+                    command.CommandText = "SELECT Quantity FROM Products WHERE ProductID = @ProductID;";
                     command.Parameters.AddWithValue("@ProductID", productID);
 
                     object result = command.ExecuteScalar();
@@ -197,8 +207,96 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetQuantity), ex);
                 throw new Exception("Error in GetQuantity: " + ex.Message);
             }
         }
+
+        // ============================
+        // GET PRODUCT ACTIVE STATUS
+        // ============================
+        public static bool GetActiveStatus(int productID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT IsActive
+                        FROM Products
+                        WHERE ProductID = @ProductID
+                    ";
+
+                    command.Parameters.AddWithValue("@ProductID", productID);
+
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetActiveStatus), ex);
+                throw new Exception("Error in GetActiveStatus Product: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // ACTIVATE / DEACTIVATE PRODUCT
+        // ============================
+        public static bool SetActiveStatus(int productID, bool isActive)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        UPDATE Products
+                        SET IsActive = @IsActive
+                        WHERE ProductID = @ProductID
+                    ";
+
+                    command.Parameters.AddWithValue("@IsActive", isActive ? 1 : 0);
+                    command.Parameters.AddWithValue("@ProductID", productID);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(SetActiveStatus), ex);
+                throw new Exception("Error in SetActiveStatus Product: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // GET PRODUCT DEPENDENCIES
+        // ============================
+        public static int GetProductDependencies(int productID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT COUNT(*) FROM SalesDetails WHERE ProductID = @ProductID
+            ";
+
+                    command.Parameters.AddWithValue("@ProductID", productID);
+
+                    object result = command.ExecuteScalar();
+                    return result == null ? 0 : Convert.ToInt32(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetProductDependencies), ex);
+                return 0;
+            }
+        }
+
     }
 }
