@@ -185,10 +185,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        SELECT BrandID, Name, Description
-                        FROM Brands
-                        ORDER BY BrandID
-                    ";
+                SELECT BrandID, Name, Description, IsActive
+                FROM Brands
+                ORDER BY BrandID
+            ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
                     {
@@ -289,6 +289,66 @@ namespace POS_DAL
             }
 
             return (0, 0, 0);
+        }
+
+
+        // ============================
+        // GET BRAND ACTIVE STATUS
+        // ============================
+        public static bool GetActiveStatus(int brandId)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT IsActive
+                FROM Brands
+                WHERE BrandID = @BrandID
+            ";
+
+                    command.Parameters.AddWithValue("@BrandID", brandId);
+
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetActiveStatus), ex);
+                throw new Exception("Error in GetActiveStatus Brand: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // ACTIVATE / DEACTIVATE BRAND
+        // ============================
+        public static bool SetActiveStatus(int brandId, bool isActive)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                UPDATE Brands
+                SET IsActive = @IsActive
+                WHERE BrandID = @BrandID
+            ";
+
+                    command.Parameters.AddWithValue("@IsActive", isActive ? 1 : 0);
+                    command.Parameters.AddWithValue("@BrandID", brandId);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(SetActiveStatus), ex);
+                throw new Exception("Error in SetActiveStatus Brand: " + ex.Message);
+            }
         }
 
 
