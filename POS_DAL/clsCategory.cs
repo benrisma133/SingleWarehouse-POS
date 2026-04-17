@@ -1,23 +1,13 @@
 ﻿using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Logging;
+using POS_DAL.Loggers;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Linq;
 
 namespace POS_DAL
 {
     public static class clsCategoryData
     {
-
-        private static ILogger _logger;
-
-        // Called ONCE from UI
-        public static void InitLogger(ILoggerFactory factory)
-        {
-            _logger = factory.CreateLogger("DAL.clsCategoryData");
-        }
+        private const string _className = nameof(clsCategoryData);
 
         // ============================
         // ADD NEW CATEGORY
@@ -26,8 +16,6 @@ namespace POS_DAL
         {
             try
             {
-
-
                 using (SqliteConnection connection = DbHelper.OpenConnection())
                 using (SqliteCommand command = connection.CreateCommand())
                 {
@@ -50,42 +38,44 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
-                string msg = $"AddNew failed for Category '{name}': {ex.Message}";
-                _logger?.LogError(ex, msg); // Logs exception + stack trace
-                Debug.WriteLine(msg);        // Optional: also output in VS Output window
-                return -1;
+                clsLog.LogError(_className, nameof(AddNew), ex);
+                throw new Exception("Error in AddNew Category: " + ex.Message);
             }
         }
-
 
         // ============================
         // UPDATE CATEGORY
         // ============================
         public static bool Update(int categoryID, string name, string description, int? iconID = null)
         {
-            using (var connection = DbHelper.OpenConnection())
-            using (var command = connection.CreateCommand())
+            try
             {
-                command.CommandText = @"
-                    UPDATE Categories
-                    SET Name = @Name,
-                        Description = @Description,
-                        IconID = @IconID
-                    WHERE CategoryID = @CategoryID;
-                ";
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        UPDATE Categories
+                        SET Name = @Name,
+                            Description = @Description,
+                            IconID = @IconID
+                        WHERE CategoryID = @CategoryID;
+                    ";
 
-                // ✅ Parameters
-                command.Parameters.AddWithValue("@CategoryID", categoryID);
-                command.Parameters.AddWithValue("@Name", string.IsNullOrEmpty(name) ? (object)DBNull.Value : name);
-                command.Parameters.AddWithValue("@Description", string.IsNullOrEmpty(description) ? (object)DBNull.Value : description);
-                command.Parameters.AddWithValue("@IconID", iconID.HasValue ? (object)iconID.Value : DBNull.Value);
+                    command.Parameters.AddWithValue("@CategoryID", categoryID);
+                    command.Parameters.AddWithValue("@Name", string.IsNullOrEmpty(name) ? (object)DBNull.Value : name);
+                    command.Parameters.AddWithValue("@Description", string.IsNullOrEmpty(description) ? (object)DBNull.Value : description);
+                    command.Parameters.AddWithValue("@IconID", iconID.HasValue ? (object)iconID.Value : DBNull.Value);
 
-
-                int rows = command.ExecuteNonQuery();
-                return rows > 0;
+                    int rows = command.ExecuteNonQuery();
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(Update), ex);
+                throw new Exception("Error in Update Category: " + ex.Message);
             }
         }
-
 
         // ============================
         // DELETE CATEGORY
@@ -108,13 +98,17 @@ namespace POS_DAL
                     return rows > 0;
                 }
             }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+                // FK violation — Category is linked to Products
+                return false;
+            }
             catch (Exception ex)
             {
-                throw new Exception("Error in Delete Category: " + ex.Message);
+                clsLog.LogError(_className, nameof(Delete), ex);
+                return false;
             }
         }
-        
-        
 
         // ============================
         // GET CATEGORY BY ID
@@ -127,10 +121,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT Name, Description, IconID
-                FROM Categories
-                WHERE CategoryID = @CategoryID;
-            ";
+                        SELECT Name, Description, IconID
+                        FROM Categories
+                        WHERE CategoryID = @CategoryID;
+                    ";
 
                     command.Parameters.AddWithValue("@CategoryID", categoryID);
 
@@ -149,6 +143,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByID), ex);
                 throw new Exception("Error in GetByID Category: " + ex.Message);
             }
         }
@@ -164,11 +159,11 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT CategoryID, Description, IconID
-                FROM Categories
-                WHERE Name = @Name
-                LIMIT 1;
-            ";
+                        SELECT CategoryID, Description, IconID
+                        FROM Categories
+                        WHERE Name = @Name
+                        LIMIT 1;
+                    ";
 
                     command.Parameters.AddWithValue("@Name", name);
 
@@ -187,10 +182,10 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByName), ex);
                 throw new Exception("Error in GetByName Category: " + ex.Message);
             }
         }
-
 
         // ============================
         // GET ALL CATEGORIES
@@ -210,7 +205,6 @@ namespace POS_DAL
                             IFNULL(i.IconData, X'') AS IconData
                         FROM Categories c
                         LEFT JOIN CategoryIcons i ON c.IconID = i.IconID;
-
                     ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
@@ -223,6 +217,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetAll), ex);
                 throw new Exception("Error in GetAll Categories: " + ex.Message);
             }
         }
@@ -232,39 +227,146 @@ namespace POS_DAL
         // ============================
         public static bool IsCategoryExistByName(string name)
         {
-            using (var connection = DbHelper.OpenConnection())
-            using (var command = connection.CreateCommand())
+            try
             {
-                command.CommandText = @"
-                    SELECT 1
-                    FROM Categories
-                    WHERE Name = @Name COLLATE NOCASE
-                    LIMIT 1;
-                ";
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT 1
+                        FROM Categories
+                        WHERE Name = @Name COLLATE NOCASE
+                        LIMIT 1;
+                    ";
 
-                command.Parameters.AddWithValue("@Name", name.Trim());
+                    command.Parameters.AddWithValue("@Name", name.Trim());
 
-                return command.ExecuteScalar() != null;
+                    object result = command.ExecuteScalar();
+                    return result != null;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(IsCategoryExistByName), ex);
+                throw new Exception("Error in IsCategoryExistByName: " + ex.Message);
             }
         }
 
+        // ============================
+        // CHECK IF CATEGORY EXISTS BY NAME (IGNORE ID)
+        // ============================
         public static bool IsCategoryExistByName(string name, int ignoreCategoryID)
         {
-            using (var connection = DbHelper.OpenConnection())
-            using (var command = connection.CreateCommand())
+            try
             {
-                command.CommandText = @"
-                    SELECT 1
-                    FROM Categories
-                    WHERE Name = @Name COLLATE NOCASE
-                      AND CategoryID <> @CategoryID
-                    LIMIT 1;
-                ";
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT 1
+                        FROM Categories
+                        WHERE Name = @Name COLLATE NOCASE
+                          AND CategoryID <> @CategoryID
+                        LIMIT 1;
+                    ";
 
-                command.Parameters.AddWithValue("@Name", name.Trim());
-                command.Parameters.AddWithValue("@CategoryID", ignoreCategoryID);
+                    command.Parameters.AddWithValue("@Name", name.Trim());
+                    command.Parameters.AddWithValue("@CategoryID", ignoreCategoryID);
 
-                return command.ExecuteScalar() != null;
+                    object result = command.ExecuteScalar();
+                    return result != null;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(IsCategoryExistByName), ex);
+                throw new Exception("Error in IsCategoryExistByName (ignoreID): " + ex.Message);
+            }
+        }
+
+        // ============================
+        // GET CATEGORY DEPENDENCIES
+        // ============================
+        public static int GetCategoryDependencies(int categoryID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT COUNT(*) FROM Products WHERE CategoryID = @CategoryID
+                    ";
+
+                    command.Parameters.AddWithValue("@CategoryID", categoryID);
+
+                    object result = command.ExecuteScalar();
+                    return result == null ? 0 : Convert.ToInt32(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetCategoryDependencies), ex);
+                return 0;
+            }
+        }
+
+        // ============================
+        // GET CATEGORY ACTIVE STATUS
+        // ============================
+        public static bool GetActiveStatus(int categoryID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT IsActive
+                FROM Categories
+                WHERE CategoryID = @CategoryID
+            ";
+
+                    command.Parameters.AddWithValue("@CategoryID", categoryID);
+
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetActiveStatus), ex);
+                throw new Exception("Error in GetActiveStatus Category: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // ACTIVATE / DEACTIVATE CATEGORY
+        // ============================
+        public static bool SetActiveStatus(int categoryID, bool isActive)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                UPDATE Categories
+                SET IsActive = @IsActive
+                WHERE CategoryID = @CategoryID
+            ";
+
+                    command.Parameters.AddWithValue("@IsActive", isActive ? 1 : 0);
+                    command.Parameters.AddWithValue("@CategoryID", categoryID);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(SetActiveStatus), ex);
+                throw new Exception("Error in SetActiveStatus Category: " + ex.Message);
             }
         }
 
