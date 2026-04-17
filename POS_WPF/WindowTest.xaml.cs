@@ -1,44 +1,47 @@
-﻿using POS_DAL;
-using POS_WPF.Client;
-using POS_WPF.Controls;
-using POS_WPF.Serie;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using POS_WPF.UI;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace POS_WPF
 {
-    /// <summary>
-    /// Interaction logic for WindowTest.xaml
-    /// </summary>
     public partial class WindowTest : Window
     {
+        private bool _isActive = false;
+        private Button _toggleBtn;
+
         public WindowTest()
         {
             InitializeComponent();
-
-            var card = new ProductCard();
-            card.LoadProduct(5, 1);
-            // Example: productID=1, warehouseID=1
-            //MainGrid.Children.Add(card); // Assuming your Grid is named MainGrid
-            //string cs = clsDataAccessSettigs.ConnectionString;
-            //MessageBox.Show(cs);
+            LoadToggleButton();
         }
 
-        private void ShowGalleryButton_Click(object sender, RoutedEventArgs e)
+        private void LoadToggleButton()
         {
-            frmAddEditClient frm = new frmAddEditClient(1);
-            frm.ShowDialog();
+            _toggleBtn = CardButtonsFactory.CreateToggleButton(ToggleButton_Click, 8, _isActive);
+            ToggleContainer.Children.Add(_toggleBtn);
+            UpdateStatusText();
+        }
+
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Flip the state
+            _isActive = !_isActive;
+
+            // Update button appearance
+            CardButtonsFactory.SetToggleState(_toggleBtn, _isActive);
+
+            // Update status label
+            UpdateStatusText();
+        }
+
+        private void UpdateStatusText()
+        {
+            StatusText.Text = _isActive ? "Status: Active" : "Status: Inactive";
+            StatusText.Foreground = _isActive
+                ? new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1ABC9C"))
+                : new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#95A5A6"));
         }
     }
 }
