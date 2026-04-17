@@ -1,13 +1,14 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace POS_DAL
 {
     public static class clsSeriesData
     {
+        private const string _className = nameof(clsSeriesData);
+
         // ============================
         // ADD NEW SERIES
         // ============================
@@ -33,6 +34,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(AddNew), ex);
                 throw new Exception("Error in AddNew Series: " + ex.Message);
             }
         }
@@ -65,6 +67,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Update), ex);
                 throw new Exception("Error in Update Series: " + ex.Message);
             }
         }
@@ -91,11 +94,12 @@ namespace POS_DAL
             }
             catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
             {
-                // Series is linked to Models
+                // FK violation — Series is linked to Models
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Delete), ex);
                 return false;
             }
         }
@@ -132,6 +136,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByID), ex);
                 throw new Exception("Error in GetByID Series: " + ex.Message);
             }
         }
@@ -169,6 +174,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByName), ex);
                 throw new Exception("Error in GetByName Series: " + ex.Message);
             }
         }
@@ -184,16 +190,16 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                                            SELECT 
-                                                s.SeriesID,
-                                                s.BrandID,
-                                                b.Name AS BrandName,
-                                                s.Name,
-                                                s.Description
-                                            FROM Series s
-                                            INNER JOIN Brands b ON s.BrandID = b.BrandID
-                                            ORDER BY s.SeriesID
-                                        ";
+                        SELECT 
+                            s.SeriesID,
+                            s.BrandID,
+                            b.Name AS BrandName,
+                            s.Name,
+                            s.Description
+                        FROM Series s
+                        INNER JOIN Brands b ON s.BrandID = b.BrandID
+                        ORDER BY s.SeriesID
+                    ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
                     {
@@ -205,10 +211,14 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetAll), ex);
                 throw new Exception("Error in GetAll Series: " + ex.Message);
             }
         }
 
+        // ============================
+        // GET SERIES BY BRAND ID
+        // ============================
         public static DataTable GetByBrandID(int brandID)
         {
             try
@@ -217,17 +227,17 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT 
-                    s.SeriesID,
-                    s.BrandID,
-                    b.Name AS BrandName,
-                    s.Name,
-                    s.Description
-                FROM Series s
-                INNER JOIN Brands b ON s.BrandID = b.BrandID
-                WHERE s.BrandID = @BrandID
-                ORDER BY s.SeriesID;
-            ";
+                        SELECT 
+                            s.SeriesID,
+                            s.BrandID,
+                            b.Name AS BrandName,
+                            s.Name,
+                            s.Description
+                        FROM Series s
+                        INNER JOIN Brands b ON s.BrandID = b.BrandID
+                        WHERE s.BrandID = @BrandID
+                        ORDER BY s.SeriesID
+                    ";
 
                     command.Parameters.AddWithValue("@BrandID", brandID);
 
@@ -241,7 +251,8 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in Get Series By BrandID: " + ex.Message);
+                clsLog.LogError(_className, nameof(GetByBrandID), ex);
+                throw new Exception("Error in GetByBrandID Series: " + ex.Message);
             }
         }
 
@@ -277,10 +288,109 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(IsSeriesExistByName), ex);
                 throw new Exception("Error in IsSeriesExistByName: " + ex.Message);
             }
         }
 
+        // ============================
+        // GET SERIES DEPENDENCIES
+        // ============================
+        public static (int ModelsCount, int ProductsCount) GetSeriesDependencies(int seriesID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT
+                            (SELECT COUNT(*) FROM Models WHERE SeriesID = @SeriesID) AS ModelsCount,
 
+                            (SELECT COUNT(*)
+                             FROM Products p
+                             INNER JOIN Models m ON p.ModelID = m.ModelID
+                             WHERE m.SeriesID = @SeriesID) AS ProductsCount
+                    ";
+
+                    command.Parameters.AddWithValue("@SeriesID", seriesID);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int models = Convert.ToInt32(reader["ModelsCount"]);
+                            int products = Convert.ToInt32(reader["ProductsCount"]);
+                            return (models, products);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetSeriesDependencies), ex);
+            }
+
+            return (0, 0);
+        }
+
+        // ============================
+        // GET SERIES ACTIVE STATUS
+        // ============================
+        public static bool GetActiveStatus(int seriesID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT IsActive
+                        FROM Series
+                        WHERE SeriesID = @SeriesID
+                    ";
+
+                    command.Parameters.AddWithValue("@SeriesID", seriesID);
+
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetActiveStatus), ex);
+                throw new Exception("Error in GetActiveStatus Series: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // ACTIVATE / DEACTIVATE SERIES
+        // ============================
+        public static bool SetActiveStatus(int seriesID, bool isActive)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        UPDATE Series
+                        SET IsActive = @IsActive
+                        WHERE SeriesID = @SeriesID
+                    ";
+
+                    command.Parameters.AddWithValue("@IsActive", isActive ? 1 : 0);
+                    command.Parameters.AddWithValue("@SeriesID", seriesID);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(SetActiveStatus), ex);
+                throw new Exception("Error in SetActiveStatus Series: " + ex.Message);
+            }
+        }
     }
 }
