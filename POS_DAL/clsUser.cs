@@ -1,10 +1,13 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
 
 namespace POS_DAL
 {
     public static class clsUserData
     {
+        private const string _className = nameof(clsUserData);
+
         // ============================
         // ADD USER (PERSON + USER)
         // ============================
@@ -43,7 +46,14 @@ namespace POS_DAL
                     command.Parameters.AddWithValue("@Address", address ?? "");
                     command.Parameters.AddWithValue("@Gender", gender);
 
-                    int personID = Convert.ToInt32(command.ExecuteScalar());
+                    object personIDResult = command.ExecuteScalar();
+                    int personID = personIDResult == null ? -1 : Convert.ToInt32((long)personIDResult);
+
+                    if (personID == -1)
+                    {
+                        transaction.Rollback();
+                        return -1;
+                    }
 
                     // 2. Insert User
                     command.Parameters.Clear();
@@ -65,6 +75,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Add), ex);
                 throw new Exception("Error in Add User: " + ex.Message);
             }
         }
@@ -130,14 +141,15 @@ namespace POS_DAL
                     command.Parameters.AddWithValue("@Username", username);
                     command.Parameters.AddWithValue("@Password", passwordHash);
 
-                    command.ExecuteNonQuery();
+                    int rows = command.ExecuteNonQuery();
 
                     transaction.Commit();
-                    return true;
+                    return rows > 0;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Update), ex);
                 return false;
             }
         }
@@ -170,7 +182,8 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in Login: " + ex.Message);
+                clsLog.LogError(_className, nameof(GetPersonIDByUsernameAndPassword), ex);
+                throw new Exception("Error in GetPersonIDByUsernameAndPassword: " + ex.Message);
             }
         }
 
@@ -185,10 +198,10 @@ namespace POS_DAL
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT 1
-                FROM Users
-                WHERE Username = @Username
-            ";
+                        SELECT 1
+                        FROM Users
+                        WHERE Username = @Username
+                    ";
 
                     command.Parameters.AddWithValue("@Username", username);
 
@@ -206,6 +219,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(IsUsernameExist), ex);
                 throw new Exception("Error in IsUsernameExist: " + ex.Message);
             }
         }
@@ -213,7 +227,6 @@ namespace POS_DAL
         // ============================
         // CHANGE PASSWORD
         // ============================
-
         /// <summary>
         /// Verifies the old password hash first,
         /// then replaces it with the new one.
@@ -235,11 +248,11 @@ namespace POS_DAL
 
                     // 1. Verify old password belongs to this user
                     command.CommandText = @"
-                SELECT COUNT(1)
-                FROM   Users
-                WHERE  PersonID     = @PersonID
-                AND    PasswordHash = @OldPassword
-            ";
+                        SELECT COUNT(1)
+                        FROM Users
+                        WHERE PersonID = @PersonID
+                        AND PasswordHash = @OldPassword
+                    ";
 
                     command.Parameters.AddWithValue("@PersonID", personID);
                     command.Parameters.AddWithValue("@OldPassword", oldPasswordHash);
@@ -256,10 +269,10 @@ namespace POS_DAL
                     command.Parameters.Clear();
 
                     command.CommandText = @"
-                UPDATE Users
-                SET    PasswordHash = @NewPassword
-                WHERE  PersonID     = @PersonID
-            ";
+                        UPDATE Users
+                        SET PasswordHash = @NewPassword
+                        WHERE PersonID = @PersonID
+                    ";
 
                     command.Parameters.AddWithValue("@PersonID", personID);
                     command.Parameters.AddWithValue("@NewPassword", newPasswordHash);
@@ -278,7 +291,67 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(ChangePassword), ex);
                 throw new Exception("Error in ChangePassword: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // GET USER ACTIVE STATUS
+        // ============================
+        public static bool GetActiveStatus(int personID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT IsActive
+                        FROM Users
+                        WHERE PersonID = @PersonID
+                    ";
+
+                    command.Parameters.AddWithValue("@PersonID", personID);
+
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetActiveStatus), ex);
+                throw new Exception("Error in GetActiveStatus User: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // ACTIVATE / DEACTIVATE USER
+        // ============================
+        public static bool SetActiveStatus(int personID, bool isActive)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        UPDATE Users
+                        SET IsActive = @IsActive
+                        WHERE PersonID = @PersonID
+                    ";
+
+                    command.Parameters.AddWithValue("@IsActive", isActive ? 1 : 0);
+                    command.Parameters.AddWithValue("@PersonID", personID);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(SetActiveStatus), ex);
+                throw new Exception("Error in SetActiveStatus User: " + ex.Message);
             }
         }
     }
