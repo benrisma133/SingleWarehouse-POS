@@ -106,9 +106,9 @@ namespace POS_BLL
         // ============================
 
         /// <summary>
-        /// Validates then persists the brand (insert or update).
-        /// Returns false if validation fails or the DAL reports no rows affected.
-        /// Throws if the DAL encounters a database error.
+        ///     Validates then persists the brand (insert or update).
+        ///     Returns false if validation fails or the DAL reports no rows affected.
+        ///     Throws if the DAL encounters a database error.
         /// </summary>
         public bool Save()
         {
@@ -149,6 +149,27 @@ namespace POS_BLL
         public static DataTable GetAll()
         {
             return clsBrandsData.GetAll();
+        }
+
+        /// <summary>
+        /// Gets the active status of the brand with the given ID.
+        /// </summary>
+        /// <param name="brandID">The ID of the brand.</param>
+        /// <returns>True if the brand is active, false otherwise.</returns>
+        public static bool GetActiveStatus(int brandID)
+        {
+            return clsBrandsData.GetActiveStatus(brandID);
+        }
+
+        /// <summary>
+        /// Sets the active status of the brand with the given ID.
+        /// </summary>
+        /// <param name="brandID">The ID of the brand.</param>
+        /// <param name="isActive">The active status to set.</param>
+        /// <returns>True if the operation was successful, false otherwise.</returns>
+        public static bool SetActiveStatus(int brandID, bool isActive)
+        {
+            return clsBrandsData.SetActiveStatus(brandID, isActive);
         }
 
         public static bool IsBrandExistByName(string name)
