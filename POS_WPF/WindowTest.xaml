@@ -8,17 +8,23 @@
         mc:Ignorable="d"
         Title="Device Brands Gallery" Height="800" Width="650">
 
-    
-
     <Grid Margin="20">
-        <Button Content="Update Serie with ID : 8" 
-                Height="44"
-                Background="#3B82F6"
-                Foreground="White"
-                BorderThickness="0"
-                FontSize="14"
-                FontWeight="Medium"
-                Cursor="Hand"
-                Click="ShowGalleryButton_Click"/>
+        <StackPanel VerticalAlignment="Center" 
+                    HorizontalAlignment="Center">
+            <TextBlock Text="Toggle Test" 
+                       FontSize="16" 
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Toggle button will be added here from code-behind -->
+            <StackPanel x:Name="ToggleContainer" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Center"/>
+
+            <TextBlock x:Name="StatusText" 
+                       Text="Status: Inactive" 
+                       FontSize="14"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
     </Grid>
 </Window>
