@@ -182,7 +182,6 @@ namespace POS_WPF.UI
             return btn;
         }
 
-
         private static Button CreateBaseButton(string normalColor, string hoverColor, RoutedEventHandler clickEvent, int id)
         {
             Button btn = new Button
@@ -219,7 +218,6 @@ namespace POS_WPF.UI
             return btn;
         }
 
-
         private static Button CreateBaseButton(string normalColor, string hoverColor, RoutedEventHandler clickEvent, object tag)
         {
             Button btn = new Button
@@ -254,6 +252,113 @@ namespace POS_WPF.UI
             btn.Template = template;
 
             return btn;
+        }
+
+        public static Button CreateToggleButton(RoutedEventHandler clickEvent, int id, bool isActive = false)
+        {
+            Button btn = CreateBaseButton(
+                isActive ? "#1ABC9C" : "#95A5A6",
+                isActive ? "#48C9B0" : "#BDC3C7",
+                clickEvent, id);
+
+            btn.Content = CreateToggleIcon(isActive);
+            btn.Tag = id;
+
+            return btn;
+        }
+
+        public static Button CreateToggleButton(RoutedEventHandler clickEvent, object tag, bool isActive = false)
+        {
+            Button btn = CreateBaseButton(
+                isActive ? "#1ABC9C" : "#95A5A6",
+                isActive ? "#48C9B0" : "#BDC3C7",
+                clickEvent, tag);
+
+            btn.Content = CreateToggleIcon(isActive);
+            btn.Tag = tag;
+
+            return btn;
+        }
+
+        public static void SetToggleState(Button btn, bool isActive)
+        {
+            btn.Content = CreateToggleIcon(isActive);
+            string normalColor = isActive ? "#1ABC9C" : "#95A5A6";
+            string hoverColor = isActive ? "#48C9B0" : "#BDC3C7";
+
+            btn.Background = (SolidColorBrush)new BrushConverter().ConvertFromString(normalColor);
+
+            // Remove old handlers stored in Tag's dictionary
+            if (btn.Resources.Contains("MouseEnterHandler"))
+            {
+                btn.MouseEnter -= (MouseEventHandler)btn.Resources["MouseEnterHandler"];
+                btn.MouseLeave -= (MouseEventHandler)btn.Resources["MouseLeaveHandler"];
+            }
+
+            // Create new handlers
+            MouseEventHandler enterHandler = (s, e) =>
+                btn.Background = (SolidColorBrush)new BrushConverter().ConvertFromString(hoverColor);
+
+            MouseEventHandler leaveHandler = (s, e) =>
+                btn.Background = (SolidColorBrush)new BrushConverter().ConvertFromString(normalColor);
+
+            // Store handlers in button's Resources for later removal
+            btn.Resources["MouseEnterHandler"] = enterHandler;
+            btn.Resources["MouseLeaveHandler"] = leaveHandler;
+
+            btn.MouseEnter += enterHandler;
+            btn.MouseLeave += leaveHandler;
+        }
+
+        private static UIElement CreateToggleIcon(bool isActive)
+        {
+            Viewbox viewbox = new Viewbox { Width = 28, Height = 16 };
+            Canvas canvas = new Canvas { Width = 16, Height = 16 };
+
+            if (isActive)
+            {
+                // Active: filled pill, circle on the right
+                var geometry = Geometry.Parse(
+                    "M11 3C13.7614 3 16 5.23858 16 8C16 10.7614 13.7614 13 11 13H5C2.23858 13 0 10.7614 0 8C0 5.23858 2.23858 3 5 3H11Z" +
+                    "M11 5C12.6569 5 14 6.34315 14 8C14 9.65685 12.6569 11 11 11C9.34315 11 8 9.65685 8 8C8 6.34315 9.34315 5 11 5Z");
+
+                if (geometry is PathGeometry pathGeometry)
+                    pathGeometry.FillRule = FillRule.EvenOdd;
+
+                canvas.Children.Add(new Path
+                {
+                    Data = geometry,
+                    Fill = Brushes.White
+                });
+            }
+            else
+            {
+                // Inactive: outline pill, circle on the left
+                // Outer pill outline
+                canvas.Children.Add(new Path
+                {
+                    Data = Geometry.Parse(
+                        "M11 3C13.7614 3 16 5.23858 16 8C16 10.7614 13.7614 13 11 13H5C2.23858 13 0 10.7614 0 8C0 5.23858 2.23858 3 5 3H11Z"),
+                    Fill = Brushes.Transparent,
+                    Stroke = Brushes.White,
+                    StrokeThickness = 1.2
+                });
+
+                // Inner circle on the LEFT (centered at x=5)
+                canvas.Children.Add(new Ellipse
+                {
+                    Width = 6,
+                    Height = 6,
+                    Stroke = Brushes.White,
+                    StrokeThickness = 1.2,
+                    Fill = Brushes.Transparent
+                });
+                Canvas.SetLeft(canvas.Children[1], 2);  // 5 - 3 = 2
+                Canvas.SetTop(canvas.Children[1], 5);  // 8 - 3 = 5
+            }
+
+            viewbox.Child = canvas;
+            return viewbox;
         }
 
     }
