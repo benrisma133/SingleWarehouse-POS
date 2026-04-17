@@ -1,12 +1,14 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
-using System.Collections.Generic;
 using System.Data;
 
 namespace POS_DAL
 {
     public static class clsModelData
     {
+        private const string _className = nameof(clsModelData);
+
         // ============================
         // ADD NEW MODEL
         // ============================
@@ -18,20 +20,18 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                INSERT INTO Models (Name, Description, SeriesID)
-                VALUES (@Name, @Description, @SeriesID);
-                SELECT last_insert_rowid();
-            ";
+                        INSERT INTO Models (Name, Description, SeriesID)
+                        VALUES (@Name, @Description, @SeriesID);
+                        SELECT last_insert_rowid();
+                    ";
 
                     command.Parameters.AddWithValue("@Name", name);
 
-                    // Description
                     if (string.IsNullOrEmpty(description))
                         command.Parameters.AddWithValue("@Description", DBNull.Value);
                     else
                         command.Parameters.AddWithValue("@Description", description);
 
-                    // SeriesID
                     if (seriesID.HasValue)
                         command.Parameters.AddWithValue("@SeriesID", seriesID.Value);
                     else
@@ -43,6 +43,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(AddNew), ex);
                 throw new Exception("Error in AddNew Model: " + ex.Message);
             }
         }
@@ -58,23 +59,21 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                UPDATE Models
-                SET Name = @Name,
-                    Description = @Description,
-                    SeriesID = @SeriesID
-                WHERE ModelID = @ModelID;
-            ";
+                        UPDATE Models
+                        SET Name = @Name,
+                            Description = @Description,
+                            SeriesID = @SeriesID
+                        WHERE ModelID = @ModelID;
+                    ";
 
                     command.Parameters.AddWithValue("@ModelID", modelID);
                     command.Parameters.AddWithValue("@Name", name);
 
-                    // Description
                     if (string.IsNullOrEmpty(description))
                         command.Parameters.AddWithValue("@Description", DBNull.Value);
                     else
                         command.Parameters.AddWithValue("@Description", description);
 
-                    // SeriesID
                     if (seriesID.HasValue)
                         command.Parameters.AddWithValue("@SeriesID", seriesID.Value);
                     else
@@ -85,6 +84,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Update), ex);
                 throw new Exception("Error in Update Model: " + ex.Message);
             }
         }
@@ -109,13 +109,21 @@ namespace POS_DAL
                     return command.ExecuteNonQuery() > 0;
                 }
             }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+                // FK violation — Model is linked to Products
+                return false;
+            }
             catch (Exception ex)
             {
-                throw new Exception("Error in Delete Model: " + ex.Message);
+                clsLog.LogError(_className, nameof(Delete), ex);
+                return false;
             }
         }
 
-        
+        // ============================
+        // DELETE MODEL COMPLETELY
+        // ============================
         public static bool DeleteModelCompletely(int modelID)
         {
             try
@@ -123,18 +131,16 @@ namespace POS_DAL
                 using (SqliteConnection connection = DbHelper.OpenConnection())
                 using (var transaction = connection.BeginTransaction())
                 {
-                    // Delete relations with warehouses
                     using (SqliteCommand cmd1 = connection.CreateCommand())
                     {
-                        cmd1.CommandText = "DELETE FROM WarehouseModels WHERE ModelID=@ModelID;";
+                        cmd1.CommandText = "DELETE FROM WarehouseModels WHERE ModelID = @ModelID;";
                         cmd1.Parameters.AddWithValue("@ModelID", modelID);
                         cmd1.ExecuteNonQuery();
                     }
 
-                    // Delete model itself
                     using (SqliteCommand cmd2 = connection.CreateCommand())
                     {
-                        cmd2.CommandText = "DELETE FROM Models WHERE ModelID=@ModelID;";
+                        cmd2.CommandText = "DELETE FROM Models WHERE ModelID = @ModelID;";
                         cmd2.Parameters.AddWithValue("@ModelID", modelID);
                         int rows = cmd2.ExecuteNonQuery();
 
@@ -145,10 +151,10 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(DeleteModelCompletely), ex);
                 throw new Exception("Error in DeleteModelCompletely: " + ex.Message);
             }
         }
-
 
         // ============================
         // GET MODEL BY ID
@@ -161,10 +167,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT Name, Description, SeriesID
-                FROM Models
-                WHERE ModelID = @ModelID;
-            ";
+                        SELECT Name, Description, SeriesID
+                        FROM Models
+                        WHERE ModelID = @ModelID;
+                    ";
                     command.Parameters.AddWithValue("@ModelID", modelID);
 
                     using (SqliteDataReader reader = command.ExecuteReader())
@@ -189,6 +195,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByID), ex);
                 throw new Exception("Error in GetByID Model: " + ex.Message);
             }
         }
@@ -204,11 +211,11 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT ModelID, Description, SeriesID
-                FROM Models
-                WHERE Name = @Name
-                LIMIT 1;
-            ";
+                        SELECT ModelID, Description, SeriesID
+                        FROM Models
+                        WHERE Name = @Name
+                        LIMIT 1;
+                    ";
                     command.Parameters.AddWithValue("@Name", name);
 
                     using (SqliteDataReader reader = command.ExecuteReader())
@@ -233,6 +240,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByName), ex);
                 throw new Exception("Error in GetByName Model: " + ex.Message);
             }
         }
@@ -248,18 +256,18 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                                                SELECT 
-                                                    m.ModelID,
-                                                    m.Name,
-                                                    m.Description,
-                                                    s.Name AS SeriesName,
-                                                    s.SeriesID,
-                                                    b.BrandID,
-                                                    b.Name AS BrandName
-                                                FROM Models m
-                                                LEFT JOIN Series s ON m.SeriesID = s.SeriesID
-                                                LEFT JOIN Brands b ON s.BrandID = b.BrandID;
-                                            ";
+                        SELECT 
+                            m.ModelID,
+                            m.Name,
+                            m.Description,
+                            s.Name AS SeriesName,
+                            s.SeriesID,
+                            b.BrandID,
+                            b.Name AS BrandName
+                        FROM Models m
+                        LEFT JOIN Series s ON m.SeriesID = s.SeriesID
+                        LEFT JOIN Brands b ON s.BrandID = b.BrandID;
+                    ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
                     {
@@ -271,6 +279,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetAll), ex);
                 throw new Exception("Error in GetAll Models: " + ex.Message);
             }
         }
@@ -288,8 +297,7 @@ namespace POS_DAL
                     command.CommandText = @"
                         SELECT DISTINCT m.ModelID, m.Name, m.Description
                         FROM Models m
-                        INNER JOIN WarehouseModels wm
-                            ON m.ModelID = wm.ModelID;
+                        INNER JOIN WarehouseModels wm ON m.ModelID = wm.ModelID;
                     ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
@@ -302,10 +310,14 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetAllDistinct), ex);
                 throw new Exception("Error in GetAllDistinct Models: " + ex.Message);
             }
         }
 
+        // ============================
+        // CHECK IF MODEL EXISTS BY NAME
+        // ============================
         public static bool IsModelExistByName(string name)
         {
             try
@@ -316,7 +328,7 @@ namespace POS_DAL
                     command.CommandText = @"
                         SELECT 1
                         FROM Models
-                        WHERE Name = @Name COLLATE NOCASE 
+                        WHERE Name = @Name COLLATE NOCASE
                         LIMIT 1;
                     ";
 
@@ -328,27 +340,126 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(IsModelExistByName), ex);
                 throw new Exception("Error in IsModelExistByName: " + ex.Message);
             }
         }
 
+        // ============================
+        // CHECK IF MODEL EXISTS BY NAME (IGNORE ID)
+        // ============================
         public static bool IsModelExistByName(string name, int ignoreModelID)
         {
-            using (var connection = DbHelper.OpenConnection())
-            using (var command = connection.CreateCommand())
+            try
             {
-                command.CommandText = @"
-                    SELECT 1
-                    FROM Models
-                    WHERE Name = @Name COLLATE NOCASE
-                      AND ModelID <> @ModelID
-                    LIMIT 1;
-                ";
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT 1
+                        FROM Models
+                        WHERE Name = @Name COLLATE NOCASE
+                          AND ModelID <> @ModelID
+                        LIMIT 1;
+                    ";
 
-                command.Parameters.AddWithValue("@Name", name);
-                command.Parameters.AddWithValue("@ModelID", ignoreModelID);
+                    command.Parameters.AddWithValue("@Name", name);
+                    command.Parameters.AddWithValue("@ModelID", ignoreModelID);
 
-                return command.ExecuteScalar() != null;
+                    object result = command.ExecuteScalar();
+                    return result != null;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(IsModelExistByName), ex);
+                throw new Exception("Error in IsModelExistByName (ignoreModelID): " + ex.Message);
+            }
+        }
+
+        // ============================
+        // GET MODEL DEPENDENCIES
+        // ============================
+        public static int GetModelDependencies(int modelID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                SELECT COUNT(*) FROM Products WHERE ModelID = @ModelID
+            ";
+
+                    command.Parameters.AddWithValue("@ModelID", modelID);
+
+                    object result = command.ExecuteScalar();
+                    return result == null ? 0 : Convert.ToInt32(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetModelDependencies), ex);
+                return 0;
+            }
+        }
+
+        // ============================
+        // GET MODEL ACTIVE STATUS
+        // ============================
+        public static bool GetActiveStatus(int modelID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT IsActive
+                        FROM Models
+                        WHERE ModelID = @ModelID
+                    ";
+
+                    command.Parameters.AddWithValue("@ModelID", modelID);
+
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetActiveStatus), ex);
+                throw new Exception("Error in GetActiveStatus Model: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // ACTIVATE / DEACTIVATE MODEL
+        // ============================
+        public static bool SetActiveStatus(int modelID, bool isActive)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        UPDATE Models
+                        SET IsActive = @IsActive
+                        WHERE ModelID = @ModelID
+                    ";
+
+                    command.Parameters.AddWithValue("@IsActive", isActive ? 1 : 0);
+                    command.Parameters.AddWithValue("@ModelID", modelID);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(SetActiveStatus), ex);
+                throw new Exception("Error in SetActiveStatus Model: " + ex.Message);
             }
         }
     }
