@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +8,8 @@ namespace POS_DAL
 {
     public static class clsSalesData
     {
+        private const string _className = nameof(clsSalesData);
+
         // ── Insert sale header + all detail lines in one transaction ─────────────
         // Returns new SaleID, or -1 on failure.
         // Throws InvalidOperationException if any item is out of stock.
@@ -30,7 +33,7 @@ namespace POS_DAL
                         cmd.Parameters.AddWithValue("@TotalPrice", totalPrice);
                         object result = cmd.ExecuteScalar();
                         if (result == null) { tr.Rollback(); return -1; }
-                        newSaleID = Convert.ToInt32(result);
+                        newSaleID = Convert.ToInt32((long)result);
                     }
 
                     // 2. Detail lines + stock deduction
@@ -67,8 +70,8 @@ namespace POS_DAL
 
                         using (var cmd = new SqliteCommand(@"
                             UPDATE Products
-                            SET    Quantity = Quantity - @Qty
-                            WHERE  ProductID = @PID;", conn, tr))
+                            SET Quantity = Quantity - @Qty
+                            WHERE ProductID = @PID;", conn, tr))
                         {
                             cmd.Parameters.AddWithValue("@Qty", item.Quantity);
                             cmd.Parameters.AddWithValue("@PID", item.ProductID);
@@ -80,8 +83,15 @@ namespace POS_DAL
                     return newSaleID;
                 }
             }
-            catch (InvalidOperationException) { throw; }
-            catch { return -1; }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(AddSale), ex);
+                return -1;
+            }
         }
 
         // ── Delete sale, restore stock ────────────────────────────────────────────
@@ -132,7 +142,11 @@ namespace POS_DAL
                     return true;
                 }
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(Delete), ex);
+                return false;
+            }
         }
 
         // ── Queries ───────────────────────────────────────────────────────────────
@@ -148,13 +162,16 @@ namespace POS_DAL
                            c.FirstName || ' ' || c.LastName AS ClientName,
                            s.SaleDate,
                            s.TotalPrice
-                    FROM   Sales s
-                    JOIN   Clients c ON c.ClientID = s.ClientID
-                    ORDER  BY s.SaleDate DESC;", conn))
+                    FROM Sales s
+                    JOIN Clients c ON c.ClientID = s.ClientID
+                    ORDER BY s.SaleDate DESC;", conn))
                 using (var reader = cmd.ExecuteReader())
                     dt.Load(reader);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetAll), ex);
+            }
             return dt;
         }
 
@@ -167,16 +184,19 @@ namespace POS_DAL
                 using (var cmd = new SqliteCommand(@"
                     SELECT sd.DetailID, p.ProductName, sd.Quantity, sd.Price,
                            sd.Quantity * sd.Price AS LineTotal
-                    FROM   SalesDetails sd
-                    JOIN   Products p ON p.ProductID = sd.ProductID
-                    WHERE  sd.SaleID = @SaleID;", conn))
+                    FROM SalesDetails sd
+                    JOIN Products p ON p.ProductID = sd.ProductID
+                    WHERE sd.SaleID = @SaleID;", conn))
                 {
                     cmd.Parameters.AddWithValue("@SaleID", saleID);
                     using (var reader = cmd.ExecuteReader())
                         dt.Load(reader);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetSaleDetails), ex);
+            }
             return dt;
         }
 
@@ -188,17 +208,20 @@ namespace POS_DAL
                 using (var conn = DbHelper.OpenConnection())
                 using (var cmd = new SqliteCommand(@"
                     SELECT ProductID, ProductName, Price, Quantity
-                    FROM   Products
-                    WHERE  Quantity > 0
+                    FROM Products
+                    WHERE Quantity > 0
                       AND (ProductName LIKE @Filter OR CAST(Price AS TEXT) LIKE @Filter)
-                    ORDER  BY ProductName;", conn))
+                    ORDER BY ProductName;", conn))
                 {
                     cmd.Parameters.AddWithValue("@Filter", $"%{filter}%");
                     using (var reader = cmd.ExecuteReader())
                         dt.Load(reader);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetAvailableProducts), ex);
+            }
             return dt;
         }
 
@@ -212,12 +235,15 @@ namespace POS_DAL
                     SELECT ClientID,
                            FirstName || ' ' || LastName AS FullName,
                            Phone
-                    FROM   Clients
-                    ORDER  BY FirstName;", conn))
+                    FROM Clients
+                    ORDER BY FirstName;", conn))
                 using (var reader = cmd.ExecuteReader())
                     dt.Load(reader);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetClients), ex);
+            }
             return dt;
         }
 
@@ -234,7 +260,86 @@ namespace POS_DAL
                     return r != null ? Convert.ToInt32(r) : 0;
                 }
             }
-            catch { return 0; }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetProductStock), ex);
+                return 0;
+            }
+        }
+
+        // ============================
+        // GET SALE BY ID
+        // ============================
+        public static bool GetByID(int saleID, ref int clientID, ref DateTime saleDate, ref decimal totalPrice)
+        {
+            try
+            {
+                using (var conn = DbHelper.OpenConnection())
+                using (var cmd = new SqliteCommand(@"
+                    SELECT ClientID, SaleDate, TotalPrice
+                    FROM Sales
+                    WHERE SaleID = @SaleID;", conn))
+                {
+                    cmd.Parameters.AddWithValue("@SaleID", saleID);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            clientID = reader.GetInt32(0);
+                            saleDate = reader.IsDBNull(1) ? DateTime.Now : Convert.ToDateTime(reader.GetString(1));
+                            totalPrice = reader.GetDecimal(2);
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetByID), ex);
+            }
+            return false;
+        }
+
+        // ============================
+        // GET TOTAL SALES COUNT
+        // ============================
+        public static int GetTotalSalesCount()
+        {
+            try
+            {
+                using (var conn = DbHelper.OpenConnection())
+                using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM Sales;", conn))
+                {
+                    object result = cmd.ExecuteScalar();
+                    return result == null ? 0 : Convert.ToInt32(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetTotalSalesCount), ex);
+                return 0;
+            }
+        }
+
+        // ============================
+        // GET TOTAL REVENUE
+        // ============================
+        public static decimal GetTotalRevenue()
+        {
+            try
+            {
+                using (var conn = DbHelper.OpenConnection())
+                using (var cmd = new SqliteCommand("SELECT IFNULL(SUM(TotalPrice), 0) FROM Sales;", conn))
+                {
+                    object result = cmd.ExecuteScalar();
+                    return result == null ? 0 : Convert.ToDecimal(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetTotalRevenue), ex);
+                return 0;
+            }
         }
     }
 }
