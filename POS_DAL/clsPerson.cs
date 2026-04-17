@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
 using System.Data;
 
@@ -6,6 +7,8 @@ namespace POS_DAL
 {
     public static class clsPersonData
     {
+        private const string _className = nameof(clsPersonData);
+
         // ============================
         // GET PERSON BY ID
         // ============================
@@ -52,6 +55,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByID), ex);
                 throw new Exception("Error in GetByID Person: " + ex.Message);
             }
         }
