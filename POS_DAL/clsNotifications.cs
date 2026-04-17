@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
 using System.Data;
 
@@ -6,6 +7,8 @@ namespace POS_DAL
 {
     public static class clsNotificationsData
     {
+        private const string _className = nameof(clsNotificationsData);
+
         // ============================
         // ADD NOTIFICATION (NO DUPLICATES)
         // ============================
@@ -42,11 +45,12 @@ namespace POS_DAL
                     command.Parameters.AddWithValue("@Type", type);
 
                     object result = command.ExecuteScalar();
-                    return result == null ? -1 : Convert.ToInt32(result);
+                    return result == null ? -1 : Convert.ToInt32((long)result);
                 }
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(AddIfNotExists), ex);
                 throw new Exception("Error in AddIfNotExists Notification: " + ex.Message);
             }
         }
@@ -73,6 +77,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(MarkAsRead), ex);
                 throw new Exception("Error in MarkAsRead: " + ex.Message);
             }
         }
@@ -80,7 +85,7 @@ namespace POS_DAL
         // ============================
         // MARK ALL AS READ
         // ============================
-        public static void MarkAllAsRead()
+        public static bool MarkAllAsRead()
         {
             try
             {
@@ -88,11 +93,13 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = "UPDATE Notifications SET IsRead = 1";
-                    command.ExecuteNonQuery();
+                    int rows = command.ExecuteNonQuery();
+                    return rows > 0;
                 }
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(MarkAllAsRead), ex);
                 throw new Exception("Error in MarkAllAsRead: " + ex.Message);
             }
         }
@@ -119,6 +126,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(MarkAsSent), ex);
                 throw new Exception("Error in MarkAsSent: " + ex.Message);
             }
         }
@@ -150,6 +158,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetUnread), ex);
                 throw new Exception("Error in GetUnread: " + ex.Message);
             }
         }
@@ -181,6 +190,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetUnsent), ex);
                 throw new Exception("Error in GetUnsent: " + ex.Message);
             }
         }
@@ -206,6 +216,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Delete), ex);
                 throw new Exception("Error in Delete Notification: " + ex.Message);
             }
         }
@@ -213,7 +224,7 @@ namespace POS_DAL
         // ============================
         // DELETE BY PRODUCT + TYPE (optional cleanup)
         // ============================
-        public static void DeleteByProduct(int productID, int type)
+        public static bool DeleteByProduct(int productID, int type)
         {
             try
             {
@@ -227,11 +238,13 @@ namespace POS_DAL
                     command.Parameters.AddWithValue("@ProductID", productID);
                     command.Parameters.AddWithValue("@Type", type);
 
-                    command.ExecuteNonQuery();
+                    int rows = command.ExecuteNonQuery();
+                    return rows > 0;
                 }
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(DeleteByProduct), ex);
                 throw new Exception("Error in DeleteByProduct: " + ex.Message);
             }
         }
@@ -239,7 +252,7 @@ namespace POS_DAL
         // ============================
         // MARK ALL AS SENT
         // ============================
-        public static void MarkAllAsSent()
+        public static bool MarkAllAsSent()
         {
             try
             {
@@ -247,11 +260,13 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = "UPDATE Notifications SET IsSent = 1 WHERE IsSent = 0";
-                    command.ExecuteNonQuery();
+                    int rows = command.ExecuteNonQuery();
+                    return rows > 0;
                 }
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(MarkAllAsSent), ex);
                 throw new Exception("Error in MarkAllAsSent: " + ex.Message);
             }
         }
@@ -259,7 +274,7 @@ namespace POS_DAL
         // ============================
         // MARK AS READ BY PRODUCT + TYPE
         // ============================
-        public static bool MarkAsRead(int productID, int type)
+        public static bool MarkAsReadByProduct(int productID, int type)
         {
             try
             {
@@ -267,10 +282,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                UPDATE Notifications
-                SET IsRead = 1
-                WHERE ProductID = @ProductID AND Type = @Type
-            ";
+                        UPDATE Notifications
+                        SET IsRead = 1
+                        WHERE ProductID = @ProductID AND Type = @Type
+                    ";
                     command.Parameters.AddWithValue("@ProductID", productID);
                     command.Parameters.AddWithValue("@Type", type);
 
@@ -279,14 +294,15 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in MarkAsRead (Product): " + ex.Message);
+                clsLog.LogError(_className, nameof(MarkAsReadByProduct), ex);
+                throw new Exception("Error in MarkAsReadByProduct: " + ex.Message);
             }
         }
 
         // ============================
         // MARK AS SENT BY PRODUCT + TYPE
         // ============================
-        public static bool MarkAsSent(int productID, int type)
+        public static bool MarkAsSentByProduct(int productID, int type)
         {
             try
             {
@@ -294,10 +310,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                UPDATE Notifications
-                SET IsSent = 1
-                WHERE ProductID = @ProductID AND Type = @Type
-            ";
+                        UPDATE Notifications
+                        SET IsSent = 1
+                        WHERE ProductID = @ProductID AND Type = @Type
+                    ";
                     command.Parameters.AddWithValue("@ProductID", productID);
                     command.Parameters.AddWithValue("@Type", type);
 
@@ -306,10 +322,10 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in MarkAsSent (Product): " + ex.Message);
+                clsLog.LogError(_className, nameof(MarkAsSentByProduct), ex);
+                throw new Exception("Error in MarkAsSentByProduct: " + ex.Message);
             }
         }
-
 
         // ============================
         // GET ALL NOTIFICATIONS
@@ -322,10 +338,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT *
-                FROM Notifications
-                ORDER BY CreatedAt DESC
-            ";
+                        SELECT *
+                        FROM Notifications
+                        ORDER BY CreatedAt DESC
+                    ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
                     {
@@ -337,10 +353,9 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetAll), ex);
                 throw new Exception("Error in GetAll Notifications: " + ex.Message);
             }
         }
-
-
     }
 }
