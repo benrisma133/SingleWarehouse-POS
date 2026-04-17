@@ -30,6 +30,7 @@ namespace POS_WPF.Pages
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            cmbStatus.SelectedIndex = 1; // Default to "Active"
             await LoadBrandsAsync();
             DynamicCardContainer.PreviewMouseWheel += DynamicCardContainer_PreviewMouseWheel;
         }
@@ -66,22 +67,37 @@ namespace POS_WPF.Pages
                 string filter = GetSearchText();
                 string warehouseName = "All Warehouses";
 
-                
+                // Get filter status from ComboBox
+                string statusFilter = (cmbStatus.SelectedItem as ComboBoxItem)?.Tag.ToString() ?? "all";
 
                 // Fetch + filter off UI thread
                 var brandData = await Task.Run(() =>
                 {
-                    DataTable dt =  clsBrand.GetAll();
+                    DataTable dt = clsBrand.GetAll();
 
                     return dt.AsEnumerable()
                         .Where(row =>
-                            row["Name"].ToString().ToLower().Contains(filter) ||
-                            row["Description"].ToString().ToLower().Contains(filter))
+                        {
+                            string name = row["Name"].ToString().ToLower();
+                            string description = row["Description"].ToString().ToLower();
+                            int isActive = Convert.ToInt32(row["IsActive"]);
+
+                            // Search filter
+                            bool matchesSearch = name.Contains(filter) || description.Contains(filter);
+
+                            // Status filter
+                            bool matchesStatus = statusFilter == "all" ||
+                                                (statusFilter == "active" && isActive == 1) ||
+                                                (statusFilter == "inactive" && isActive == 0);
+
+                            return matchesSearch && matchesStatus;
+                        })
                         .Select(row => new
                         {
                             BrandID = Convert.ToInt32(row["BrandID"]),
                             Name = row["Name"].ToString(),
-                            Description = row["Description"].ToString()
+                            Description = row["Description"].ToString(),
+                            IsActive = Convert.ToInt32(row["IsActive"]) == 1
                         })
                         .ToList();
                 });
@@ -93,7 +109,7 @@ namespace POS_WPF.Pages
                 foreach (var item in brandData)
                 {
                     DynamicCardContainer.Items.Add(
-                        CreateBrandCard(item.BrandID, item.Name, item.Description, cardWidth));
+                        CreateBrandCard(item.BrandID, item.Name, item.Description, item.IsActive, cardWidth));
                 }
 
                 // Fix WrapPanel layout
@@ -140,7 +156,7 @@ namespace POS_WPF.Pages
         }
 
         // ======================= CARD FACTORY =======================
-        private Border CreateBrandCard(int id, string name, string description, double width)
+        private Border CreateBrandCard(int id, string name, string description, bool isActive, double width)
         {
             Border cardBorder = new Border
             {
@@ -182,7 +198,7 @@ namespace POS_WPF.Pages
                 Margin = new Thickness(0, 0, 8, 4)
             };
 
-            // Coloured initial badge (replaces icon)
+            // Coloured initial badge
             Border badge = new Border
             {
                 Width = 54,
@@ -232,7 +248,7 @@ namespace POS_WPF.Pages
 
             cardGrid.Children.Add(textStack);
 
-            // ── Right : action buttons ──
+            // ── Right : action buttons (Toggle, Edit, Delete) ──
             StackPanel buttonStack = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -241,10 +257,15 @@ namespace POS_WPF.Pages
             };
             Grid.SetColumn(buttonStack, 1);
 
+            Button toggleBtn = CardButtonsFactory.CreateToggleButton(BtnToggle_Click, id, isActive);
             Button editBtn = CardButtonsFactory.CreateEditButton(BtnEdit_Click, id);
             Button deleteBtn = CardButtonsFactory.CreateDeleteButton(BtnDelete_Click, id);
-            deleteBtn.Margin = new Thickness(8, 0, 0, 0);
 
+            toggleBtn.Margin = new Thickness(0, 0, 8, 0);
+            editBtn.Margin = new Thickness(0, 0, 8, 0);
+            deleteBtn.Margin = new Thickness(0, 0, 0, 0);
+
+            buttonStack.Children.Add(toggleBtn);
             buttonStack.Children.Add(editBtn);
             buttonStack.Children.Add(deleteBtn);
             cardGrid.Children.Add(buttonStack);
@@ -524,6 +545,48 @@ namespace POS_WPF.Pages
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
+            }
+        }
+
+        private async void BtnToggle_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int brandId)
+            {
+                // Get current active status from database
+                bool isCurrentlyActive = clsBrand.GetActiveStatus(brandId);
+                bool newState = !isCurrentlyActive;
+
+                // Update in database
+                bool success = clsBrand.SetActiveStatus(brandId, newState);
+
+                if (success)
+                {
+                    // Update button UI
+                    CardButtonsFactory.SetToggleState(btn, newState);
+
+                    // Show notification
+                    string message = newState ? "Brand activated successfully." : "Brand deactivated successfully.";
+                    MessageBox.Show(message, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Reload to reflect changes
+                    await LoadBrandsAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Failed to update brand status.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void cmbStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbStatus.SelectedItem != null)
+            {
+                await LoadBrandsAsync();
             }
         }
 
