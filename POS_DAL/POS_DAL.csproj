@@ -148,7 +148,6 @@
     <Compile Include="clsSaleDetails.cs" />
     <Compile Include="clsSales.cs" />
     <Compile Include="clsSerie.cs" />
-    <Compile Include="clsStock.cs" />
     <Compile Include="clsDataAccessSettigs.cs" />
     <Compile Include="clsUser.cs" />
     <Compile Include="DbHelper.cs" />
