@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using POS_DAL.Loggers;
 using System;
 using System.Data;
 
@@ -6,6 +7,8 @@ namespace POS_DAL
 {
     public static class clsClientData
     {
+        private const string _className = nameof(clsClientData);
+
         // ============================
         // ADD NEW CLIENT
         // ============================
@@ -36,16 +39,18 @@ namespace POS_DAL
                         command.Parameters.AddWithValue("@Email", email);
 
                     object result = command.ExecuteScalar();
-                    return result == null ? -1 : Convert.ToInt32(result);
+                    return result == null ? -1 : Convert.ToInt32((long)result);
                 }
             }
             catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
             {
                 // Unique constraint violation for email/phone
+                clsLog.LogError(_className, nameof(AddNew), ex);
                 return -1;
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(AddNew), ex);
                 throw new Exception("Error in AddNew Client: " + ex.Message);
             }
         }
@@ -90,10 +95,12 @@ namespace POS_DAL
             catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
             {
                 // Unique constraint violation
+                clsLog.LogError(_className, nameof(Update), ex);
                 return false;
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(Update), ex);
                 throw new Exception("Error in Update Client: " + ex.Message);
             }
         }
@@ -118,8 +125,14 @@ namespace POS_DAL
                     return rows > 0;
                 }
             }
-            catch (Exception)
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
             {
+                // FK violation — Client has sales
+                return false;
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(Delete), ex);
                 return false;
             }
         }
@@ -166,6 +179,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetByID), ex);
                 throw new Exception("Error in GetByID Client: " + ex.Message);
             }
         }
@@ -196,6 +210,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(GetAll), ex);
                 throw new Exception("Error in GetAll Clients: " + ex.Message);
             }
         }
@@ -211,10 +226,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT 1
-                FROM Clients
-                WHERE Email = @Email
-            ";
+                        SELECT 1
+                        FROM Clients
+                        WHERE Email = @Email
+                    ";
 
                     if (string.IsNullOrEmpty(email))
                         command.Parameters.AddWithValue("@Email", DBNull.Value);
@@ -235,6 +250,7 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(IsEmailExist), ex);
                 throw new Exception("Error in IsEmailExist Client: " + ex.Message);
             }
         }
@@ -250,10 +266,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                SELECT 1
-                FROM Clients
-                WHERE Phone = @Phone
-            ";
+                        SELECT 1
+                        FROM Clients
+                        WHERE Phone = @Phone
+                    ";
 
                     if (string.IsNullOrEmpty(phone))
                         command.Parameters.AddWithValue("@Phone", DBNull.Value);
@@ -274,8 +290,97 @@ namespace POS_DAL
             }
             catch (Exception ex)
             {
+                clsLog.LogError(_className, nameof(IsPhoneExist), ex);
                 throw new Exception("Error in IsPhoneExist Client: " + ex.Message);
             }
         }
+
+        // ============================
+        // GET CLIENT DEPENDENCIES
+        // ============================
+        public static int GetClientDependencies(int clientID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT COUNT(*) FROM Sales WHERE ClientID = @ClientID
+                    ";
+
+                    command.Parameters.AddWithValue("@ClientID", clientID);
+
+                    object result = command.ExecuteScalar();
+                    return result == null ? 0 : Convert.ToInt32(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetClientDependencies), ex);
+                return 0;
+            }
+        }
+
+        // ============================
+        // GET CLIENT ACTIVE STATUS
+        // ============================
+        public static bool GetActiveStatus(int clientID)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT IsActive
+                        FROM Clients
+                        WHERE ClientID = @ClientID
+                    ";
+
+                    command.Parameters.AddWithValue("@ClientID", clientID);
+
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(GetActiveStatus), ex);
+                throw new Exception("Error in GetActiveStatus Client: " + ex.Message);
+            }
+        }
+
+        // ============================
+        // ACTIVATE / DEACTIVATE CLIENT
+        // ============================
+        public static bool SetActiveStatus(int clientID, bool isActive)
+        {
+            try
+            {
+                using (SqliteConnection connection = DbHelper.OpenConnection())
+                using (SqliteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        UPDATE Clients
+                        SET IsActive = @IsActive
+                        WHERE ClientID = @ClientID
+                    ";
+
+                    command.Parameters.AddWithValue("@IsActive", isActive ? 1 : 0);
+                    command.Parameters.AddWithValue("@ClientID", clientID);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsLog.LogError(_className, nameof(SetActiveStatus), ex);
+                throw new Exception("Error in SetActiveStatus Client: " + ex.Message);
+            }
+        }
+
+
     }
 }
