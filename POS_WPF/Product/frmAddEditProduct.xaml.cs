@@ -1,4 +1,5 @@
-﻿using POS_BLL;
+﻿// frmAddEditProduct.cs
+using POS_BLL;
 using POS_WPF.Category;
 using POS_WPF.Controls;
 using POS_WPF.Models;
@@ -16,16 +17,19 @@ namespace POS_WPF.Product
 {
     public partial class frmAddEditProduct : Window
     {
-        public Action<int, string> OnProductSaved;
+        // ============================
+        // FIELDS
+        // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _FormMode = enMode.AddNew;
+
         public bool IsSaved { get; private set; } = false;
+        public Action<int, string> OnProductSaved;
 
         private bool _isLoadingForm = false;
 
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode FormMode = enMode.AddNew;
-
-        clsProduct _Product;
-        int _ProductID = -1;
+        private int _ProductID;
+        private clsProduct _Product;
 
         // ============================
         // CONSTRUCTORS
@@ -33,48 +37,55 @@ namespace POS_WPF.Product
         public frmAddEditProduct()
         {
             InitializeComponent();
-            FormMode = enMode.AddNew;
+            _FormMode = enMode.AddNew;
         }
 
         public frmAddEditProduct(int productID)
         {
             InitializeComponent();
-            FormMode = enMode.Update;
             _ProductID = productID;
+            _FormMode = enMode.Update;
         }
 
         // ============================
-        // WINDOW LOADED
+        // WINDOW EVENTS
         // ============================
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ResetDefaultValues();
-
             _isLoadingForm = true;
 
-            LoadCategoriesToComboBox();
-            LoadModelsToCombBox();
+            _ResetDefaultValues();
+            _LoadCategoriesToComboBox();
+            _LoadModelsToComboBox();
 
-            if (FormMode == enMode.Update)
-                LoadData();
+            if (_FormMode == enMode.Update)
+                _LoadData();
 
             _isLoadingForm = false;
         }
 
-        // ============================
-        // RESET
-        // ============================
-        private void ResetDefaultValues()
+        private void Header_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (FormMode == enMode.AddNew)
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e) => this.Close();
+        private void Cancel_Click(object sender, RoutedEventArgs e) => this.Close();
+
+        // ============================
+        // LOAD & RESET
+        // ============================
+        private void _ResetDefaultValues()
+        {
+            if (_FormMode == enMode.AddNew)
             {
                 _Product = new clsProduct();
                 txtbTitle.Text = "Add New Product";
-
-                ProductName.Text = "";
-                ProductDescription.Text = "";
-                ProductPrice.Text = "";
-                ProductQuantity.Text = "";
+                ProductName.Text = string.Empty;
+                ProductDescription.Text = string.Empty;
+                ProductPrice.Text = string.Empty;
+                ProductQuantity.Text = string.Empty;
             }
             else
             {
@@ -82,10 +93,7 @@ namespace POS_WPF.Product
             }
         }
 
-        // ============================
-        // LOAD DATA (Edit mode)
-        // ============================
-        private void LoadData()
+        private void _LoadData()
         {
             _Product = clsProduct.FindByID(_ProductID);
 
@@ -121,15 +129,13 @@ namespace POS_WPF.Product
             }
         }
 
-        // ============================
-        // LOADERS
-        // ============================
-        private void LoadCategoriesToComboBox()
+        private void _LoadCategoriesToComboBox()
         {
             try
             {
-                DataTable dt = clsCategory.GetAll();
                 cmbCategory.Items.Clear();
+                DataTable dt = clsCategory.GetAll();
+
                 foreach (DataRow row in dt.Rows)
                 {
                     cmbCategory.Items.Add(new ComboBoxItem
@@ -138,6 +144,7 @@ namespace POS_WPF.Product
                         Tag = Convert.ToInt32(row["CategoryID"])
                     });
                 }
+
                 if (cmbCategory.Items.Count > 0)
                     cmbCategory.SelectedIndex = 0;
             }
@@ -148,12 +155,13 @@ namespace POS_WPF.Product
             }
         }
 
-        private void LoadModelsToCombBox()
+        private void _LoadModelsToComboBox()
         {
             try
             {
-                DataTable dt = clsModel.GetAll();
                 cmbModel.Items.Clear();
+                DataTable dt = clsModel.GetAll();
+
                 foreach (DataRow row in dt.Rows)
                 {
                     cmbModel.Items.Add(new ComboBoxItem
@@ -162,6 +170,7 @@ namespace POS_WPF.Product
                         Tag = Convert.ToInt32(row["ModelID"])
                     });
                 }
+
                 if (cmbModel.Items.Count > 0)
                     cmbModel.SelectedIndex = 0;
             }
@@ -173,36 +182,25 @@ namespace POS_WPF.Product
         }
 
         // ============================
-        // LIVE VALIDATION
+        // SAVE
         // ============================
-        private void ValidateInput(ModernInput control, string errorMessage,
-            Func<string, bool> existsFunc, Func<string, bool> existsExceptIdFunc)
+        private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (_isLoadingForm) return;
-            if (control == null) return;
-            if (string.IsNullOrWhiteSpace(control.Text)) return;
+            HideMessages();
 
-            control.Validate(live: true, externalValidator: text =>
+            ValidationResult validation = _ValidateAllFields();
+
+            if (!validation.IsValid)
             {
-                text = text.Trim();
-                if (FormMode == enMode.Update)
-                {
-                    if (existsExceptIdFunc != null && existsExceptIdFunc(text))
-                        return errorMessage;
-                }
-                else
-                {
-                    if (existsFunc(text))
-                        return errorMessage;
-                }
-                return null;
-            });
+                ShowErrorMessage(validation.Errors);
+                ScrollToFirstError(validation.FirstInvalidControl);
+                return;
+            }
+
+            _ProcessFormData();
         }
 
-        // ============================
-        // PROCESS & SAVE
-        // ============================
-        private void ProcessFormData()
+        private void _ProcessFormData()
         {
             _Product.ProductName = ProductName.Text.Trim();
             _Product.Description = ProductDescription.Text.Trim();
@@ -215,44 +213,43 @@ namespace POS_WPF.Product
             _Product.ModelID = cmbModel.SelectedItem is ComboBoxItem mod
                 ? (int)mod.Tag : -1;
 
-            if (_Product.Save())
+            try
             {
+                bool saved = _Product.Save();
+
+                if (!saved)
+                {
+                    ShowErrorMessage(new List<string>
+                    {
+                        "• Failed to save. Please check the entered data and try again."
+                    });
+                    return;
+                }
+
+                IsSaved = true;
                 OnProductSaved?.Invoke(_Product.ProductID, _Product.ProductName);
-
-                if (FormMode == enMode.AddNew)
-                {
-                    MessageBox.Show("New product added successfully.",
-                        "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    IsSaved = true;
-                    FormMode = enMode.Update;
-                    txtbTitle.Text = "Edit Product";
-                    _ProductID = _Product.ProductID;
-                }
-                else
-                {
-                    MessageBox.Show("Product updated successfully.",
-                        "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    IsSaved = true;
-                }
+                ShowSuccessMessage();
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show("Error saving product record.",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    "An unexpected error occurred while saving. Please contact support.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
         // ============================
         // VALIDATION
         // ============================
-        private ValidationResult ValidateAllFields()
+        private ValidationResult _ValidateAllFields()
         {
             var result = new ValidationResult { IsValid = true };
             var errors = new List<string>();
 
-            // Product Name
+            // ── Product Name ────────────────────────────────────────────────────────
+            ProductName.ValidateForce();
             if (!ProductName.IsValid)
             {
                 errors.Add($"• {ProductName.ValidationMessageText}");
@@ -260,7 +257,16 @@ namespace POS_WPF.Product
                     result.FirstInvalidControl = ProductName;
             }
 
-            // Price
+            // ── Description ─────────────────────────────────────────────────────────
+            ProductDescription.ValidateForce();
+            if (!ProductDescription.IsValid)
+            {
+                errors.Add($"• {ProductDescription.ValidationMessageText}");
+                if (result.FirstInvalidControl == null)
+                    result.FirstInvalidControl = ProductDescription;
+            }
+
+            // ── Price (format + range) ───────────────────────────────────────────────
             ProductPrice.ValidateForce();
             if (!ProductPrice.IsValid)
             {
@@ -275,7 +281,7 @@ namespace POS_WPF.Product
                     result.FirstInvalidControl = ProductPrice;
             }
 
-            // Quantity
+            // ── Quantity (format + range) ────────────────────────────────────────────
             ProductQuantity.ValidateForce();
             if (!ProductQuantity.IsValid)
             {
@@ -290,9 +296,13 @@ namespace POS_WPF.Product
                     result.FirstInvalidControl = ProductQuantity;
             }
 
-            // Category
+            // ── Category ─────────────────────────────────────────────────────────────
             if (cmbCategory.SelectedItem == null)
+            {
                 errors.Add("• Please select a category.");
+                if (result.FirstInvalidControl == null)
+                    result.FirstInvalidControl = cmbCategory;
+            }
 
             if (errors.Any())
             {
@@ -304,41 +314,15 @@ namespace POS_WPF.Product
         }
 
         // ============================
-        // SAVE CLICK
-        // ============================
-        private void Save_Click(object sender, RoutedEventArgs e)
-        {
-            HideMessages();
-
-            ValidationResult validationResults = ValidateAllFields();
-
-            if (validationResults.IsValid)
-            {
-                ShowSuccessMessage();
-                ProcessFormData();
-            }
-            else
-            {
-                ShowErrorMessage(validationResults.Errors);
-                ScrollToFirstError(validationResults.FirstInvalidControl);
-            }
-        }
-
-        // ============================
-        // MESSAGE HELPERS
+        // UI HELPERS
         // ============================
         private void ShowErrorMessage(List<string> errors)
         {
             ErrorMessageText.Text = string.Join("\n", errors);
             ErrorMessageBox.Visibility = Visibility.Visible;
 
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            ErrorMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            ErrorMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
             FindScrollViewer(this)?.ScrollToTop();
         }
@@ -347,19 +331,14 @@ namespace POS_WPF.Product
         {
             SuccessMessageBox.Visibility = Visibility.Visible;
 
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            SuccessMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            SuccessMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
             var timer = new System.Windows.Threading.DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(8)
             };
-            timer.Tick += (s, ev) => { HideMessages(); timer.Stop(); };
+            timer.Tick += (s, e) => { HideMessages(); timer.Stop(); };
             timer.Start();
 
             FindScrollViewer(this)?.ScrollToTop();
@@ -371,33 +350,21 @@ namespace POS_WPF.Product
             SuccessMessageBox.Visibility = Visibility.Collapsed;
         }
 
-        private void ScrollToFirstError(FrameworkElement control)
-        {
+        private void ScrollToFirstError(FrameworkElement control) =>
             control?.BringIntoView();
-        }
 
         private ScrollViewer FindScrollViewer(DependencyObject obj)
         {
             if (obj is ScrollViewer sv) return sv;
+
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
             {
                 var result = FindScrollViewer(VisualTreeHelper.GetChild(obj, i));
                 if (result != null) return result;
             }
+
             return null;
         }
-
-        // ============================
-        // HEADER & WINDOW
-        // ============================
-        private void Header_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
-        }
-
-        private void Close_Click(object sender, RoutedEventArgs e) => this.Close();
-        private void Cancel_Click(object sender, RoutedEventArgs e) => this.Close();
 
         // ============================
         // ADD BUTTONS
@@ -406,18 +373,18 @@ namespace POS_WPF.Product
         {
             frmAddEditCategory frm = new frmAddEditCategory();
             frm.ShowDialog();
-            LoadCategoriesToComboBox();
+            _LoadCategoriesToComboBox();
         }
 
         private void btnAddModel_Click(object sender, RoutedEventArgs e)
         {
             frmAddEditModel frm = new frmAddEditModel();
             frm.ShowDialog();
-            LoadModelsToCombBox();
+            _LoadModelsToComboBox();
         }
 
         // ============================
-        // VALIDATION RESULT CLASS
+        // HELPER CLASS
         // ============================
         private class ValidationResult
         {
