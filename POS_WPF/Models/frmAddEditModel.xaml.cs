@@ -1,6 +1,6 @@
-﻿using POS_BLL;
+﻿// frmAddEditModel.cs
+using POS_BLL;
 using POS_WPF.Controls;
-using POS_WPF.Pages;
 using POS_WPF.Serie;
 using System;
 using System.Collections.Generic;
@@ -14,77 +14,123 @@ using System.Windows.Media.Animation;
 
 namespace POS_WPF.Models
 {
-    /// <summary>
-    /// Interaction logic for frmAddEditModel.xaml
-    /// </summary>
     public partial class frmAddEditModel : Window
     {
+        // ============================
+        // FIELDS
+        // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _FormMode = enMode.AddNew;
+
+        public bool IsSaved { get; private set; } = false;
         public Action<int, string> OnModelSaved;
 
-        private List<int> _selectedWarehouseIDs = new List<int>();
-
-        private bool _isLoadingWarehouses = false;
-
         private bool _isLoadingForm = false;
-        public bool IsSaved { get; private set; } = false;
 
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode FormMode = enMode.AddNew;
+        private int _ModelID;
+        private clsModel _Model;
+        private int _SelectedSerieID = -1;
 
-        clsModel _Model;
-        int _ModelID = -1;
-        int _SelectedSerieID = -1;
-
+        // ============================
+        // CONSTRUCTORS
+        // ============================
         public frmAddEditModel()
         {
             InitializeComponent();
-            FormMode = enMode.AddNew;
+            _FormMode = enMode.AddNew;
         }
 
-        public frmAddEditModel(int ModelID)
+        public frmAddEditModel(int modelID)
         {
             InitializeComponent();
-            FormMode = enMode.Update;
-            _ModelID = ModelID;
+            _ModelID = modelID;
+            _FormMode = enMode.Update;
         }
 
-        private void ModelNameInput_TextChanged(object sender, TextChangedEventArgs e)
+        // ============================
+        // WINDOW EVENTS
+        // ============================
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ValidateInput(sender as ModernInput,
-                "This model name already exists.",
-                clsModel.IsModelExistsByName,
-                name => clsModel.IsModelExistsByNameExcludingID(name ,_ModelID));
+            _isLoadingForm = true;
+
+            _ResetDefaultValues();
+            _LoadSeriesToComboBox();
+
+            if (_FormMode == enMode.Update)
+                _LoadData();
+
+            _isLoadingForm = false;
         }
 
-        private void ValidateInput(ModernInput control, string errorMessage,
-            Func<string, bool> existsFunc, Func<string, bool> existsExceptIdFunc)
+        private void Header_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_isLoadingForm) return;
-            if (control == null) return;
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
 
-            if (string.IsNullOrWhiteSpace(control.Text))
-                return;
+        private void Close_Click(object sender, RoutedEventArgs e) => this.Close();
+        private void Cancel_Click(object sender, RoutedEventArgs e) => this.Close();
 
-            control.Validate(live: true, externalValidator: text =>
+        private void cmbSerie_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbSerie.SelectedItem is ComboBoxItem selected)
+                _SelectedSerieID = (int)selected.Tag;
+        }
+
+        private void btnManageWarehouses_Click(object sender, RoutedEventArgs e)
+        {
+            frmAddEditSerie frmAdd = new frmAddEditSerie();
+            frmAdd.ShowDialog();
+            _LoadSeriesToComboBox();
+        }
+
+        // ============================
+        // LOAD & RESET
+        // ============================
+        private void _ResetDefaultValues()
+        {
+            if (_FormMode == enMode.AddNew)
             {
-                text = text.Trim();
-
-                if (FormMode == enMode.Update)
-                {
-                    if (existsExceptIdFunc != null && existsExceptIdFunc(text))
-                        return errorMessage;
-                }
-                else
-                {
-                    if (existsFunc(text))
-                        return errorMessage;
-                }
-
-                return null;
-            });
+                _Model = new clsModel();
+                txtbTitle.Text = "Add New Model";
+                ModelName.Text = string.Empty;
+                ModelDescription.Text = string.Empty;
+            }
+            else
+            {
+                txtbTitle.Text = "Edit Model";
+            }
         }
 
-        private void LoadSeriesToComboBox()
+        private void _LoadData()
+        {
+            _Model = clsModel.FindByID(_ModelID);
+
+            if (_Model == null)
+            {
+                MessageBox.Show("Model record not found.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
+                return;
+            }
+
+            ModelName.Text = _Model.Name;
+            ModelDescription.Text = _Model.Description;
+
+            // Select the matching serie in the combo box
+            foreach (ComboBoxItem item in cmbSerie.Items)
+            {
+                if ((int)item.Tag == _Model.SerieID)
+                {
+                    cmbSerie.SelectedItem = item;
+                    _SelectedSerieID = _Model.SerieID ?? -1;
+                    break;
+                }
+            }
+        }
+
+        private void _LoadSeriesToComboBox()
         {
             try
             {
@@ -106,228 +152,108 @@ namespace POS_WPF.Models
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading brands: " + ex.Message,
+                MessageBox.Show("Error loading series: " + ex.Message,
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        // ============================
+        // LIVE VALIDATION
+        // ============================
+        private void ModelNameInput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ResetDefaultValues();
+            if (_isLoadingForm) return;
 
-            LoadSeriesToComboBox();
+            var control = sender as ModernInput;
+            if (control == null || string.IsNullOrWhiteSpace(control.Text)) return;
 
-            _isLoadingForm = true;
-            _isLoadingWarehouses = true;
-            if (FormMode == enMode.Update)
+            control.Validate(live: true, externalValidator: text =>
             {
-                // UPDATE: load actual selection
-                LoadData();
-            }
-            _isLoadingForm = false;
+                text = text.Trim();
+
+                bool exists = _FormMode == enMode.Update
+                    ? clsModel.IsModelExistsByNameExcludingID(text, _ModelID)
+                    : clsModel.IsModelExistsByName(text);
+
+                return exists ? "This model name already exists." : null;
+            });
         }
 
-        private void Header_MouseDown(object sender, MouseButtonEventArgs e)
+        // ============================
+        // SAVE
+        // ============================
+        private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
-        }
+            HideMessages();
 
-        void ResetDefaultValues()
-        {
-            if (FormMode == enMode.AddNew)
+            ValidationResult validation = _ValidateAllFields();
+
+            if (!validation.IsValid)
             {
-                _Model = new clsModel();
-                txtbTitle.Text = "Add New Model";
-
-                ModelName.Text = "";
-                ModelDescription.Text = "";
-            }
-            else
-            {
-                txtbTitle.Text = "Edit Model";
-            }
-        }
-
-        void LoadData()
-        {
-            _Model = clsModel.FindByID(_ModelID);
-
-            if (_Model == null)
-            {
-                MessageBox.Show("Model record not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                this.Close();
+                ShowErrorMessage(validation.Errors);
+                ScrollToFirstError(validation.FirstInvalidControl);
                 return;
             }
 
-
-            ModelName.Text = _Model.Name;
-            ModelDescription.Text = _Model.Description;
-
-            // Select the matching brand in the combo box
-            foreach (ComboBoxItem item in cmbSerie.Items)
-            {
-                if ((int)item.Tag == _Model.SerieID)
-                {
-                    cmbSerie.SelectedItem = item;
-                    _SelectedSerieID = _Model.SerieID ?? -1;
-                    break;
-                }
-            }
+            _ProcessFormData();
         }
 
-        void ProcessFormData()
+        private void _ProcessFormData()
         {
-
             _Model.Name = ModelName.Text.Trim();
-            _Model.Description = ModelDescription.Text;
+            _Model.Description = ModelDescription.Text.Trim();
             _Model.SerieID = cmbSerie.SelectedItem is ComboBoxItem selectedItem
                 ? (int)selectedItem.Tag
                 : (int?)null;
 
-            if (_Model.Save())
+            try
             {
+                bool saved = _Model.Save();
 
-                // ---------------- ADD NEW ----------------
-                if (FormMode == enMode.AddNew)
+                if (!saved)
                 {
-
-                    OnModelSaved?.Invoke(_Model.ModelID, _Model.Name);
-
-                    MessageBox.Show("New model added successfully.",
-                                    "Success",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Information);
-
-                    IsSaved = true;
-                    FormMode = enMode.Update; // Switch to update mode
-                    txtbTitle.Text = "Edit Model";
-                    _ModelID = _Model.ModelID;
+                    ShowErrorMessage(new List<string>
+                    {
+                        "• Failed to save. The model name may already exist."
+                    });
                     return;
                 }
 
-                // ---------------- UPDATE ----------------
-                if (FormMode == enMode.Update)
-                {
-
-                    MessageBox.Show("Model updated successfully.",
-                                    "Success",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Information);
-
-                    IsSaved = true;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Error saving model record.",
-                                "Error",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-            }
-        }
-
-        private void Save_Click(object sender, RoutedEventArgs e)
-        {
-
-            // Hide previous messages
-            HideMessages();
-
-            // Validate all fields - This will now show errors even if fields are empty
-            ValidationResult validationResults = ValidateAllFields();
-
-            if (validationResults.IsValid)
-            {
-                // All fields are valid - show success
+                IsSaved = true;
+                OnModelSaved?.Invoke(_Model.ModelID, _Model.Name);
                 ShowSuccessMessage();
-
-                // Optional: Process the form data
-                ProcessFormData();
             }
-            else
+            catch (Exception)
             {
-                // Show error messages
-                ShowErrorMessage(validationResults.Errors);
-
-                // Scroll to first error
-                ScrollToFirstError(validationResults.FirstInvalidControl);
+                MessageBox.Show(
+                    "An unexpected error occurred while saving. Please contact support.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
-
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void ValidateTextBox(TextBox tb)
-        {
-            if (!(tb.Tag is TextBlock label) || label == null) return;
-
-            bool isEmpty = string.IsNullOrWhiteSpace(tb.Text);
-
-            // Clone the current BorderBrush to avoid frozen brush issue
-            var currentBrush = (tb.BorderBrush as SolidColorBrush)?.Clone() ?? new SolidColorBrush(Colors.Gray);
-            tb.BorderBrush = currentBrush; // assign the clone back
-
-            // Animate BorderBrush
-            ColorAnimation colorAnim = new ColorAnimation
-            {
-                To = isEmpty ? Color.FromRgb(231, 76, 60) : Color.FromRgb(204, 204, 204),
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            currentBrush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
-
-            // Label text & color
-            string baseText = label.Tag?.ToString() ?? "";
-            label.Text = isEmpty ? $"{baseText} *" : baseText;
-            label.Foreground = new SolidColorBrush(isEmpty ? Color.FromRgb(231, 76, 60) : Color.FromRgb(85, 85, 85));
-        }
-
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox tb)
-                ValidateTextBox(tb);
-        }
-         
-        private void txtName_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-            if(sender is TextBox tb)
-                ValidateTextBox(tb);
-
-        }
-
-        private ValidationResult ValidateAllFields()
+        // ============================
+        // VALIDATION
+        // ============================
+        private ValidationResult _ValidateAllFields()
         {
             var result = new ValidationResult { IsValid = true };
             var errors = new List<string>();
 
-            // Validate FullName - FORCE validation even if not interacted
+            // Required + format check
             ModelName.ValidateForce();
-            // Force validation with duplicate-name check
+
+            // Duplicate name check
             ModelName.Validate(live: false, externalValidator: text =>
             {
-                if (FormMode == enMode.Update)
-                {
-                    if (clsModel.IsModelExistsByNameExcludingID(text.Trim(), _ModelID))
-                        return "This model name already exists.";
-                }
-                else
-                {
-                    if (clsModel.IsModelExistsByName(text.Trim()))
-                        return "This model name already exists.";
-                }
+                bool exists = _FormMode == enMode.Update
+                    ? clsModel.IsModelExistsByNameExcludingID(text.Trim(), _ModelID)
+                    : clsModel.IsModelExistsByName(text.Trim());
 
-                return null;
+                return exists ? "This model name already exists." : null;
             });
 
-            // Check the result
             if (!ModelName.IsValid)
             {
                 errors.Add($"• {ModelName.ValidationMessageText}");
@@ -335,10 +261,6 @@ namespace POS_WPF.Models
                     result.FirstInvalidControl = ModelName;
             }
 
-
-
-
-            // Validate Bio - FORCE validation
             ModelDescription.ValidateForce();
             if (!ModelDescription.IsValid)
             {
@@ -347,8 +269,6 @@ namespace POS_WPF.Models
                     result.FirstInvalidControl = ModelDescription;
             }
 
-
-            // Set result
             if (errors.Any())
             {
                 result.IsValid = false;
@@ -358,53 +278,35 @@ namespace POS_WPF.Models
             return result;
         }
 
+        // ============================
+        // UI HELPERS
+        // ============================
         private void ShowErrorMessage(List<string> errors)
         {
             ErrorMessageText.Text = string.Join("\n", errors);
             ErrorMessageBox.Visibility = Visibility.Visible;
 
-            // Animate in
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = System.TimeSpan.FromMilliseconds(300)
-            };
-            ErrorMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            ErrorMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
-            // Optional: Scroll to top to show error
-            var scrollViewer = FindScrollViewer(this);
-            scrollViewer?.ScrollToTop();
+            FindScrollViewer(this)?.ScrollToTop();
         }
 
         private void ShowSuccessMessage()
         {
             SuccessMessageBox.Visibility = Visibility.Visible;
 
-            // Animate in
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = System.TimeSpan.FromMilliseconds(300)
-            };
-            SuccessMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            SuccessMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
-            // Optional: Auto-hide after 5 seconds
             var timer = new System.Windows.Threading.DispatcherTimer
             {
-                Interval = System.TimeSpan.FromSeconds(8)
+                Interval = TimeSpan.FromSeconds(8)
             };
-            timer.Tick += (s, e) =>
-            {
-                HideMessages();
-                timer.Stop();
-            };
+            timer.Tick += (s, e) => { HideMessages(); timer.Stop(); };
             timer.Start();
 
-            // Scroll to top to show success
-            var scrollViewer = FindScrollViewer(this);
-            scrollViewer?.ScrollToTop();
+            FindScrollViewer(this)?.ScrollToTop();
         }
 
         private void HideMessages()
@@ -413,50 +315,30 @@ namespace POS_WPF.Models
             SuccessMessageBox.Visibility = Visibility.Collapsed;
         }
 
-        private void ScrollToFirstError(FrameworkElement control)
-        {
-            if (control != null)
-            {
-                control.BringIntoView();
-            }
-        }
+        private void ScrollToFirstError(FrameworkElement control) =>
+            control?.BringIntoView();
 
         private ScrollViewer FindScrollViewer(DependencyObject obj)
         {
-            if (obj is ScrollViewer scrollViewer)
-                return scrollViewer;
+            if (obj is ScrollViewer sv) return sv;
 
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(obj); i++)
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
             {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(obj, i);
-                var result = FindScrollViewer(child);
-                if (result != null)
-                    return result;
+                var result = FindScrollViewer(VisualTreeHelper.GetChild(obj, i));
+                if (result != null) return result;
             }
 
             return null;
         }
 
-        // Helper class for validation results
+        // ============================
+        // HELPER CLASS
+        // ============================
         private class ValidationResult
         {
             public bool IsValid { get; set; }
             public List<string> Errors { get; set; }
             public FrameworkElement FirstInvalidControl { get; set; }
         }
-
-        private void btnManageWarehouses_Click(object sender, RoutedEventArgs e)
-        {
-            frmAddEditSerie frmAdd = new frmAddEditSerie();
-            frmAdd.ShowDialog();
-            LoadSeriesToComboBox();
-        }
-
-        private void cmbSerie_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cmbSerie.SelectedItem is ComboBoxItem selected)
-                _SelectedSerieID = (int)selected.Tag;
-        }
     }
-
 }
