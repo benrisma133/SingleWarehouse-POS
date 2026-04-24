@@ -88,32 +88,52 @@ namespace POS_BLL
             return clsCategoryData.Update(this.CategoryID, this.Name, this.Description ,this.IconID);
         }
 
-        // ============================
-        // Save (AddNew or Update)
-        // ============================
+        /// <summary>
+        /// Returns true if the object is in a valid state to be saved.
+        /// Call this before Save() if you want to surface errors in the UI
+        /// without relying on exceptions.
+        /// </summary>
+        public bool IsValid()
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+                return false;
+
+            // On add: reject if the name is already taken
+            if (_Mode == enMode.AddNew && clsCategoryData.IsCategoryExistByName(Name))
+                return false;
+
+            // On update: reject if another category already has this name
+            if (_Mode == enMode.Update && clsCategoryData.IsCategoryExistByName(Name, CategoryID))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        ///     Validates then persists the category (insert or update).
+        ///     Returns false if validation fails or the DAL reports no rows affected.
+        ///     Throws if the DAL encounters a database error.
+        /// </summary>
         public bool Save()
         {
-            try
-            {
-                switch (_Mode)
-                {
-                    case enMode.AddNew:
-                        if (_AddNew()) { _Mode = enMode.Update; return true; }
-                        return false;
-
-                    case enMode.Update:
-                        return _Update(); // أي خطأ من DAL غادي يطلع هنا
-                }
+            if (!IsValid())
                 return false;
-            }
-            catch (Exception ex)
+
+            switch (_Mode)
             {
-                // ❌ هنا نحول الخطأ لتسهيل التعامل مع المستخدم
-                throw new BusinessException(
-                    "تعذر حفظ أو تحديث الفئة. المرجو إعادة المحاولة.",
-                    ex
-                );
+                case enMode.AddNew:
+                    if (_AddNew())
+                    {
+                        _Mode = enMode.Update;
+                        return true;
+                    }
+                    return false;
+
+                case enMode.Update:
+                    return _Update();
             }
+
+            return false;
         }
 
 
