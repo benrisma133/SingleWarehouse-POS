@@ -1,4 +1,5 @@
-﻿using System;
+﻿// clsProduct.cs
+using System;
 using System.Data;
 using POS_DAL;
 
@@ -7,8 +8,11 @@ namespace POS_BLL
     public class clsProduct
     {
         // ============================
-        // PROPERTIES
+        // FIELDS
         // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _Mode;
+
         public int ProductID { get; private set; }
         public int CategoryID { get; set; }
         public int ModelID { get; set; }
@@ -20,16 +24,26 @@ namespace POS_BLL
         public clsCategory Category { get; private set; }
         public clsModel Model { get; private set; }
 
-        private enum enMode { AddNew, Update }
-        private enMode _mode;
+        // ============================
+        // CONSTRUCTORS
+        // ============================
+        public clsProduct()
+        {
+            _Mode = enMode.AddNew;
+            ProductID = -1;
+            CategoryID = -1;
+            ModelID = -1;
+            ProductName = string.Empty;
+            Description = string.Empty;
+            Price = 0;
+            Quantity = 0;
+        }
 
-        // ============================
-        // PRIVATE CONSTRUCTOR (Find)
-        // ============================
         private clsProduct(
             int productID, int categoryID, int modelID,
             decimal price, string productName, string description, int quantity)
         {
+            _Mode = enMode.Update;
             ProductID = productID;
             CategoryID = categoryID;
             ModelID = modelID;
@@ -40,26 +54,33 @@ namespace POS_BLL
 
             Category = clsCategory.FindByID(categoryID);
             Model = clsModel.FindByID(modelID);
-
-            _mode = enMode.Update;
         }
 
         // ============================
-        // PUBLIC CONSTRUCTOR (Add)
+        // FIND
         // ============================
-        public clsProduct()
+
+        /// <summary>Returns the product with the given ID, or null if not found.</summary>
+        public static clsProduct FindByID(int productID)
         {
-            ProductID = -1;
-            CategoryID = -1;
-            ModelID = -1;
-            ProductName = string.Empty;
-            Description = string.Empty;
-            Quantity = 0;
-            _mode = enMode.AddNew;
+            int categoryID = -1, modelID = -1, quantity = 0;
+            decimal price = 0;
+            string productName = string.Empty, description = string.Empty;
+
+            if (!clsProductData.GetProduct(
+                    productID,
+                    ref categoryID, ref modelID, ref price,
+                    ref productName, ref description,
+                    ref quantity))
+                return null;
+
+            return new clsProduct(
+                productID, categoryID, modelID,
+                price, productName, description, quantity);
         }
 
         // ============================
-        // SAVE
+        // PRIVATE SAVE HELPERS
         // ============================
         private bool _AddNew()
         {
@@ -68,9 +89,6 @@ namespace POS_BLL
                 CategoryID == -1 ? (int?)null : CategoryID,
                 ModelID == -1 ? (int?)null : ModelID,
                 Quantity);
-
-            if (ProductID != -1)
-                _mode = enMode.Update;
 
             return ProductID != -1;
         }
@@ -86,24 +104,64 @@ namespace POS_BLL
             return true;
         }
 
+        // ============================
+        // VALIDATION
+        // ============================
+
+        /// <summary>
+        /// Returns true if the object is in a valid state to be saved.
+        /// Call this before Save() if you want to surface errors in the UI
+        /// without relying on exceptions.
+        /// </summary>
+        public bool IsValid()
+        {
+            if (string.IsNullOrWhiteSpace(ProductName))
+                return false;
+
+            if (Price <= 0)
+                return false;
+
+            if (Quantity < 0)
+                return false;
+
+            return true;
+        }
+
+        // ============================
+        // SAVE
+        // ============================
+
+        /// <summary>
+        /// Validates then persists the product (insert or update).
+        /// Returns false if validation fails or the DAL reports no rows affected.
+        /// Throws if the DAL encounters a database error.
+        /// </summary>
         public bool Save()
         {
-            bool success = false;
+            if (!IsValid())
+                return false;
 
-            switch (_mode)
+            bool success;
+
+            switch (_Mode)
             {
                 case enMode.AddNew:
                     success = _AddNew();
+                    if (success)
+                        _Mode = enMode.Update;
                     break;
 
                 case enMode.Update:
                     success = _Update();
                     break;
+
+                default:
+                    return false;
             }
 
             if (success)
             {
-                clsNotify.CheckStock(ProductID, Quantity, 10); // Example low stock threshold
+                clsNotify.CheckStock(ProductID, Quantity, 10);
                 AppEvents.RaiseStockChanged();
             }
 
@@ -111,41 +169,22 @@ namespace POS_BLL
         }
 
         // ============================
-        // FIND BY ID
+        // STATIC OPERATIONS
         // ============================
-        public static clsProduct FindByID(int productID)
-        {
-            int categoryID = -1, modelID = -1, quantity = 0;
-            decimal price = 0;
-            string productName = string.Empty, description = string.Empty;
 
-            bool found = clsProductData.GetProduct(
-                productID,
-                ref categoryID, ref modelID, ref price,
-                ref productName, ref description,
-                ref quantity);
-
-            if (!found) return null;
-
-            return new clsProduct(
-                productID, categoryID, modelID,
-                price, productName, description, quantity);
-        }
-
-        // ============================
-        // GET ALL & DELETE
-        // ============================
+        /// <summary>Returns all products as a DataTable.</summary>
         public static DataTable GetAll()
         {
             return clsProductData.GetAllProductDetails();
         }
 
+        /// <summary>Deletes the product with the given ID.</summary>
         public static bool Delete(int productID)
         {
-            clsProductData.DeleteCompletely(productID);
-            return true;
+            return clsProductData.Delete(productID);
         }
 
+        /// <summary>Returns the current stock quantity for the given product.</summary>
         public static int GetQuantity(int productID)
         {
             return clsProductData.GetQuantity(productID);
