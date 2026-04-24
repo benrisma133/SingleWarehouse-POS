@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// clsSeries.cs
 using System.Data;
 using POS_DAL;
 
@@ -7,70 +6,126 @@ namespace POS_BLL
 {
     public class clsSeries
     {
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode _Mode;
+        // ============================
+        // FIELDS
+        // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _Mode;
 
         public int SeriesID { get; set; }
         public string Name { get; set; }
         public int BrandID { get; set; }
         public string Description { get; set; }
+        public clsBrand BrandInfo { get; private set; }
 
-        public clsBrand BrandInfo { get; set; }
-
+        // ============================
+        // CONSTRUCTORS
+        // ============================
         public clsSeries()
         {
             _Mode = enMode.AddNew;
             SeriesID = -1;
-            Name = "";
-            Description = "";
+            Name = string.Empty;
+            Description = string.Empty;
             BrandID = -1;
         }
 
-        private clsSeries(int seriesID, string name, int brandID ,string description)
+        private clsSeries(int seriesID, string name, int brandID, string description)
         {
             _Mode = enMode.Update;
             SeriesID = seriesID;
             Name = name;
             BrandID = brandID;
-            BrandInfo = clsBrand.FindByID(brandID);
             Description = description;
+            BrandInfo = clsBrand.FindByID(brandID);
         }
 
+        // ============================
+        // FIND
+        // ============================
+
+        /// <summary>Returns the series with the given ID, or null if not found.</summary>
         public static clsSeries FindByID(int seriesID)
         {
             string name = string.Empty;
-            int brandID = -1;
             string description = string.Empty;
+            int brandID = -1;
 
-            var dr = clsSeriesData.GetByID(seriesID, ref brandID, ref name ,ref description);
-            if (!dr) return null;
-            return new clsSeries(seriesID, name, brandID ,description);
+            if (!clsSeriesData.GetByID(seriesID, ref brandID, ref name, ref description))
+                return null;
+
+            return new clsSeries(seriesID, name, brandID, description);
         }
 
+        /// <summary>Returns the series with the given name, or null if not found.</summary>
         public static clsSeries FindByName(string name)
         {
             int seriesID = -1;
             int brandID = -1;
             string description = string.Empty;
 
-            var dr = clsSeriesData.GetByName(name, ref seriesID, ref brandID ,ref description);
-            if (!dr) return null;
-            return new clsSeries(seriesID, name, brandID ,description);
+            if (!clsSeriesData.GetByName(name, ref seriesID, ref brandID, ref description))
+                return null;
+
+            return new clsSeries(seriesID, name, brandID, description);
         }
 
-        bool _AddNew()
+        // ============================
+        // PRIVATE SAVE HELPERS
+        // ============================
+        private bool _AddNew()
         {
-            this.SeriesID = clsSeriesData.AddNew(this.BrandID, this.Name ,this.Description);
-            return this.SeriesID != -1;
+            SeriesID = clsSeriesData.AddNew(BrandID, Name, Description);
+            return SeriesID != -1;
         }
 
-        bool _Update()
+        private bool _Update()
         {
-            return clsSeriesData.Update(this.SeriesID, this.BrandID, this.Name ,this.Description);
+            return clsSeriesData.Update(SeriesID, BrandID, Name, Description);
         }
 
+        // ============================
+        // VALIDATION
+        // ============================
+
+        /// <summary>
+        /// Returns true if the object is in a valid state to be saved.
+        /// Call this before Save() if you want to surface errors in the UI
+        /// without relying on exceptions.
+        /// </summary>
+        public bool IsValid()
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+                return false;
+
+            if (BrandID == -1)
+                return false;
+
+            // On add: reject if the name is already taken
+            if (_Mode == enMode.AddNew && clsSeriesData.IsSeriesExistByName(Name))
+                return false;
+
+            // On update: reject if another series already has this name
+            if (_Mode == enMode.Update && clsSeriesData.IsSeriesExistByName(Name, SeriesID))
+                return false;
+
+            return true;
+        }
+
+        // ============================
+        // SAVE
+        // ============================
+
+        /// <summary>
+        /// Validates then persists the series (insert or update).
+        /// Returns false if validation fails or the DAL reports no rows affected.
+        /// Throws if the DAL encounters a database error.
+        /// </summary>
         public bool Save()
         {
+            if (!IsValid())
+                return false;
+
             switch (_Mode)
             {
                 case enMode.AddNew:
@@ -84,24 +139,35 @@ namespace POS_BLL
                 case enMode.Update:
                     return _Update();
             }
+
             return false;
         }
 
+        // ============================
+        // STATIC OPERATIONS
+        // ============================
+
+        /// <summary>Deletes the series with the given ID.</summary>
         public static bool Delete(int seriesID)
         {
             return clsSeriesData.Delete(seriesID);
         }
 
+        /// <summary>Returns all series as a DataTable.</summary>
         public static DataTable GetAll()
         {
             return clsSeriesData.GetAll();
         }
 
+        /// <summary>Returns all series for the given brand as a DataTable.</summary>
         public static DataTable GetByBrandID(int brandID)
         {
             return clsSeriesData.GetByBrandID(brandID);
         }
 
+        // ============================
+        // EXISTENCE CHECKS
+        // ============================
         public static bool IsSeriesExistByName(string name)
         {
             return clsSeriesData.IsSeriesExistByName(name);
