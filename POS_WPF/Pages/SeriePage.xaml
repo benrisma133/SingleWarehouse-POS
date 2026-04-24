@@ -134,6 +134,23 @@
                            Foreground="#57606f"/>
             </Grid>
 
+            <!-- STATUS FILTER COMBOBOX -->
+            <ComboBox x:Name="cmbStatus"
+                      Grid.Column="2"
+                      Style="{StaticResource ModernComboBox}"
+                      ItemContainerStyle="{StaticResource ModernComboBoxItem}"
+                      HorizontalAlignment="Right"
+                      Width="220"
+                      Height="45"
+                      Margin="0,0,10,0"
+                      VerticalAlignment="Center"
+                      Cursor="Hand"
+                      SelectionChanged="cmbStatus_SelectionChanged">
+                <ComboBoxItem Content="All Brands" Tag="all"/>
+                <ComboBoxItem Content="Active" Tag="active"/>
+                <ComboBoxItem Content="Not Active" Tag="inactive"/>
+            </ComboBox>
+
         </Grid>
 
         <!-- ================= CARDS ================= -->
