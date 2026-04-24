@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// frmAddEditSerie.cs
 using POS_BLL;
 using POS_WPF.Brand;
 using POS_WPF.Controls;
-using POS_WPF.Pages;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,52 +16,49 @@ namespace POS_WPF.Serie
 {
     public partial class frmAddEditSerie : Window
     {
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode FormMode = enMode.AddNew;
+        // ============================
+        // FIELDS
+        // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _FormMode = enMode.AddNew;
 
         public bool IsSaved { get; private set; } = false;
 
-        private readonly ILogger _logger = AppLogger.CreateLogger<frmAddEditSerie>();
-
         private bool _isLoadingForm = false;
 
-        int _SerieID;
-        int _SelectedBrandID = -1;
-        clsSeries _Serie;
+        private int _SerieID;
+        private int _SelectedBrandID = -1;
+        private clsSeries _Serie;
 
-        private List<int> _selectedWarehouseIDs = new List<int>();
-
-        private bool _isLoadingWarehouses = false;
-
+        // ============================
+        // CONSTRUCTORS
+        // ============================
         public frmAddEditSerie()
         {
             InitializeComponent();
-            FormMode = enMode.AddNew;
+            _FormMode = enMode.AddNew;
         }
 
-        public frmAddEditSerie(int SerieID)
+        public frmAddEditSerie(int serieID)
         {
             InitializeComponent();
-
-            _SerieID = SerieID;
-            FormMode = enMode.Update;
+            _SerieID = serieID;
+            _FormMode = enMode.Update;
         }
 
+        // ============================
+        // WINDOW EVENTS
+        // ============================
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _ResetDefaultValues();
-
-            LoadBrandsToComboBox();
-
             _isLoadingForm = true;
-            _isLoadingWarehouses = true;
 
-            if (FormMode == enMode.Update)
-            {
+            _ResetDefaultValues();
+            _LoadBrandsToComboBox();
+
+            if (_FormMode == enMode.Update)
                 _LoadData();
-            }
 
-            _isLoadingWarehouses = false;
             _isLoadingForm = false;
         }
 
@@ -72,12 +68,68 @@ namespace POS_WPF.Serie
                 this.DragMove();
         }
 
-        private void Close_Click(object sender, RoutedEventArgs e)
+        private void Close_Click(object sender, RoutedEventArgs e) => this.Close();
+        private void Cancel_Click(object sender, RoutedEventArgs e) => this.Close();
+
+        private void cmbBrand_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this.Close();
+            if (cmbBrand.SelectedItem is ComboBoxItem selected)
+                _SelectedBrandID = (int)selected.Tag;
         }
 
-        private void LoadBrandsToComboBox()
+        private void btnManageWarehouses_Click(object sender, RoutedEventArgs e)
+        {
+            frmAddEditBrand frmAdd = new frmAddEditBrand();
+            frmAdd.ShowDialog();
+            _LoadBrandsToComboBox();
+        }
+
+        // ============================
+        // LOAD & RESET
+        // ============================
+        private void _ResetDefaultValues()
+        {
+            if (_FormMode == enMode.AddNew)
+            {
+                _Serie = new clsSeries();
+                txtbTitle.Text = "Add New Serie";
+                SerieName.Text = string.Empty;
+                SerieDescription.Text = string.Empty;
+            }
+            else
+            {
+                txtbTitle.Text = "Edit Serie";
+            }
+        }
+
+        private void _LoadData()
+        {
+            _Serie = clsSeries.FindByID(_SerieID);
+
+            if (_Serie == null)
+            {
+                MessageBox.Show("Serie record not found.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
+                return;
+            }
+
+            SerieName.Text = _Serie.Name;
+            SerieDescription.Text = _Serie.Description;
+
+            // Select the matching brand in the combo box
+            foreach (ComboBoxItem item in cmbBrand.Items)
+            {
+                if ((int)item.Tag == _Serie.BrandID)
+                {
+                    cmbBrand.SelectedItem = item;
+                    _SelectedBrandID = _Serie.BrandID;
+                    break;
+                }
+            }
+        }
+
+        private void _LoadBrandsToComboBox()
         {
             try
             {
@@ -104,168 +156,98 @@ namespace POS_WPF.Serie
             }
         }
 
-        private void _LoadData()
-        {
-            _Serie = clsSeries.FindByID(_SerieID);
-
-            if (_Serie == null)
-            {
-                MessageBox.Show("Serie record not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                this.Close();
-                return;
-            }
-
-            SerieName.Text = _Serie.Name;
-            SerieDescription.Text = _Serie.Description;
-
-            // Select the matching brand in the combo box
-            foreach (ComboBoxItem item in cmbBrand.Items)
-            {
-                if ((int)item.Tag == _Serie.BrandID)
-                {
-                    cmbBrand.SelectedItem = item;
-                    _SelectedBrandID = _Serie.BrandID;
-                    break;
-                }
-            }
-        }
-
-        private void _ResetDefaultValues()
-        {
-            if (FormMode == enMode.AddNew)
-            {
-                _Serie = new clsSeries();
-                txtbTitle.Text = "Add New Serie";
-
-                SerieName.Text = "";
-                SerieDescription.Text = "";
-            }
-            else
-            {
-                txtbTitle.Text = "Edit Serie";
-            }
-        }
-
-        private void ValidateInput(ModernInput control, string errorMessage,
-            Func<string, bool> existsFunc, Func<string, bool> existsExceptIdFunc)
+        // ============================
+        // LIVE VALIDATION
+        // ============================
+        private void SerieNameInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_isLoadingForm) return;
-            if (control == null) return;
 
-            if (string.IsNullOrWhiteSpace(control.Text))
-                return;
+            var control = sender as ModernInput;
+            if (control == null || string.IsNullOrWhiteSpace(control.Text)) return;
 
             control.Validate(live: true, externalValidator: text =>
             {
                 text = text.Trim();
 
-                if (FormMode == enMode.Update)
-                {
-                    if (existsExceptIdFunc != null && existsExceptIdFunc(text))
-                        return errorMessage;
-                }
-                else
-                {
-                    if (existsFunc(text))
-                        return errorMessage;
-                }
+                bool exists = _FormMode == enMode.Update
+                    ? clsSeries.IsSeriesExistByName(text, _SerieID)
+                    : clsSeries.IsSeriesExistByName(text);
 
-                return null;
+                return exists ? "This serie name already exists." : null;
             });
         }
 
-        private void SerieNameInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateInput(sender as ModernInput,
-                "Serie name already exists.",
-                text => clsSeries.IsSeriesExistByName(text),
-                text => clsSeries.IsSeriesExistByName(text, _SerieID)
-            );
-        }
-
-        private void cmbBrand_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cmbBrand.SelectedItem is ComboBoxItem selected)
-                _SelectedBrandID = (int)selected.Tag;
-        }
-
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private bool ProcessFormData()
-        {
-            _Serie.Name = SerieName.Text.Trim();
-            _Serie.Description = SerieDescription.Text;
-            _Serie.BrandID = _SelectedBrandID;
-
-            try
-            {
-                if (!_Serie.Save())
-                {
-                    _logger.LogWarning("Failed to save serie: {SerieName}", _Serie.Name);
-                    MessageBox.Show(
-                        "Failed to save serie: " + _Serie.Name,
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
-                }
-
-                if (FormMode == enMode.AddNew)
-                {
-                        MessageBox.Show(
-                            "Serie saved successfully.",
-                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    IsSaved = true;
-                }
-                else if (FormMode == enMode.Update)
-                {
-                        MessageBox.Show(
-                            "Serie updated successfully.",
-                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    IsSaved = true;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error saving serie: {SerieName}", _Serie.Name);
-                MessageBox.Show(
-                    "An unexpected error occurred while saving the serie. Please contact support.",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-        }
-
+        // ============================
+        // SAVE
+        // ============================
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             HideMessages();
 
-            ValidationResult validationResults = ValidateAllFields();
+            ValidationResult validation = _ValidateAllFields();
 
-            if (!validationResults.IsValid)
+            if (!validation.IsValid)
             {
-                ShowErrorMessage(validationResults.Errors);
-                ScrollToFirstError(validationResults.FirstInvalidControl);
+                ShowErrorMessage(validation.Errors);
+                ScrollToFirstError(validation.FirstInvalidControl);
                 return;
             }
 
-            bool saved = ProcessFormData();
-
-            if (saved)
-                ShowSuccessMessage();
+            _ProcessFormData();
         }
 
-        private ValidationResult ValidateAllFields()
+        private void _ProcessFormData()
+        {
+            _Serie.Name = SerieName.Text.Trim();
+            _Serie.Description = SerieDescription.Text.Trim();
+            _Serie.BrandID = _SelectedBrandID;
+
+            try
+            {
+                bool saved = _Serie.Save();
+
+                if (!saved)
+                {
+                    ShowErrorMessage(new List<string>
+                    {
+                        "• Failed to save. The serie name may already exist."
+                    });
+                    return;
+                }
+
+                IsSaved = true;
+                ShowSuccessMessage();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(
+                    "An unexpected error occurred while saving. Please contact support.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        // ============================
+        // VALIDATION
+        // ============================
+        private ValidationResult _ValidateAllFields()
         {
             var result = new ValidationResult { IsValid = true };
             var errors = new List<string>();
 
-            // Validate Serie Name
+            // ── Serie Name (required + duplicate check) ─────────────────────────────
             SerieName.ValidateForce();
+
+            SerieName.Validate(live: false, externalValidator: text =>
+            {
+                bool exists = _FormMode == enMode.Update
+                    ? clsSeries.IsSeriesExistByName(text.Trim(), _SerieID)
+                    : clsSeries.IsSeriesExistByName(text.Trim());
+
+                return exists ? "This serie name already exists." : null;
+            });
 
             if (!SerieName.IsValid)
             {
@@ -274,29 +256,15 @@ namespace POS_WPF.Serie
                     result.FirstInvalidControl = SerieName;
             }
 
-            SerieName.Validate(live: false, externalValidator: text =>
-            {
-                if (FormMode == enMode.Update)
-                {
-                    if (clsSeries.IsSeriesExistByName(text.Trim(), _SerieID))
-                        return "This serie name already exists.";
-                }
-                else
-                {
-                    if (clsSeries.IsSeriesExistByName(text.Trim()))
-                        return "This serie name already exists.";
-                }
-
-                return null;
-            });
-
-            // Validate Brand selection
+            // ── Brand selection ─────────────────────────────────────────────────────
             if (_SelectedBrandID == -1)
             {
                 errors.Add("• Please select a brand.");
+                if (result.FirstInvalidControl == null)
+                    result.FirstInvalidControl = cmbBrand;
             }
 
-            // Validate Description
+            // ── Description ─────────────────────────────────────────────────────────
             SerieDescription.ValidateForce();
             if (!SerieDescription.IsValid)
             {
@@ -314,18 +282,16 @@ namespace POS_WPF.Serie
             return result;
         }
 
+        // ============================
+        // UI HELPERS
+        // ============================
         private void ShowErrorMessage(List<string> errors)
         {
             ErrorMessageText.Text = string.Join("\n", errors);
             ErrorMessageBox.Visibility = Visibility.Visible;
 
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            ErrorMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            ErrorMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
             FindScrollViewer(this)?.ScrollToTop();
         }
@@ -334,23 +300,14 @@ namespace POS_WPF.Serie
         {
             SuccessMessageBox.Visibility = Visibility.Visible;
 
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            SuccessMessageBox.BeginAnimation(OpacityProperty, fadeIn);
+            SuccessMessageBox.BeginAnimation(OpacityProperty,
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
             var timer = new System.Windows.Threading.DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(8)
             };
-            timer.Tick += (s, e) =>
-            {
-                HideMessages();
-                timer.Stop();
-            };
+            timer.Tick += (s, e) => { HideMessages(); timer.Stop(); };
             timer.Start();
 
             FindScrollViewer(this)?.ScrollToTop();
@@ -362,10 +319,8 @@ namespace POS_WPF.Serie
             SuccessMessageBox.Visibility = Visibility.Collapsed;
         }
 
-        private void ScrollToFirstError(FrameworkElement control)
-        {
+        private void ScrollToFirstError(FrameworkElement control) =>
             control?.BringIntoView();
-        }
 
         private ScrollViewer FindScrollViewer(DependencyObject obj)
         {
@@ -380,18 +335,14 @@ namespace POS_WPF.Serie
             return null;
         }
 
+        // ============================
+        // HELPER CLASS
+        // ============================
         private class ValidationResult
         {
             public bool IsValid { get; set; }
             public List<string> Errors { get; set; }
             public FrameworkElement FirstInvalidControl { get; set; }
-        }
-
-        private void btnManageWarehouses_Click(object sender, RoutedEventArgs e)
-        {
-            frmAddEditBrand frmAdd = new frmAddEditBrand();
-            frmAdd.ShowDialog();
-            LoadBrandsToComboBox();
         }
     }
 }
