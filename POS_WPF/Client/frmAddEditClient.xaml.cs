@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// frmAddEditClient.cs
 using POS_BLL;
 using POS_WPF.Controls;
 using System;
@@ -7,40 +7,56 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace POS_WPF.Client
 {
     public partial class frmAddEditClient : Window
     {
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode FormMode = enMode.AddNew;
+        // ============================
+        // FIELDS
+        // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _FormMode = enMode.AddNew;
 
         public bool IsSaved { get; private set; } = false;
 
-        private readonly ILogger _logger = AppLogger.CreateLogger<frmAddEditClient>();
-
         private bool _isLoadingForm = false;
 
-        int _ClientID;
-        clsClient _Client;
+        private int _ClientID;
+        private clsClient _Client;
 
-        // ── Constructors ────────────────────────────────────────────────────────────
-
+        // ============================
+        // CONSTRUCTORS
+        // ============================
         public frmAddEditClient()
         {
             InitializeComponent();
-            FormMode = enMode.AddNew;
+            _FormMode = enMode.AddNew;
         }
 
         public frmAddEditClient(int clientID)
         {
             InitializeComponent();
             _ClientID = clientID;
-            FormMode = enMode.Update;
+            _FormMode = enMode.Update;
         }
 
-        // ── Window events ───────────────────────────────────────────────────────────
+        // ============================
+        // WINDOW EVENTS
+        // ============================
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _isLoadingForm = true;
+
+            _ResetDefaultValues();
+
+            if (_FormMode == enMode.Update)
+                _LoadData();
+
+            _isLoadingForm = false;
+        }
 
         private void Header_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -48,72 +64,28 @@ namespace POS_WPF.Client
                 this.DragMove();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            _ResetDefaultValues();
-
-            _isLoadingForm = true;
-
-            if (FormMode == enMode.Update)
-                _LoadData();
-
-            _isLoadingForm = false;
-        }
-
         private void Close_Click(object sender, RoutedEventArgs e) => this.Close();
         private void Cancel_Click(object sender, RoutedEventArgs e) => this.Close();
 
-        // ── Live validation handlers ────────────────────────────────────────────────
-
-        private void FirstNameInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        // ============================
+        // LOAD & RESET
+        // ============================
+        private void _ResetDefaultValues()
         {
-            // Names don't need a duplicate check — just let the control self-validate.
-            if (_isLoadingForm) return;
-            (sender as ModernInput)?.Validate(live: true);
-        }
-
-        private void LastNameInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            if (_isLoadingForm) return;
-            (sender as ModernInput)?.Validate(live: true);
-        }
-
-        private void PhoneInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateUniqueField(sender as ModernInput,
-                "This phone number is already registered.",
-                text => clsClient.IsPhoneExist(text),
-                text => clsClient.IsPhoneExist(text, _ClientID));
-        }
-
-        private void EmailInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateUniqueField(sender as ModernInput,
-                "This email address is already registered.",
-                text => clsClient.IsEmailExist(text),
-                text => clsClient.IsEmailExist(text, _ClientID));
-        }
-
-        // ── Shared live-validation helper ───────────────────────────────────────────
-
-        private void ValidateUniqueField(ModernInput control, string errorMessage,
-            Func<string, bool> existsFunc, Func<string, bool> existsExceptIdFunc)
-        {
-            if (_isLoadingForm || control == null) return;
-            if (string.IsNullOrWhiteSpace(control.Text)) return;
-
-            control.Validate(live: true, externalValidator: text =>
+            if (_FormMode == enMode.AddNew)
             {
-                text = text.Trim();
-                bool exists = FormMode == enMode.Update
-                    ? existsExceptIdFunc(text)
-                    : existsFunc(text);
-
-                return exists ? errorMessage : null;
-            });
+                _Client = new clsClient();
+                txtbTitle.Text = "Add New Client";
+                FirstName.Text = string.Empty;
+                LastName.Text = string.Empty;
+                Phone.Text = string.Empty;
+                Email.Text = string.Empty;
+            }
+            else
+            {
+                txtbTitle.Text = "Edit Client";
+            }
         }
-
-        // ── Data loading / resetting ────────────────────────────────────────────────
 
         private void _LoadData()
         {
@@ -133,46 +105,117 @@ namespace POS_WPF.Client
             Email.Text = _Client.Email;
         }
 
-        private void _ResetDefaultValues()
+        // ============================
+        // LIVE VALIDATION
+        // ============================
+        private void FirstNameInput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (FormMode == enMode.AddNew)
-            {
-                _Client = new clsClient();
-                txtbTitle.Text = "Add New Client";
-
-                FirstName.Text = "";
-                LastName.Text = "";
-                Phone.Text = "";
-                Email.Text = "";
-            }
-            else
-            {
-                txtbTitle.Text = "Edit Client";
-            }
+            if (_isLoadingForm) return;
+            (sender as ModernInput)?.Validate(live: true);
         }
 
-        // ── Save ────────────────────────────────────────────────────────────────────
+        private void LastNameInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_isLoadingForm) return;
+            (sender as ModernInput)?.Validate(live: true);
+        }
 
+        private void PhoneInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _ValidateUniqueField(
+                sender as ModernInput,
+                "This phone number is already registered.",
+                text => clsClient.IsPhoneExist(text),
+                text => clsClient.IsPhoneExist(text, _ClientID));
+        }
+
+        private void EmailInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _ValidateUniqueField(
+                sender as ModernInput,
+                "This email address is already registered.",
+                text => clsClient.IsEmailExist(text),
+                text => clsClient.IsEmailExist(text, _ClientID));
+        }
+
+        /// <summary>
+        /// Runs live duplicate validation on a unique field (phone or email).
+        /// </summary>
+        private void _ValidateUniqueField(ModernInput control, string errorMessage,
+            Func<string, bool> existsFunc, Func<string, bool> existsExceptIdFunc)
+        {
+            if (_isLoadingForm || control == null) return;
+            if (string.IsNullOrWhiteSpace(control.Text)) return;
+
+            control.Validate(live: true, externalValidator: text =>
+            {
+                text = text.Trim();
+                bool exists = _FormMode == enMode.Update
+                    ? existsExceptIdFunc(text)
+                    : existsFunc(text);
+
+                return exists ? errorMessage : null;
+            });
+        }
+
+        // ============================
+        // SAVE
+        // ============================
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             HideMessages();
 
-            ValidationResult validationResult = ValidateAllFields();
+            ValidationResult validation = _ValidateAllFields();
 
-            if (!validationResult.IsValid)
+            if (!validation.IsValid)
             {
-                ShowErrorMessage(validationResult.Errors);
-                ScrollToFirstError(validationResult.FirstInvalidControl);
+                ShowErrorMessage(validation.Errors);
+                ScrollToFirstError(validation.FirstInvalidControl);
                 return;
             }
 
-            bool saved = ProcessFormData();
-
-            if (saved)
-                ShowSuccessMessage();
+            _ProcessFormData();
         }
 
-        private ValidationResult ValidateAllFields()
+        private void _ProcessFormData()
+        {
+            _Client.FirstName = FirstName.Text.Trim();
+            _Client.LastName = LastName.Text.Trim();
+            _Client.Phone = Phone.Text.Trim();
+            _Client.Email = Email.Text.Trim();
+
+            try
+            {
+                bool saved = _Client.Save();
+
+                if (!saved)
+                {
+                    // Save() returned false — validation blocked it
+                    ShowErrorMessage(new List<string>
+                    {
+                        "• Failed to save. The phone or email may already be registered."
+                    });
+                    return;
+                }
+
+                IsSaved = true;
+                ShowSuccessMessage();
+            }
+            catch (Exception)
+            {
+                // DAL already logged this — just show a friendly message
+                MessageBox.Show(
+                    "An unexpected error occurred while saving. Please contact support.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        // ============================
+        // VALIDATION
+        // ============================
+        private ValidationResult _ValidateAllFields()
         {
             var result = new ValidationResult { IsValid = true };
             var errors = new List<string>();
@@ -182,7 +225,8 @@ namespace POS_WPF.Client
             if (!FirstName.IsValid)
             {
                 errors.Add($"• {FirstName.ValidationMessageText}");
-                if (result.FirstInvalidControl == null) result.FirstInvalidControl = FirstName;
+                if (result.FirstInvalidControl == null)
+                    result.FirstInvalidControl = FirstName;
             }
 
             // ── Last Name ───────────────────────────────────────────────────────────
@@ -190,7 +234,8 @@ namespace POS_WPF.Client
             if (!LastName.IsValid)
             {
                 errors.Add($"• {LastName.ValidationMessageText}");
-                if (result.FirstInvalidControl == null) result.FirstInvalidControl = LastName;
+                if (result.FirstInvalidControl == null)
+                    result.FirstInvalidControl = LastName;
             }
 
             // ── Phone (format + duplicate) ──────────────────────────────────────────
@@ -198,23 +243,24 @@ namespace POS_WPF.Client
             if (!Phone.IsValid)
             {
                 errors.Add($"• {Phone.ValidationMessageText}");
-                if (result.FirstInvalidControl == null) result.FirstInvalidControl = Phone;
+                if (result.FirstInvalidControl == null)
+                    result.FirstInvalidControl = Phone;
             }
             else
             {
                 Phone.Validate(live: false, externalValidator: text =>
                 {
-                    text = text.Trim();
-                    bool exists = FormMode == enMode.Update
-                        ? clsClient.IsPhoneExist(text, _ClientID)
-                        : clsClient.IsPhoneExist(text);
+                    bool exists = _FormMode == enMode.Update
+                        ? clsClient.IsPhoneExist(text.Trim(), _ClientID)
+                        : clsClient.IsPhoneExist(text.Trim());
                     return exists ? "This phone number is already registered." : null;
                 });
 
                 if (!Phone.IsValid)
                 {
                     errors.Add($"• {Phone.ValidationMessageText}");
-                    if (result.FirstInvalidControl == null) result.FirstInvalidControl = Phone;
+                    if (result.FirstInvalidControl == null)
+                        result.FirstInvalidControl = Phone;
                 }
             }
 
@@ -223,23 +269,24 @@ namespace POS_WPF.Client
             if (!Email.IsValid)
             {
                 errors.Add($"• {Email.ValidationMessageText}");
-                if (result.FirstInvalidControl == null) result.FirstInvalidControl = Email;
+                if (result.FirstInvalidControl == null)
+                    result.FirstInvalidControl = Email;
             }
             else
             {
                 Email.Validate(live: false, externalValidator: text =>
                 {
-                    text = text.Trim();
-                    bool exists = FormMode == enMode.Update
-                        ? clsClient.IsEmailExist(text, _ClientID)
-                        : clsClient.IsEmailExist(text);
+                    bool exists = _FormMode == enMode.Update
+                        ? clsClient.IsEmailExist(text.Trim(), _ClientID)
+                        : clsClient.IsEmailExist(text.Trim());
                     return exists ? "This email address is already registered." : null;
                 });
 
                 if (!Email.IsValid)
                 {
                     errors.Add($"• {Email.ValidationMessageText}");
-                    if (result.FirstInvalidControl == null) result.FirstInvalidControl = Email;
+                    if (result.FirstInvalidControl == null)
+                        result.FirstInvalidControl = Email;
                 }
             }
 
@@ -252,63 +299,26 @@ namespace POS_WPF.Client
             return result;
         }
 
-        private bool ProcessFormData()
-        {
-            _Client.FirstName = FirstName.Text.Trim();
-            _Client.LastName = LastName.Text.Trim();
-            _Client.Phone = Phone.Text.Trim();
-            _Client.Email = Email.Text.Trim();
-
-            try
-            {
-                if (!_Client.Save())
-                {
-                    _logger.LogWarning("Failed to save client: {ClientName}",
-                        $"{_Client.FirstName} {_Client.LastName}");
-                    MessageBox.Show("Failed to save client.", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
-                }
-
-                string successMsg = FormMode == enMode.AddNew
-                    ? "Client saved successfully."
-                    : "Client updated successfully.";
-
-                MessageBox.Show(successMsg, "Success",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
-                if (FormMode == enMode.AddNew)
-                    IsSaved = true;
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error saving client: {ClientName}",
-                    $"{_Client.FirstName} {_Client.LastName}");
-                MessageBox.Show(
-                    "An unexpected error occurred while saving the client. Please contact support.",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-        }
-
-        // ── UI feedback ─────────────────────────────────────────────────────────────
-
+        // ============================
+        // UI HELPERS
+        // ============================
         private void ShowErrorMessage(List<string> errors)
         {
             ErrorMessageText.Text = string.Join("\n", errors);
             ErrorMessageBox.Visibility = Visibility.Visible;
+
             ErrorMessageBox.BeginAnimation(OpacityProperty,
-                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300)));
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
+
             FindScrollViewer(this)?.ScrollToTop();
         }
 
         private void ShowSuccessMessage()
         {
             SuccessMessageBox.Visibility = Visibility.Visible;
+
             SuccessMessageBox.BeginAnimation(OpacityProperty,
-                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300)));
+                new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(300) });
 
             var timer = new System.Windows.Threading.DispatcherTimer
             {
@@ -332,17 +342,19 @@ namespace POS_WPF.Client
         private ScrollViewer FindScrollViewer(DependencyObject obj)
         {
             if (obj is ScrollViewer sv) return sv;
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(obj); i++)
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
             {
-                var result = FindScrollViewer(
-                    System.Windows.Media.VisualTreeHelper.GetChild(obj, i));
+                var result = FindScrollViewer(VisualTreeHelper.GetChild(obj, i));
                 if (result != null) return result;
             }
+
             return null;
         }
 
-        // ── Helper ──────────────────────────────────────────────────────────────────
-
+        // ============================
+        // HELPER CLASS
+        // ============================
         private class ValidationResult
         {
             public bool IsValid { get; set; }
