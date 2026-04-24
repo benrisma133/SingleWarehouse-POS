@@ -1,99 +1,128 @@
-﻿using POS_DAL;
-using System;
-using System.Collections.Generic;
+﻿// clsModel.cs
+using POS_DAL;
 using System.Data;
 
 namespace POS_BLL
 {
     public class clsModel
     {
-        enum enMode { AddNew = 1, Update = 2 }
-        enMode _Mode;
+        // ============================
+        // FIELDS
+        // ============================
+        private enum enMode { AddNew = 1, Update = 2 }
+        private enMode _Mode;
 
         public int ModelID { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-
-        public int? SerieID { get; set; } // Optional: if you want to link model to a serie
-        clsSeries SerieInfo { get; set; } // Optional: if you want to link model to a serie
+        public int? SerieID { get; set; }
+        public clsSeries SerieInfo { get; private set; }
 
         // ============================
-        // Constructor for new model
+        // CONSTRUCTORS
         // ============================
         public clsModel()
         {
             _Mode = enMode.AddNew;
             ModelID = -1;
-            Name = "";
-            Description = "";
-            SerieID = -1;
+            Name = string.Empty;
+            Description = string.Empty;
+            SerieID = null;
         }
 
-        // ============================
-        // Private constructor for loading existing model
-        // ============================
-        private clsModel(int modelID, string name, string description ,int? serieID)
+        private clsModel(int modelID, string name, string description, int? serieID)
         {
             _Mode = enMode.Update;
             ModelID = modelID;
             Name = name;
             Description = description;
             SerieID = serieID;
-            SerieInfo = clsSeries.FindByID(serieID ?? -1); // Load serie info if needed
+            SerieInfo = clsSeries.FindByID(serieID ?? -1);
         }
 
         // ============================
-        // Find by ID
+        // FIND
         // ============================
+
+        /// <summary>Returns the model with the given ID, or null if not found.</summary>
         public static clsModel FindByID(int modelID)
         {
-            string name = "";
-            string description = "";
-            int? serieID = -1;
+            string name = string.Empty;
+            string description = string.Empty;
+            int? serieID = null;
 
-            if (clsModelData.GetByID(modelID, ref name, ref description ,ref serieID))
-                return new clsModel(modelID, name, description ,serieID);
+            if (!clsModelData.GetByID(modelID, ref name, ref description, ref serieID))
+                return null;
 
-            return null;
+            return new clsModel(modelID, name, description, serieID);
         }
 
-        // ============================
-        // Find by Name
-        // ============================
+        /// <summary>Returns the model with the given name, or null if not found.</summary>
         public static clsModel FindByName(string name)
         {
             int modelID = -1;
-            string description = "";
-            int? serieID = -1;
+            string description = string.Empty;
+            int? serieID = null;
 
-            if (clsModelData.GetByName(name, ref modelID, ref description ,ref serieID))
-                return new clsModel(modelID, name, description , serieID);
+            if (!clsModelData.GetByName(name, ref modelID, ref description, ref serieID))
+                return null;
 
-            return null;
+            return new clsModel(modelID, name, description, serieID);
         }
 
         // ============================
-        // Add new model
+        // PRIVATE SAVE HELPERS
         // ============================
-        bool _AddNew()
+        private bool _AddNew()
         {
-            this.ModelID = clsModelData.AddNew(this.Name, this.Description ,this.SerieID);
-            return this.ModelID != -1;
+            ModelID = clsModelData.AddNew(Name, Description, SerieID);
+            return ModelID != -1;
         }
 
-        // ============================
-        // Update existing model
-        // ============================
-        bool _Update()
+        private bool _Update()
         {
-            return clsModelData.Update(this.ModelID, this.Name, this.Description ,this.SerieID);
+            return clsModelData.Update(ModelID, Name, Description, SerieID);
         }
 
         // ============================
-        // Save (AddNew or Update)
+        // VALIDATION
         // ============================
+
+        /// <summary>
+        /// Returns true if the object is in a valid state to be saved.
+        /// Call this before Save() if you want to surface errors in the UI
+        /// without relying on exceptions.
+        /// </summary>
+        public bool IsValid()
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+                return false;
+
+            // On add: reject if the name is already taken
+            if (_Mode == enMode.AddNew && clsModelData.IsModelExistByName(Name))
+                return false;
+
+            // On update: reject if another model already has this name
+            if (_Mode == enMode.Update && clsModelData.IsModelExistByName(Name, ModelID))
+                return false;
+
+            return true;
+        }
+
+        // ============================
+        // SAVE
+        // ============================
+
+        /// <summary>
+        /// Validates then persists the model (insert or update).
+        /// Returns false if validation fails or the DAL reports no rows affected.
+        /// Throws if the DAL encounters a database error.
+        /// </summary>
         public bool Save()
         {
+            if (!IsValid())
+                return false;
+
             switch (_Mode)
             {
                 case enMode.AddNew:
@@ -112,35 +141,39 @@ namespace POS_BLL
         }
 
         // ============================
-        // Delete model
+        // STATIC OPERATIONS
         // ============================
+
+        /// <summary>Deletes the model with the given ID.</summary>
         public static bool Delete(int modelID)
         {
             return clsModelData.Delete(modelID);
         }
 
-        // ============================
-        // Get all models
-        // ============================
+        /// <summary>Completely deletes the model and all related data.</summary>
+        public static bool DeleteCompletely(int modelID)
+        {
+            if (modelID == -1)
+                return false;
+
+            return clsModelData.DeleteModelCompletely(modelID);
+        }
+
+        /// <summary>Returns all models as a DataTable.</summary>
         public static DataTable GetAll()
         {
             return clsModelData.GetAll();
         }
 
-        public static bool DeleteCompletely(int ModelID)
-        {
-            if (ModelID == -1)
-                return false;
-
-            return clsModelData.DeleteModelCompletely(ModelID);
-        }
-
+        /// <summary>Returns all distinct models as a DataTable.</summary>
         public static DataTable GetAllDistinct()
         {
             return clsModelData.GetAllDistinct();
         }
 
-
+        // ============================
+        // EXISTENCE CHECKS
+        // ============================
         public static bool IsModelExistsByName(string name)
         {
             return clsModelData.IsModelExistByName(name);
@@ -150,6 +183,5 @@ namespace POS_BLL
         {
             return clsModelData.IsModelExistByName(name, excludeModelID);
         }
-
     }
 }
