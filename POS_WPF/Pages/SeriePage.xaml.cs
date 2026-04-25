@@ -1,4 +1,5 @@
 ﻿using POS_BLL;
+using POS_WPF.Dialogs;
 using POS_WPF.Serie;
 using POS_WPF.UI;
 using System;
@@ -509,26 +510,64 @@ namespace POS_WPF.Pages
         {
             if (sender is Button btn && btn.Tag is int serieId)
             {
-                var result = MessageBox.Show(
-                    "This will permanently delete this serie.\n\nDo you want to proceed?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
+                // ✔ Check dependencies
+                var canDelete = clsSeries.CanDelete(serieId, out var deps);
 
-                if (result == MessageBoxResult.Yes)
+                // ❌ Cannot delete → show warning dialog
+                if (!canDelete)
                 {
+                    var dialog = new frmConfirmDelete(
+                        title: "Warning",
+                        message:
+                            $"Cannot delete this serie.\n\n" +
+                            $"It is linked with:\n" +
+                            $"- {deps.Models} Models\n" +
+                            $"- {deps.Products} Products\n\n" +
+                            $"Do you want to delete anyway?");
+
+                    dialog.Owner = Window.GetWindow(this);
+
+                    if (dialog.ShowDialog() != true)
+                        return;
+
+                    // user chose "Delete Anyway"
                     if (clsSeries.Delete(serieId))
                     {
-                        MessageBox.Show("Serie deleted successfully.",
-                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         await LoadSeriesAsync();
                     }
                     else
                     {
                         MessageBox.Show(
-                            "Error deleting serie. It might be linked to other records.",
-                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            "Unexpected error while deleting serie.\nPlease contact support.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
                     }
+
+                    return;
+                }
+
+                // ✔ No dependencies → simple confirm
+                var simpleDialog = new frmConfirmDelete(
+                    title: "Confirm Delete",
+                    message: "This will permanently delete this serie.\n\nAre you sure you want to continue?");
+
+                simpleDialog.Owner = Window.GetWindow(this);
+
+                if (simpleDialog.ShowDialog() != true)
+                    return;
+
+                if (clsSeries.Delete(serieId))
+                {
+                    await LoadSeriesAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Unexpected error while deleting serie.\nPlease contact support.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
         }
