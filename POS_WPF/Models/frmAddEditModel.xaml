@@ -401,7 +401,7 @@
                         Height="42"
                         Background="#5E5E5E"
                         Style="{StaticResource SweetButton}"
-                        Click="Button_Click">
+                        Click="Cancel_Click">
 
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Path Style="{StaticResource IconStyle}"
