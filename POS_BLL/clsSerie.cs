@@ -177,5 +177,15 @@ namespace POS_BLL
         {
             return clsSeriesData.IsSeriesExistByName(name, ignoreSeriesID);
         }
+
+        public static bool GetActiveStatus(int seriesID)
+        {
+            return clsSeriesData.GetActiveStatus(seriesID);
+        }
+
+        public static bool SetActiveStatus(int seriesID, bool isActive)
+        {
+            return clsSeriesData.SetActiveStatus(seriesID, isActive);
+        }
     }
 }
