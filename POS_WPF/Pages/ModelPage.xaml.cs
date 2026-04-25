@@ -1,4 +1,7 @@
-﻿using POS_BLL;
+﻿using MahApps.Metro.Controls;
+using POS_BLL;
+using POS_WPF.Dialogs;
+using POS_WPF.Models;
 using POS_WPF.UI;
 using System;
 using System.Data;
@@ -10,8 +13,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
-using POS_WPF.Models;
-using MahApps.Metro.Controls;
 
 namespace POS_WPF.Pages
 {
@@ -29,6 +30,7 @@ namespace POS_WPF.Pages
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            cmbStatus.SelectedIndex = 1; // Default to "Active"
             await LoadItemsAsync();
             DynamicCardContainer.PreviewMouseWheel += DynamicCardContainer_PreviewMouseWheel;
         }
@@ -61,32 +63,40 @@ namespace POS_WPF.Pages
 
                 string filter = (await Task.Run(() => GetSearchText()))?.ToLower() ?? "";
 
-
-                DataTable dtModels = await Task.Run(() =>
+                // ADD THIS
+                string statusFilter = "";
+                Dispatcher.Invoke(() =>
                 {
-                        return clsModel.GetAll();
+                    statusFilter = (cmbStatus.SelectedItem as ComboBoxItem)?.Tag.ToString() ?? "all";
                 });
+
+                DataTable dtModels = await Task.Run(() => clsModel.GetAll());
 
                 var filteredRows = await Task.Run(() =>
                     dtModels.AsEnumerable()
                         .Where(row =>
                         {
-                            // Text search
                             bool matchesSearch =
                                 row["Name"].ToString().ToLower().Contains(filter) ||
                                 row["Description"].ToString().ToLower().Contains(filter);
 
-                            // Brand filter
                             bool matchesBrand = brandID == null ||
                                 (row["BrandID"] != DBNull.Value &&
                                  Convert.ToInt32(row["BrandID"]) == brandID.Value);
 
-                            // Serie filter
                             bool matchesSerie = serieID == null ||
                                 (row["SeriesID"] != DBNull.Value &&
                                  Convert.ToInt32(row["SeriesID"]) == serieID.Value);
 
-                            return matchesSearch && matchesBrand && matchesSerie;
+                            // ADD THIS
+                            int isActive = row["IsActive"] != DBNull.Value
+                                ? Convert.ToInt32(row["IsActive"]) : 0;
+
+                            bool matchesStatus = statusFilter == "all" ||
+                                (statusFilter == "active" && isActive == 1) ||
+                                (statusFilter == "inactive" && isActive == 0);
+
+                            return matchesSearch && matchesBrand && matchesSerie && matchesStatus; // ADD matchesStatus
                         })
                         .ToList()
                 );
@@ -103,12 +113,12 @@ namespace POS_WPF.Pages
                         string description = row["Description"].ToString();
                         string seriesName = row["SeriesName"] != DBNull.Value ? row["SeriesName"].ToString() : "";
                         string brandName = row["BrandName"] != DBNull.Value ? row["BrandName"].ToString() : "";
+                        bool isActive = row["IsActive"] != DBNull.Value && Convert.ToInt32(row["IsActive"]) == 1; // ADD THIS
 
                         DynamicCardContainer.Items.Add(
-                            CreateModelCard(id, name, description, seriesName, brandName, cardWidth)
+                            CreateModelCard(id, name, description, seriesName, brandName, isActive, cardWidth) // ADD isActive
                         );
                     }
-
 
                     var wrapPanel = FindVisualChild<WrapPanel>(DynamicCardContainer);
                     if (wrapPanel != null)
@@ -119,7 +129,6 @@ namespace POS_WPF.Pages
                     }
 
                     UpdateCardWidths();
-
 
                     if (txtTotalModels != null)
                         txtTotalModels.Text = $"Total Models: {filteredRows.Count}";
@@ -132,19 +141,7 @@ namespace POS_WPF.Pages
             }
         }
 
-        private double GetCardWidth()
-        {
-            double availableWidth = Math.Max(0,
-                CardScrollViewer.ActualWidth - 28);
-
-            if (availableWidth == 0) return 400;
-
-            return availableWidth > 760
-                ? (availableWidth / 2) - 16
-                : availableWidth - 20;
-        }
-
-        private Border CreateModelCard(int id, string name, string description, string seriesName, string brandName, double width)
+        private Border CreateModelCard(int id, string name, string description, string seriesName, string brandName, bool isActive, double width)
         {
             Border cardBorder = new Border
             {
@@ -294,10 +291,15 @@ namespace POS_WPF.Pages
             };
             Grid.SetColumn(buttonStack, 1);
 
+            Button toggleBtn = CardButtonsFactory.CreateToggleButton(BtnToggle_Click, id, isActive); // ADD
             Button editBtn = CardButtonsFactory.CreateEditButton(BtnEdit_Click, id);
             Button deleteBtn = CardButtonsFactory.CreateDeleteButton(BtnDelete_Click, id);
-            deleteBtn.Margin = new Thickness(8, 0, 0, 0);
 
+            toggleBtn.Margin = new Thickness(0, 0, 8, 0); // ADD
+            editBtn.Margin = new Thickness(0, 0, 8, 0);   // ADD
+            deleteBtn.Margin = new Thickness(0, 0, 0, 0);
+
+            buttonStack.Children.Add(toggleBtn); // ADD
             buttonStack.Children.Add(editBtn);
             buttonStack.Children.Add(deleteBtn);
             cardGrid.Children.Add(buttonStack);
@@ -337,6 +339,19 @@ namespace POS_WPF.Pages
 
             return cardBorder;
         }
+
+        private double GetCardWidth()
+        {
+            double availableWidth = Math.Max(0,
+                CardScrollViewer.ActualWidth - 28);
+
+            if (availableWidth == 0) return 400;
+
+            return availableWidth > 760
+                ? (availableWidth / 2) - 16
+                : availableWidth - 20;
+        }
+
 
         private void Card_MouseEnterAnimations(Border cardBorder, StackPanel buttonStack)
         {
@@ -519,40 +534,105 @@ namespace POS_WPF.Pages
 
         private async void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag != null)
+            if (sender is Button btn && btn.Tag is int modelId)
             {
-                int modelID = (int)btn.Tag;
+                // ✔ Check dependencies
+                int productsCount = clsModel.GetDependencies(modelId);
+                bool canDelete = productsCount == 0;
 
-                // Inform the user clearly about deletion scope
-                var result = MessageBox.Show(
-                    "This action will permanently delete this model from ALL warehouses.\n\n" +
-                    "If you only want to remove it from the selected warehouse, please unselect it instead.\n\n" +
-                    "Do you want to proceed?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
+                // ❌ Cannot delete → show warning dialog
+                if (!canDelete)
                 {
-                    if (clsModel.Delete(modelID)) // your delete logic
-                    {
-                        MessageBox.Show(
-                            "Model has been deleted from all warehouses successfully.",
-                            "Success",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information);
+                    var dialog = new frmConfirmDelete(
+                        title: "Warning",
+                        message:
+                            $"Cannot delete this model.\n\n" +
+                            $"It is linked with:\n" +
+                            $"- {productsCount} Products\n\n" +
+                            $"Do you want to delete anyway?");
 
-                        await LoadItemsAsync(); // reload models after deletion
+                    dialog.Owner = Window.GetWindow(this);
+
+                    if (dialog.ShowDialog() != true)
+                        return;
+
+                    if (clsModel.DeleteCompletely(modelId))
+                    {
+                        await LoadItemsAsync();
                     }
                     else
                     {
                         MessageBox.Show(
-                            "Error deleting model. It might be linked to other records.",
+                            "Unexpected error while deleting model.\nPlease contact support.",
                             "Error",
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);
                     }
+
+                    return;
                 }
+
+                // ✔ No dependencies → simple confirm
+                var simpleDialog = new frmConfirmDelete(
+                    title: "Confirm Delete",
+                    message: "This will permanently delete this model.\n\nAre you sure you want to continue?");
+
+                simpleDialog.Owner = Window.GetWindow(this);
+
+                if (simpleDialog.ShowDialog() != true)
+                    return;
+
+                if (clsModel.Delete(modelId))
+                {
+                    await LoadItemsAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Unexpected error while deleting model.\nPlease contact support.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void BtnToggle_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int modelId)
+            {
+                bool isCurrentlyActive = clsModel.GetActiveStatus(modelId);
+                bool newState = !isCurrentlyActive;
+
+                bool success = clsModel.SetActiveStatus(modelId, newState);
+
+                if (success)
+                {
+                    CardButtonsFactory.SetToggleState(btn, newState);
+
+                    string message = newState
+                        ? "Model activated successfully."
+                        : "Model deactivated successfully.";
+                    MessageBox.Show(message, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    await LoadItemsAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Failed to update model status.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void cmbStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbStatus.SelectedItem != null)
+            {
+                await LoadItemsAsync();
             }
         }
 
