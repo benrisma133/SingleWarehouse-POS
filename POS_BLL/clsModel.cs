@@ -183,5 +183,20 @@ namespace POS_BLL
         {
             return clsModelData.IsModelExistByName(name, excludeModelID);
         }
+
+        public static bool GetActiveStatus(int modelID)
+        {
+            return clsModelData.GetActiveStatus(modelID);
+        }
+
+        public static bool SetActiveStatus(int modelID, bool isActive)
+        {
+            return clsModelData.SetActiveStatus(modelID, isActive);
+        }
+
+        public static int GetDependencies(int modelID)
+        {
+            return clsModelData.GetModelDependencies(modelID);
+        }
     }
 }
