@@ -16,7 +16,7 @@ namespace POS_DAL
                  $"Data Source={Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "POS.db")};";
 
 
-
+        
 
 
     }
