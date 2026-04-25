@@ -195,6 +195,7 @@ namespace POS_DAL
                             s.BrandID,
                             b.Name AS BrandName,
                             s.Name,
+                            s.IsActive,
                             s.Description
                         FROM Series s
                         INNER JOIN Brands b ON s.BrandID = b.BrandID
