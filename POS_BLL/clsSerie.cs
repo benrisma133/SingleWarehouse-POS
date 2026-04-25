@@ -187,5 +187,12 @@ namespace POS_BLL
         {
             return clsSeriesData.SetActiveStatus(seriesID, isActive);
         }
+
+        public static bool CanDelete(int seriesID, out (int Models, int Products) deps)
+        {
+            var result = clsSeriesData.GetSeriesDependencies(seriesID);
+            deps = (result.ModelsCount, result.ProductsCount);
+            return result.ModelsCount == 0 && result.ProductsCount == 0;
+        }
     }
 }
