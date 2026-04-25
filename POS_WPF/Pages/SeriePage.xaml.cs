@@ -29,6 +29,7 @@ namespace POS_WPF.Pages
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            cmbStatus.SelectedIndex = 1; // Default to "Active"
             await LoadSeriesAsync();
             DynamicCardContainer.PreviewMouseWheel += DynamicCardContainer_PreviewMouseWheel;
         }
@@ -65,7 +66,10 @@ namespace POS_WPF.Pages
                 string filter = GetSearchText();
                 string warehouseName = "All Warehouses";
 
-                
+
+
+                // Get filter status from ComboBox
+                string statusFilter = (cmbStatus.SelectedItem as ComboBoxItem)?.Tag.ToString() ?? "all";
 
                 // Fetch + filter off UI thread
                 var serieData = await Task.Run(() =>
@@ -74,14 +78,26 @@ namespace POS_WPF.Pages
 
                     return dt.AsEnumerable()
                         .Where(row =>
-                            row["Name"].ToString().ToLower().Contains(filter) ||
-                            row["Description"].ToString().ToLower().Contains(filter))
+                        {
+                            string name = row["Name"].ToString().ToLower();
+                            string description = row["Description"].ToString().ToLower();
+                            int isActive = Convert.ToInt32(row["IsActive"]);
+
+                            bool matchesSearch = name.Contains(filter) || description.Contains(filter);
+
+                            bool matchesStatus = statusFilter == "all" ||
+                                                (statusFilter == "active" && isActive == 1) ||
+                                                (statusFilter == "inactive" && isActive == 0);
+
+                            return matchesSearch && matchesStatus;
+                        })
                         .Select(row => new
                         {
                             SerieID = Convert.ToInt32(row["SeriesID"]),
                             Name = row["Name"].ToString(),
                             Description = row["Description"].ToString(),
-                            BrandName = row["BrandName"].ToString()
+                            BrandName = row["BrandName"].ToString(),
+                            IsActive = Convert.ToInt32(row["IsActive"]) == 1  // ADD THIS
                         })
                         .ToList();
                 });
@@ -93,7 +109,7 @@ namespace POS_WPF.Pages
                 foreach (var item in serieData)
                 {
                     DynamicCardContainer.Items.Add(
-                        CreateSerieCard(item.SerieID, item.Name, item.Description, item.BrandName, cardWidth));
+                        CreateSerieCard(item.SerieID, item.Name, item.Description, item.BrandName, item.IsActive, cardWidth)); // ADD item.IsActive
                 }
 
                 // Fix WrapPanel layout
@@ -140,7 +156,7 @@ namespace POS_WPF.Pages
         }
 
         // ======================= CARD FACTORY =======================
-        private Border CreateSerieCard(int id, string name, string description, string brandName, double width)
+        private Border CreateSerieCard(int id, string name, string description, string brandName, bool isActive, double width)
         {
             Border cardBorder = new Border
             {
@@ -265,10 +281,15 @@ namespace POS_WPF.Pages
             };
             Grid.SetColumn(buttonStack, 1);
 
+            Button toggleBtn = CardButtonsFactory.CreateToggleButton(BtnToggle_Click, id, isActive); // ADD
             Button editBtn = CardButtonsFactory.CreateEditButton(BtnEdit_Click, id);
             Button deleteBtn = CardButtonsFactory.CreateDeleteButton(BtnDelete_Click, id);
-            deleteBtn.Margin = new Thickness(8, 0, 0, 0);
 
+            toggleBtn.Margin = new Thickness(0, 0, 8, 0);   // ADD
+            editBtn.Margin = new Thickness(0, 0, 8, 0);       // ADD
+            deleteBtn.Margin = new Thickness(0, 0, 0, 0);
+
+            buttonStack.Children.Add(toggleBtn);  // ADD
             buttonStack.Children.Add(editBtn);
             buttonStack.Children.Add(deleteBtn);
             cardGrid.Children.Add(buttonStack);
@@ -509,6 +530,43 @@ namespace POS_WPF.Pages
                             "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
+            }
+        }
+
+        private async void BtnToggle_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int serieId)
+            {
+                bool isCurrentlyActive = clsSeries.GetActiveStatus(serieId);
+                bool newState = !isCurrentlyActive;
+
+                bool success = clsSeries.SetActiveStatus(serieId, newState);
+
+                if (success)
+                {
+                    CardButtonsFactory.SetToggleState(btn, newState);
+
+                    string message = newState ? "Serie activated successfully." : "Serie deactivated successfully.";
+                    MessageBox.Show(message, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    await LoadSeriesAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Failed to update serie status.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void cmbStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbStatus.SelectedItem != null)
+            {
+                await LoadSeriesAsync();
             }
         }
     }
