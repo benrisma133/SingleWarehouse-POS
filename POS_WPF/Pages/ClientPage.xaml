@@ -71,38 +71,60 @@
 
         </DockPanel>
 
-        <!-- ================= SEARCH ================= -->
+        <!-- ================= SEARCH + FILTER ================= -->
         <Grid Grid.Row="1" VerticalAlignment="Top" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"/>
+                <!-- Search -->
                 <ColumnDefinition Width="*"/>
+                <!-- Spacing -->
+                <ColumnDefinition Width="240"/>
+                <!-- Warehouse ComboBox -->
             </Grid.ColumnDefinitions>
 
+            <!-- SEARCH BOX -->
             <Grid Grid.Column="0" Height="65">
-                <Border CornerRadius="12" Background="White"
-                        BorderBrush="#CED6E0" BorderThickness="1"/>
+                <Border CornerRadius="12" Background="White" BorderBrush="#CED6E0" BorderThickness="1"/>
                 <TextBox x:Name="txtSearch"
-                         Background="Transparent"
-                         BorderThickness="0"
-                         VerticalContentAlignment="Center"
-                         FontSize="14"
-                         Padding="35,0,5,0"
-                         Foreground="#2F3640"
-                         TextChanged="txtSearch_TextChanged"/>
+                 Background="Transparent"
+                 BorderThickness="0"
+                 VerticalContentAlignment="Center"
+                 FontSize="14"
+                 Padding="35,0,5,0"
+                 Foreground="#2F3640"
+                 TextChanged="txtSearch_TextChanged"/>
                 <TextBlock x:Name="txtPlaceholder"
-                           Text=" Search client..."
-                           Foreground="#A4B0BE"
-                           VerticalAlignment="Center"
-                           FontSize="16"
-                           Margin="35,0,5,0"
-                           IsHitTestVisible="False"/>
+                   Text=" Search client..."
+                   Foreground="#A4B0BE"
+                   VerticalAlignment="Center"
+                   FontSize="16"
+                   Margin="35,0,5,0"
+                   IsHitTestVisible="False"/>
                 <TextBlock Text="🔍"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Left"
-                           Margin="10,0,0,0"
-                           FontSize="16"
-                           Foreground="#57606f"/>
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   Margin="10,0,0,0"
+                   FontSize="16"
+                   Foreground="#57606f"/>
             </Grid>
+
+            <!-- STATUS FILTER COMBOBOX -->
+            <ComboBox x:Name="cmbStatus"
+              Grid.Column="2"
+              Style="{StaticResource ModernComboBox}"
+              ItemContainerStyle="{StaticResource ModernComboBoxItem}"
+              HorizontalAlignment="Right"
+              Width="220"
+              Height="45"
+              Margin="0,0,10,0"
+              VerticalAlignment="Center"
+              Cursor="Hand"
+              SelectionChanged="cmbStatus_SelectionChanged">
+                <ComboBoxItem Content="All" Tag="all"/>
+                <ComboBoxItem Content="Active" Tag="active"/>
+                <ComboBoxItem Content="Not Active" Tag="inactive"/>
+            </ComboBox>
+
         </Grid>
 
         <!-- ================= CARDS ================= -->
