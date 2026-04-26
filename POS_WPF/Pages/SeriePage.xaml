@@ -146,7 +146,7 @@
                       VerticalAlignment="Center"
                       Cursor="Hand"
                       SelectionChanged="cmbStatus_SelectionChanged">
-                <ComboBoxItem Content="All Brands" Tag="all"/>
+                <ComboBoxItem Content="All" Tag="all"/>
                 <ComboBoxItem Content="Active" Tag="active"/>
                 <ComboBoxItem Content="Not Active" Tag="inactive"/>
             </ComboBox>
