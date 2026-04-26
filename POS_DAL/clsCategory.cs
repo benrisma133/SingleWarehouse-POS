@@ -198,14 +198,15 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        SELECT 
-                            c.CategoryID,
-                            c.Name,
-                            c.Description,
-                            IFNULL(i.IconData, X'') AS IconData
-                        FROM Categories c
-                        LEFT JOIN CategoryIcons i ON c.IconID = i.IconID;
-                    ";
+                SELECT 
+                    c.CategoryID,
+                    c.Name,
+                    c.Description,
+                    c.IsActive,
+                    IFNULL(i.IconData, X'') AS IconData
+                FROM Categories c
+                LEFT JOIN CategoryIcons i ON c.IconID = i.IconID;
+            ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
                     {
