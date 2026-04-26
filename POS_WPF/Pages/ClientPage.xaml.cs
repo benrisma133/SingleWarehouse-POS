@@ -1,5 +1,7 @@
-﻿using POS_BLL;
+﻿using Org.BouncyCastle.Asn1.Cmp;
+using POS_BLL;
 using POS_WPF.Client;
+using POS_WPF.Dialogs;
 using POS_WPF.UI;
 using System;
 using System.Data;
@@ -28,6 +30,7 @@ namespace POS_WPF.Pages
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            cmbStatus.SelectedIndex = 1; // Default to "Active"
             await LoadClientsAsync();
             DynamicCardContainer.PreviewMouseWheel += DynamicCardContainer_PreviewMouseWheel;
         }
@@ -63,23 +66,44 @@ namespace POS_WPF.Pages
 
                 string filter = GetSearchText();
 
+                // ADD THIS
+                string statusFilter = "";
+                Dispatcher.Invoke(() =>
+                {
+                    statusFilter = (cmbStatus.SelectedItem as ComboBoxItem)?.Tag.ToString() ?? "all";
+                });
+
                 var clientData = await Task.Run(() =>
                 {
                     DataTable dt = clsClient.GetAll();
 
                     return dt.AsEnumerable()
                         .Where(row =>
-                            row["FirstName"].ToString().ToLower().Contains(filter) ||
-                            row["LastName"].ToString().ToLower().Contains(filter) ||
-                            row["Phone"].ToString().ToLower().Contains(filter) ||
-                            row["Email"].ToString().ToLower().Contains(filter))
+                        {
+                            bool matchesSearch =
+                                row["FirstName"].ToString().ToLower().Contains(filter) ||
+                                row["LastName"].ToString().ToLower().Contains(filter) ||
+                                row["Phone"].ToString().ToLower().Contains(filter) ||
+                                row["Email"].ToString().ToLower().Contains(filter);
+
+                            // ADD THIS
+                            int isActive = row["IsActive"] != DBNull.Value
+                                ? Convert.ToInt32(row["IsActive"]) : 0;
+
+                            bool matchesStatus = statusFilter == "all" ||
+                                (statusFilter == "active" && isActive == 1) ||
+                                (statusFilter == "inactive" && isActive == 0);
+
+                            return matchesSearch && matchesStatus; // ADD matchesStatus
+                        })
                         .Select(row => new
                         {
                             ClientID = Convert.ToInt32(row["ClientID"]),
                             FirstName = row["FirstName"].ToString(),
                             LastName = row["LastName"].ToString(),
                             Phone = row["Phone"].ToString(),
-                            Email = row["Email"].ToString()
+                            Email = row["Email"].ToString(),
+                            IsActive = row["IsActive"] != DBNull.Value && Convert.ToInt32(row["IsActive"]) == 1 // ADD THIS
                         })
                         .ToList();
                 });
@@ -92,7 +116,7 @@ namespace POS_WPF.Pages
                     DynamicCardContainer.Items.Add(
                         CreateClientCard(
                             item.ClientID, item.FirstName, item.LastName,
-                            item.Phone, item.Email, cardWidth));
+                            item.Phone, item.Email, item.IsActive, cardWidth)); // ADD item.IsActive
                 }
 
                 var wrapPanel = FindVisualChild<WrapPanel>(DynamicCardContainer);
@@ -140,7 +164,7 @@ namespace POS_WPF.Pages
         // ======================= CARD FACTORY =======================
 
         private Border CreateClientCard(int id, string firstName, string lastName,
-                                        string phone, string email, double width)
+                                string phone, string email, bool isActive, double width)
         {
             string fullName = $"{firstName} {lastName}".Trim();
             string initials = GetInitials(firstName, lastName);
@@ -265,10 +289,15 @@ namespace POS_WPF.Pages
             };
             Grid.SetColumn(buttonStack, 1);
 
+            Button toggleBtn = CardButtonsFactory.CreateToggleButton(BtnToggle_Click, id, isActive); // ADD
             Button editBtn = CardButtonsFactory.CreateEditButton(BtnEdit_Click, id);
             Button deleteBtn = CardButtonsFactory.CreateDeleteButton(BtnDelete_Click, id);
-            deleteBtn.Margin = new Thickness(8, 0, 0, 0);
 
+            toggleBtn.Margin = new Thickness(0, 0, 8, 0); // ADD
+            editBtn.Margin = new Thickness(0, 0, 8, 0);   // CHANGE
+            deleteBtn.Margin = new Thickness(0, 0, 0, 0);
+
+            buttonStack.Children.Add(toggleBtn); // ADD
             buttonStack.Children.Add(editBtn);
             buttonStack.Children.Add(deleteBtn);
             cardGrid.Children.Add(buttonStack);
@@ -503,28 +532,104 @@ namespace POS_WPF.Pages
         {
             if (sender is Button btn && btn.Tag is int clientId)
             {
-                var result = MessageBox.Show(
-                    "This will permanently delete this client.\n\nDo you want to proceed?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
+                // ✔ Check dependencies
+                bool canDelete = clsClient.CanDelete(clientId, out int salesCount);
 
-                if (result == MessageBoxResult.Yes)
+                // ❌ Cannot delete → show warning dialog
+                if (!canDelete)
                 {
+                    var dialog = new frmConfirmDelete(
+                        title: "Warning",
+                        message:
+                            $"Cannot delete this client.\n\n" +
+                            $"It is linked with:\n" +
+                            $"- {salesCount} Sales\n\n" +
+                            $"Do you want to delete anyway?");
+
+                    dialog.Owner = Window.GetWindow(this);
+
+                    if (dialog.ShowDialog() != true)
+                        return;
+
                     if (clsClient.Delete(clientId))
                     {
-                        MessageBox.Show("Client deleted successfully.",
-                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         await LoadClientsAsync();
                     }
                     else
                     {
                         MessageBox.Show(
-                            "Error deleting client. They may be linked to existing orders.",
-                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            "Unexpected error while deleting client.\nPlease contact support.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
                     }
+
+                    return;
+                }
+
+                // ✔ No dependencies → simple confirm
+                var simpleDialog = new frmConfirmDelete(
+                    title: "Confirm Delete",
+                    message: "This will permanently delete this client.\n\nAre you sure you want to continue?");
+
+                simpleDialog.Owner = Window.GetWindow(this);
+
+                if (simpleDialog.ShowDialog() != true)
+                    return;
+
+                if (clsClient.Delete(clientId))
+                {
+                    await LoadClientsAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Unexpected error while deleting client.\nPlease contact support.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
         }
+
+        private async void BtnToggle_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int clientId)
+            {
+                bool isCurrentlyActive = clsClient.GetActiveStatus(clientId);
+                bool newState = !isCurrentlyActive;
+
+                bool success = clsClient.SetActiveStatus(clientId, newState);
+
+                if (success)
+                {
+                    CardButtonsFactory.SetToggleState(btn, newState);
+
+                    string message = newState
+                        ? "Client activated successfully."
+                        : "Client deactivated successfully.";
+                    MessageBox.Show(message, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    await LoadClientsAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Failed to update client status.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void cmbStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbStatus.SelectedItem != null)
+            {
+                await LoadClientsAsync();
+            }
+        }
+
     }
 }
