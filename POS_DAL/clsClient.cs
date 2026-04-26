@@ -195,10 +195,10 @@ namespace POS_DAL
                 using (SqliteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        SELECT ClientID, FirstName, LastName, Phone, Email
-                        FROM Clients
-                        ORDER BY ClientID
-                    ";
+                SELECT ClientID, FirstName, LastName, Phone, Email, IsActive
+                FROM Clients
+                ORDER BY ClientID
+            ";
 
                     using (SqliteDataReader reader = command.ExecuteReader())
                     {
