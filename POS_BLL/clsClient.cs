@@ -185,5 +185,22 @@ namespace POS_BLL
         {
             return clsClientData.IsPhoneExist(phone, ignoreClientID);
         }
+
+        public static bool GetActiveStatus(int clientID)
+        {
+            return clsClientData.GetActiveStatus(clientID);
+        }
+
+        public static bool SetActiveStatus(int clientID, bool isActive)
+        {
+            return clsClientData.SetActiveStatus(clientID, isActive);
+        }
+
+        public static bool CanDelete(int clientID, out int salesCount)
+        {
+            salesCount = clsClientData.GetClientDependencies(clientID);
+            return salesCount == 0;
+        }
+
     }
 }
