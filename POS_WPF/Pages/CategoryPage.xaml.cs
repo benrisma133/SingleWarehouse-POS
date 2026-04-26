@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using POS_BLL;
 using POS_WPF.Category;
+using POS_WPF.Dialogs;
 using POS_WPF.UI;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,7 @@ namespace POS_WPF.Pages
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            cmbStatus.SelectedIndex = 1; // Default to "Active"
             await LoadCategoriesAsync();
             DynamicCardContainer.PreviewMouseWheel += DynamicCardContainer_PreviewMouseWheel;
         }
@@ -63,7 +65,7 @@ namespace POS_WPF.Pages
             });
         }
 
-        
+
 
 
         // No code-behind needed! The animation is handled by XAML triggers.
@@ -79,11 +81,16 @@ namespace POS_WPF.Pages
                 if (txtTitle != null)
                     txtTitle.Text = "Manage Categories";
 
-                // ⚡ Give animation time to start smoothly
                 await Task.Delay(50);
 
                 string filter = GetSearchText()?.ToLower() ?? "";
-                
+
+                // ADD THIS
+                string statusFilter = "";
+                Dispatcher.Invoke(() =>
+                {
+                    statusFilter = (cmbStatus.SelectedItem as ComboBoxItem)?.Tag.ToString() ?? "all";
+                });
 
                 var categoryData = await Task.Run(() =>
                 {
@@ -91,31 +98,43 @@ namespace POS_WPF.Pages
 
                     var filteredRows = dtCategories.AsEnumerable()
                         .Where(row =>
-                            row["Name"].ToString().ToLower().Contains(filter) ||
-                            row["Description"].ToString().ToLower().Contains(filter))
+                        {
+                            bool matchesSearch =
+                                row["Name"].ToString().ToLower().Contains(filter) ||
+                                row["Description"].ToString().ToLower().Contains(filter);
+
+                            // ADD THIS
+                            int isActive = row["IsActive"] != DBNull.Value
+                                ? Convert.ToInt32(row["IsActive"]) : 0;
+
+                            bool matchesStatus = statusFilter == "all" ||
+                                (statusFilter == "active" && isActive == 1) ||
+                                (statusFilter == "inactive" && isActive == 0);
+
+                            return matchesSearch && matchesStatus; // ADD matchesStatus
+                        })
                         .Select(row => new
                         {
                             CategoryID = Convert.ToInt32(row["CategoryID"]),
                             Name = row["Name"].ToString(),
                             Description = row["Description"].ToString(),
-                            IconData = row["IconData"].ToString()
+                            IconData = row["IconData"].ToString(),
+                            IsActive = row["IsActive"] != DBNull.Value && Convert.ToInt32(row["IsActive"]) == 1 // ADD THIS
                         })
                         .ToList();
 
                     return filteredRows;
                 });
 
-                // ⚡ Clear and add cards in small batches
                 DynamicCardContainer.Items.Clear();
                 double cardWidth = GetCardWidth();
 
-                
-                    foreach (var item in categoryData)
-                    {
-                        DynamicCardContainer.Items.Add(
-                            CreateCategoryCard(item.CategoryID, item.Name, item.Description, item.IconData, cardWidth)
-                        );
-                    }
+                foreach (var item in categoryData)
+                {
+                    DynamicCardContainer.Items.Add(
+                        CreateCategoryCard(item.CategoryID, item.Name, item.Description, item.IconData, item.IsActive, cardWidth) // ADD item.IsActive
+                    );
+                }
 
                 var wrapPanel = FindVisualChild<WrapPanel>(DynamicCardContainer);
                 if (wrapPanel != null)
@@ -127,10 +146,8 @@ namespace POS_WPF.Pages
 
                 UpdateCardWidths();
 
-
                 if (txtTotalProducts != null)
                     txtTotalProducts.Text = $"Total Categories : {categoryData.Count}";
-                
             }
             catch (Exception ex)
             {
@@ -234,7 +251,7 @@ namespace POS_WPF.Pages
             }
         }
 
-        private Border CreateCategoryCard(int id, string name, string description, string iconJson, double width)
+        private Border CreateCategoryCard(int id, string name, string description, string iconJson, bool isActive, double width)
         {
             // Main border
             Border cardBorder = new Border
@@ -330,10 +347,15 @@ namespace POS_WPF.Pages
             };
             Grid.SetColumn(buttonStack, 1);
 
+            Button toggleBtn = CardButtonsFactory.CreateToggleButton(BtnToggle_Click, id, isActive); // ADD
             Button editBtn = CardButtonsFactory.CreateEditButton(BtnEdit_Click, id);
             Button deleteBtn = CardButtonsFactory.CreateDeleteButton(BtnDelete_Click, id);
-            deleteBtn.Margin = new Thickness(8, 0, 0, 0);
 
+            toggleBtn.Margin = new Thickness(0, 0, 8, 0); // ADD
+            editBtn.Margin = new Thickness(0, 0, 8, 0);   // CHANGE
+            deleteBtn.Margin = new Thickness(0, 0, 0, 0); // CHANGE
+
+            buttonStack.Children.Add(toggleBtn); // ADD
             buttonStack.Children.Add(editBtn);
             buttonStack.Children.Add(deleteBtn);
             cardGrid.Children.Add(buttonStack);
@@ -621,40 +643,104 @@ namespace POS_WPF.Pages
 
         private async void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag != null)
+            if (sender is Button btn && btn.Tag is int categoryId)
             {
-                int categoryID = (int)btn.Tag;
+                // ✔ Check dependencies
+                bool canDelete = clsCategory.CanDelete(categoryId, out int productsCount);
 
-                // Inform the user clearly about deletion scope
-                var result = MessageBox.Show(
-                    "This action will permanently delete this category from ALL warehouses.\n\n" +
-                    "If you only want to remove it from the selected warehouse, please unselect it instead.\n\n" +
-                    "Do you want to proceed?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
+                // ❌ Cannot delete → show warning dialog
+                if (!canDelete)
                 {
-                    if (clsCategory.Delete(categoryID)) // your delete logic
-                    {
-                        MessageBox.Show(
-                            "Category has been removed from all warehouses successfully.",
-                            "Success",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information);
+                    var dialog = new frmConfirmDelete(
+                        title: "Warning",
+                        message:
+                            $"Cannot delete this category.\n\n" +
+                            $"It is linked with:\n" +
+                            $"- {productsCount} Products\n\n" +
+                            $"Do you want to delete anyway?");
 
+                    dialog.Owner = Window.GetWindow(this);
+
+                    if (dialog.ShowDialog() != true)
+                        return;
+
+                    if (clsCategory.Delete(categoryId))
+                    {
                         await LoadCategoriesAsync();
                     }
                     else
                     {
                         MessageBox.Show(
-                            "Error removing category. It might be linked to other records.",
+                            "Unexpected error while deleting category.\nPlease contact support.",
                             "Error",
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);
                     }
+
+                    return;
                 }
+
+                // ✔ No dependencies → simple confirm
+                var simpleDialog = new frmConfirmDelete(
+                    title: "Confirm Delete",
+                    message: "This will permanently delete this category.\n\nAre you sure you want to continue?");
+
+                simpleDialog.Owner = Window.GetWindow(this);
+
+                if (simpleDialog.ShowDialog() != true)
+                    return;
+
+                if (clsCategory.Delete(categoryId))
+                {
+                    await LoadCategoriesAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Unexpected error while deleting category.\nPlease contact support.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void BtnToggle_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int categoryId)
+            {
+                bool isCurrentlyActive = clsCategory.GetActiveStatus(categoryId);
+                bool newState = !isCurrentlyActive;
+
+                bool success = clsCategory.SetActiveStatus(categoryId, newState);
+
+                if (success)
+                {
+                    CardButtonsFactory.SetToggleState(btn, newState);
+
+                    string message = newState
+                        ? "Category activated successfully."
+                        : "Category deactivated successfully.";
+                    MessageBox.Show(message, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    await LoadCategoriesAsync();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Failed to update category status.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void cmbStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbStatus.SelectedItem != null)
+            {
+                await LoadCategoriesAsync();
             }
         }
 
