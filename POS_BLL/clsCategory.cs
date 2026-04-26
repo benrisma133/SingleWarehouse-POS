@@ -165,8 +165,27 @@ namespace POS_BLL
             return clsCategoryData.IsCategoryExistByName(name, exceptCategoryID);
         }
 
+        public static bool GetActiveStatus(int categoryID)
+        {
+            return clsCategoryData.GetActiveStatus(categoryID);
+        }
 
-        
+        public static bool SetActiveStatus(int categoryID, bool isActive)
+        {
+            return clsCategoryData.SetActiveStatus(categoryID, isActive);
+        }
+
+        public static int GetDependencies(int categoryID)
+        {
+            return clsCategoryData.GetCategoryDependencies(categoryID);
+        }
+
+        public static bool CanDelete(int categoryID, out int productsCount)
+        {
+            productsCount = clsCategoryData.GetCategoryDependencies(categoryID);
+            return productsCount == 0;
+        }
+
 
     }
 }
